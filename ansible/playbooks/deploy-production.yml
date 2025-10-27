@@ -1,0 +1,75 @@
+---
+# Deploy Notarius to production environment
+- name: Deploy Notarius to production
+  hosts: production
+  become: yes
+  gather_facts: yes
+  
+  vars:
+    environment: production
+    docker_compose_env: production
+    git_branch: main
+    
+  pre_tasks:
+    - name: Update package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Create backup before deployment
+      include_tasks: backup.yml
+
+  roles:
+    - common
+    - docker
+    - security
+    - monitoring
+    - backup
+    - notarius
+
+  post_tasks:
+    - name: Run health checks
+      uri:
+        url: "http://localhost:{{ item.port }}/health/"
+        method: GET
+        status_code: 200
+      loop:
+        - { port: 8000, service: "Notarius API" }
+        - { port: 8001, service: "LexNode API" }
+        - { port: 8002, service: "PII Vault" }
+        - { port: 8003, service: "Intent Engine" }
+      retries: 10
+      delay: 15
+
+    - name: Run smoke tests
+      uri:
+        url: "{{ item.url }}"
+        method: GET
+        status_code: 200
+      loop:
+        - { url: "https://notarius.com/api/health/", service: "Public API" }
+        - { url: "https://notarius.com/", service: "Web UI" }
+      retries: 3
+      delay: 5
+
+    - name: Notify deployment success
+      slack:
+        token: "{{ slack_token }}"
+        channel: "#deployments"
+        msg: "✅ Notarius production deployment successful on {{ inventory_hostname }}"
+      when: slack_token is defined
+
+    - name: Display production deployment info
+      debug:
+        msg: |
+          Production Notarius deployment completed!
+          
+          Access URLs:
+          - Web UI: https://notarius.com
+          - API: https://api.notarius.com
+          - Grafana: https://monitoring.notarius.com
+          
+          Environment: {{ environment }}
+          Git Branch: {{ git_branch }}
+          Deployment Time: {{ ansible_date_time.iso8601 }}
+

@@ -1,0 +1,39 @@
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = ["venv", "node_modules", "dist", "build", "migrations"]
+
+[tool.ruff.lint]
+# Conjunto enxuto porém robusto
+select = [
+  "E","F","W",      # pycodestyle / pyflakes
+  "I",              # isort (imports)
+  "UP",             # pyupgrade
+  "B",              # bugbear
+  "C4",             # comprehensions
+  "SIM",            # simplifications
+  "ARG",            # args não usados
+  "PL",             # alguns checks de pylint
+  "N",              # pep8-naming
+  "RET",            # retornos
+  "DJ",             # flake8-django
+  "Q",              # aspas
+  "RUF",            # regras extras do ruff
+  "DTZ",            # timezone aware
+  "ISC",            # implicit-str-concat
+  "PIE",            # pequenas melhorias
+]
+extend-ignore = ["RUF012", "PLC0415"]
+
+# Se estiver usando o formatter do Ruff, não precisa ignorar E501/E203
+
+[tool.ruff.lint.per-file-ignores]
+# testes: permite assert, etc.
+"tests/**/*.py" = ["S101", "PLR2004"]
+# migrações: ignora tudo
+"**/migrations/*.py" = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+line-ending = "lf"
+docstring-code-format = true

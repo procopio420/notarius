@@ -1,0 +1,277 @@
+version: '3.8'
+
+services:
+  # Databases
+  postgres-notarius:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: notarius_db
+      POSTGRES_USER: notarius
+      POSTGRES_PASSWORD: notarius_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_notarius_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notarius -d notarius_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-lexnode:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: lexnode_db
+      POSTGRES_USER: lexnode
+      POSTGRES_PASSWORD: lexnode_dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_lexnode_data:/var/lib/postgresql/data
+      - ./infra/postgres/init-pgvector.sql:/docker-entrypoint-initdb.d/init-pgvector.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lexnode -d lexnode_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-vault:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: vault_db
+      POSTGRES_USER: vault
+      POSTGRES_PASSWORD: vault_dev
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_vault_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vault -d vault_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Core Services
+  notarius-api:
+    build: 
+      context: ./apps/notarius-api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://notarius:notarius_dev@postgres-notarius:5432/notarius_db
+      - REDIS_URL=redis://redis:6379/0
+      - PII_VAULT_URL=http://pii-vault:8000
+      - INTENT_ENGINE_URL=http://intent-engine:8000
+      - LEXNODE_URL=http://lexnode-api:8000
+      - DEBUG=True
+      - ALLOWED_HOSTS=*
+    depends_on:
+      postgres-notarius:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./apps/notarius-api:/app
+      - ./packages:/packages
+    command: uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --reload
+
+  lexnode-api:
+    build:
+      context: ./apps/lexnode-api
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql://lexnode:lexnode_dev@postgres-lexnode:5432/lexnode_db
+      - REDIS_URL=redis://redis:6379/1
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      postgres-lexnode:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./apps/lexnode-api:/app
+      - ./packages:/packages
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  pii-vault:
+    build:
+      context: ./apps/pii-vault
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=postgresql://vault:vault_dev@postgres-vault:5432/vault_db
+      - KMS_PROVIDER=local
+      - KMS_KEY_ID=dev-key
+    depends_on:
+      postgres-vault:
+        condition: service_healthy
+    volumes:
+      - ./apps/pii-vault:/app
+      - ./packages:/packages
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  intent-engine:
+    build:
+      context: ./apps/intent-engine
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/2
+      - PII_VAULT_URL=http://pii-vault:8000
+      - LEXNODE_URL=http://lexnode-api:8000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      redis:
+        condition: service_healthy
+      pii-vault:
+        condition: service_started
+      lexnode-api:
+        condition: service_started
+    volumes:
+      - ./apps/intent-engine:/app
+      - ./packages:/packages
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  notarius-web:
+    build:
+      context: ./apps/notarius-web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_LEXNODE_URL=http://localhost:8001
+    depends_on:
+      - notarius-api
+    volumes:
+      - ./apps/notarius-web:/app
+      - /app/node_modules
+      - notarius_web_next:/app/.next
+    command: npm run dev
+
+  # API Gateway
+  traefik:
+    image: traefik:v3.0
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./infra/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+
+  # Observability Stack
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infra/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./infra/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  # TRELLIS Metrics Updater
+  trellis-metrics-updater:
+    build: ./apps/notarius-api
+    command: >
+      sh -c "while true; do
+        python manage.py update_trellis_metrics &&
+        sleep 3600;
+      done"
+    environment:
+      - DATABASE_URL=postgresql://notarius:notarius_dev@postgres-notarius:5432/notarius_db
+      - PYTHONPATH=/app
+    depends_on:
+      - postgres-notarius
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "4318:4318"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    volumes:
+      - jaeger_data:/tmp
+
+  # Development Tools
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web UI
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8025"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_notarius_data:
+  postgres_lexnode_data:
+  postgres_vault_data:
+  redis_data:
+  grafana_data:
+  prometheus_data:
+  jaeger_data:
+  minio_data:
+  notarius_web_next:

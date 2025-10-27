@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documento Legal - {{ minuta.id }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 1em;
+            margin-bottom: 2em;
+        }
+        
+        .header h1 {
+            font-size: 18pt;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .header .subtitle {
+            font-size: 12pt;
+            margin-top: 0.5em;
+            color: #666;
+        }
+        
+        .document-info {
+            margin-bottom: 2em;
+            padding: 1em;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        
+        .document-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .document-info td {
+            padding: 0.25em 0.5em;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .document-info td:first-child {
+            font-weight: bold;
+            width: 30%;
+        }
+        
+        .content {
+            margin-bottom: 2em;
+        }
+        
+        .content h1, .content h2, .content h3 {
+            color: #000;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        
+        .content h1 { 
+            font-size: 16pt; 
+            font-weight: bold;
+        }
+        
+        .content h2 { 
+            font-size: 14pt; 
+            font-weight: bold;
+        }
+        
+        .content h3 { 
+            font-size: 12pt; 
+            font-weight: bold;
+        }
+        
+        .content p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        
+        .content ul, .content ol {
+            margin-bottom: 1em;
+            padding-left: 2em;
+        }
+        
+        .content li {
+            margin-bottom: 0.5em;
+        }
+        
+        .citation {
+            background-color: #f5f5f5;
+            border-left: 3px solid #007acc;
+            padding: 0.5em;
+            margin: 0.5em 0;
+            font-size: 10pt;
+            page-break-inside: avoid;
+        }
+        
+        .citation .source {
+            font-weight: bold;
+            color: #007acc;
+        }
+        
+        .citation .snippet {
+            font-style: italic;
+            margin-top: 0.25em;
+        }
+        
+        .footer {
+            text-align: center;
+            border-top: 1px solid #ccc;
+            padding-top: 1em;
+            margin-top: 2em;
+            font-size: 10pt;
+            color: #666;
+        }
+        
+        .signature-section {
+            margin-top: 3em;
+            page-break-inside: avoid;
+        }
+        
+        .signature-line {
+            border-bottom: 1px solid #000;
+            width: 300px;
+            margin: 2em 0 0.5em 0;
+        }
+        
+        .signature-label {
+            font-size: 10pt;
+            text-align: center;
+        }
+        
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 48pt;
+            color: rgba(0, 0, 0, 0.1);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .confidence-badge {
+            display: inline-block;
+            padding: 0.25em 0.5em;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            border-radius: 4px;
+            font-size: 10pt;
+            font-weight: bold;
+        }
+        
+        .page-break {
+            page-break-before: always;
+        }
+        
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Watermark for draft documents -->
+    {% if minuta.status != 'finalizado' %}
+    <div class="watermark">MINUTA - NÃO VÁLIDO</div>
+    {% endif %}
+    
+    <!-- Header -->
+    <div class="header">
+        <h1>DOCUMENTO LEGAL</h1>
+        <div class="subtitle">
+            Gerado em {{ generated_at|date:"d/m/Y H:i" }} | 
+            Confiança: <span class="confidence-badge">{{ grounding_confidence|floatformat:0 }}%</span>
+        </div>
+    </div>
+    
+    <!-- Document Information -->
+    <div class="document-info">
+        <table>
+            <tr>
+                <td>ID da Minuta:</td>
+                <td>{{ minuta.id }}</td>
+            </tr>
+            <tr>
+                <td>Versão:</td>
+                <td>{{ minuta.versao }}</td>
+            </tr>
+            <tr>
+                <td>Status:</td>
+                <td>{{ minuta.get_status_display }}</td>
+            </tr>
+            <tr>
+                <td>Gerada por:</td>
+                <td>{{ minuta.get_gerada_por_display }}</td>
+            </tr>
+            <tr>
+                <td>Processo:</td>
+                <td>{{ minuta.processo.id }}</td>
+            </tr>
+            {% if minuta.approved_by %}
+            <tr>
+                <td>Aprovado por:</td>
+                <td>{{ minuta.approved_by.get_full_name|default:minuta.approved_by.username }}</td>
+            </tr>
+            <tr>
+                <td>Data de aprovação:</td>
+                <td>{{ minuta.approved_at|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% endif %}
+            {% if minuta.finalized_at %}
+            <tr>
+                <td>Data de finalização:</td>
+                <td>{{ minuta.finalized_at|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="content">
+        {{ content|safe }}
+    </div>
+    
+    <!-- Citations Section -->
+    {% if citations %}
+    <div class="page-break">
+        <h2>Referências Legais</h2>
+        <p>Este documento foi fundamentado nas seguintes disposições legais:</p>
+        
+        {% for citation in citations %}
+        <div class="citation">
+            <div class="source">
+                {{ citation.title }} - {{ citation.anchor }}
+            </div>
+            <div class="snippet">
+                "{{ citation.snippet }}"
+            </div>
+            <div style="margin-top: 0.5em; font-size: 9pt; color: #666;">
+                Vigente desde {{ citation.effective_date|date:"d/m/Y" }} | 
+                Status: {{ citation.status }} | 
+                Confiança: {{ citation.confidence|floatformat:0 }}%
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Signature Section -->
+    <div class="signature-section">
+        <h2>Assinaturas</h2>
+        
+        <div style="margin-top: 2em;">
+            <div class="signature-line"></div>
+            <div class="signature-label">Outorgante</div>
+        </div>
+        
+        <div style="margin-top: 2em;">
+            <div class="signature-line"></div>
+            <div class="signature-label">Outorgado</div>
+        </div>
+        
+        <div style="margin-top: 2em;">
+            <div class="signature-line"></div>
+            <div class="signature-label">Tabelião</div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>
+            Documento gerado automaticamente pelo sistema Notarius<br>
+            Para dúvidas, entre em contato com o cartório responsável
+        </p>
+        <p>
+            Hash do documento: {{ minuta.skeleton_cache_key }}<br>
+            Gerado em {{ generated_at|date:"d/m/Y H:i:s" }}
+        </p>
+    </div>
+</body>
+</html>

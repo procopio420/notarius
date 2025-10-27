@@ -1,0 +1,67 @@
+# Prometheus configuration
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "rules/*.yml"
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Notarius API
+  - job_name: 'notarius-api'
+    static_configs:
+      - targets: ['notarius-api:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # LexNode API
+  - job_name: 'lexnode-api'
+    static_configs:
+      - targets: ['lexnode-api:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # PII Vault
+  - job_name: 'pii-vault'
+    static_configs:
+      - targets: ['pii-vault:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Intent Engine
+  - job_name: 'intent-engine'
+    static_configs:
+      - targets: ['intent-engine:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Node Exporter (if available)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # cAdvisor (if available)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # Traefik
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['traefik:8080']
+    metrics_path: '/metrics'
+
+  # PostgreSQL
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  # Redis
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']

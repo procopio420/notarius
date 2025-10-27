@@ -1,0 +1,116 @@
+# Example Terraform variables file for Notarius production deployment
+# Copy this file to terraform.tfvars and update the values
+
+# General configuration
+aws_region     = "us-east-1"
+aws_account_id = "123456789012"
+project_name   = "notarius"
+environment    = "production"
+
+# Database configuration
+db_instance_class        = "db.t3.small"
+db_allocated_storage     = 100
+db_max_allocated_storage = 1000
+db_password             = "your-secure-database-password"
+db_username             = "notarius"
+db_name                 = "notarius"
+
+# Redis configuration
+redis_node_type        = "cache.t3.small"
+redis_num_cache_nodes  = 1
+
+# ECS configuration
+ecs_task_cpu           = 512
+ecs_task_memory        = 1024
+ecs_desired_count      = 2
+ecs_min_capacity       = 1
+ecs_max_capacity       = 10
+
+# Load Balancer configuration
+ssl_certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012"
+domain_name        = "notarius.example.com"
+
+# S3 configuration
+s3_bucket_name           = "notarius-production-documents"
+s3_versioning_enabled    = true
+s3_encryption_enabled    = true
+
+# KMS configuration
+kms_key_description = "KMS key for Notarius production encryption"
+kms_key_usage       = "ENCRYPT_DECRYPT"
+kms_key_spec        = "SYMMETRIC_DEFAULT"
+
+# Secrets Manager configuration
+secret_key                = "your-django-secret-key"
+secrets_rotation_days     = 30
+
+# CloudWatch configuration
+log_retention_days        = 30
+enable_cloudwatch_alarms  = true
+
+# Monitoring configuration
+enable_monitoring  = true
+monitoring_email   = "admin@example.com"
+
+# Backup configuration
+enable_backups           = true
+backup_retention_days    = 7
+backup_window           = "03:00-04:00"
+maintenance_window      = "sun:04:00-sun:05:00"
+
+# Security configuration
+enable_encryption_at_rest   = true
+enable_encryption_in_transit = true
+enable_vpc_flow_logs        = true
+
+# Networking configuration
+enable_nat_gateway    = true
+enable_vpn_gateway    = false
+enable_dns_hostnames  = true
+enable_dns_support    = true
+
+# Auto Scaling configuration
+enable_auto_scaling                    = true
+auto_scaling_scale_up_cooldown        = 300
+auto_scaling_scale_down_cooldown      = 300
+auto_scaling_target_cpu_utilization   = 70
+auto_scaling_target_memory_utilization = 80
+
+# Container configuration
+container_image_tag                        = "latest"
+container_health_check_grace_period       = 300
+container_deployment_maximum_percent      = 200
+container_deployment_minimum_healthy_percent = 100
+
+# Environment-specific configuration
+django_debug                    = false
+django_allowed_hosts           = ["notarius.example.com", "*.notarius.example.com"]
+django_cors_allowed_origins    = ["https://notarius.example.com"]
+django_cors_allowed_credentials = true
+
+# Feature flags
+enable_pii_vault      = true
+enable_lexnode        = true
+enable_intent_engine  = true
+enable_observability  = true
+
+# Cost optimization
+enable_spot_instances      = false
+enable_scheduled_scaling   = false
+scheduled_scaling_schedule = "cron(0 8 * * MON-FRI)"
+
+# Compliance
+enable_compliance_monitoring = true
+compliance_retention_days    = 2555  # 7 years
+enable_audit_logging         = true
+
+# Disaster recovery
+enable_multi_az           = true
+enable_cross_region_backup = false
+backup_region             = "us-west-2"
+
+# Performance
+enable_performance_insights      = true
+performance_insights_retention_days = 7
+enable_enhanced_monitoring       = true
+enhanced_monitoring_interval     = 60

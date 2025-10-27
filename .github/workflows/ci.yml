@@ -1,0 +1,563 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  # Linting and Code Quality
+  lint:
+    name: Lint and Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load Poetry cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install Python dependencies
+        run: |
+          poetry install --no-interaction --no-root
+          poetry run pip install black isort flake8 mypy bandit safety
+
+      - name: Install Node.js dependencies
+        run: |
+          cd apps/notarius-web
+          npm ci
+
+      - name: Run Python linting
+        run: |
+          poetry run black --check .
+          poetry run isort --check-only .
+          poetry run flake8 .
+          poetry run mypy .
+
+      - name: Run Node.js linting
+        run: |
+          cd apps/notarius-web
+          npm run lint
+
+      - name: Run security checks
+        run: |
+          poetry run bandit -r apps/ packages/
+          poetry run safety check
+
+  # Unit Tests
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_notarius
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load Poetry cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install Python dependencies
+        run: |
+          poetry install --no-interaction --no-root
+          poetry run pip install pytest pytest-cov pytest-asyncio
+
+      - name: Install Node.js dependencies
+        run: |
+          cd apps/notarius-web
+          npm ci
+
+      - name: Run Python tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_notarius
+          REDIS_URL: redis://localhost:6379
+          SECRET_KEY: test-secret-key
+          DJANGO_SETTINGS_MODULE: notarius.settings.testing
+        run: |
+          poetry run pytest tests/ -v --cov=apps --cov=packages --cov-report=xml --cov-report=html
+
+      - name: Run Node.js tests
+        run: |
+          cd apps/notarius-web
+          npm test
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  # Integration Tests
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_notarius
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load Poetry cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install Python dependencies
+        run: |
+          poetry install --no-interaction --no-root
+          poetry run pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_notarius
+          REDIS_URL: redis://localhost:6379
+          SECRET_KEY: test-secret-key
+          DJANGO_SETTINGS_MODULE: notarius.settings.testing
+        run: |
+          poetry run pytest tests/integration/ -v
+
+  # PII Protection Tests
+  pii-test:
+    name: PII Protection Tests
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load Poetry cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install Python dependencies
+        run: |
+          poetry install --no-interaction --no-root
+          poetry run pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run PII protection tests
+        env:
+          SECRET_KEY: test-secret-key
+          DJANGO_SETTINGS_MODULE: notarius.settings.testing
+        run: |
+          poetry run pytest tests/pii/ -v
+
+  # Contract Tests
+  contract-test:
+    name: Contract Tests
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load Poetry cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install Python dependencies
+        run: |
+          poetry install --no-interaction --no-root
+          poetry run pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run contract tests
+        env:
+          SECRET_KEY: test-secret-key
+          DJANGO_SETTINGS_MODULE: notarius.settings.testing
+        run: |
+          poetry run pytest tests/contract/ -v
+
+  # End-to-End Tests
+  e2e-test:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: [lint, test, integration-test, pii-test, contract-test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load Poetry cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install Python dependencies
+        run: |
+          poetry install --no-interaction --no-root
+          poetry run pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run E2E tests
+        env:
+          SECRET_KEY: test-secret-key
+          DJANGO_SETTINGS_MODULE: notarius.settings.testing
+        run: |
+          poetry run pytest tests/e2e/ -v
+
+  # Build Docker Images
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [lint, test, integration-test, pii-test, contract-test, e2e-test]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    strategy:
+      matrix:
+        service: [notarius-api, pii-vault, lexnode-api, intent-engine]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ matrix.service }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            --tag $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            --push \
+            apps/$ECR_REPOSITORY/
+
+  # Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy to staging
+        run: |
+          cd infra/terraform
+          terraform init
+          terraform plan -var-file=staging.tfvars
+          terraform apply -var-file=staging.tfvars -auto-approve
+
+  # Deploy to Production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy to production
+        run: |
+          cd infra/terraform
+          terraform init
+          terraform plan -var-file=production.tfvars
+          terraform apply -var-file=production.tfvars -auto-approve
+
+  # Security Scan
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Performance Tests
+  performance-test:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load Poetry cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install Python dependencies
+        run: |
+          poetry install --no-interaction --no-root
+          poetry run pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run performance tests
+        env:
+          STAGING_URL: ${{ secrets.STAGING_URL }}
+        run: |
+          poetry run pytest tests/performance/ -v
+
+  # RAG Evaluation
+  rag-evaluation:
+    name: RAG Evaluation
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load Poetry cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install Python dependencies
+        run: |
+          poetry install --no-interaction --no-root
+          poetry run pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run RAG evaluation
+        env:
+          STAGING_URL: ${{ secrets.STAGING_URL }}
+        run: |
+          poetry run python -m tests.evaluation.evaluation_runner
+
+  # Notify on Success
+  notify-success:
+    name: Notify Success
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: github.ref == 'refs/heads/main' && always()
+    steps:
+      - name: Notify deployment success
+        run: |
+          echo "Deployment to production successful!"
+          # Add notification logic here (Slack, email, etc.)
+
+  # Notify on Failure
+  notify-failure:
+    name: Notify Failure
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Notify deployment failure
+        run: |
+          echo "Deployment failed!"
+          # Add notification logic here (Slack, email, etc.)

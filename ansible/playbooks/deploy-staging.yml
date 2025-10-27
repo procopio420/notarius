@@ -1,0 +1,52 @@
+---
+# Deploy Notarius to staging environment
+- name: Deploy Notarius to staging
+  hosts: staging
+  become: yes
+  gather_facts: yes
+  
+  vars:
+    environment: staging
+    docker_compose_env: staging
+    git_branch: develop
+    
+  pre_tasks:
+    - name: Update package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+  roles:
+    - common
+    - docker
+    - security
+    - monitoring
+    - notarius
+
+  post_tasks:
+    - name: Run health checks
+      uri:
+        url: "http://localhost:{{ item.port }}/health/"
+        method: GET
+        status_code: 200
+      loop:
+        - { port: 8000, service: "Notarius API" }
+        - { port: 8001, service: "LexNode API" }
+        - { port: 8002, service: "PII Vault" }
+        - { port: 8003, service: "Intent Engine" }
+      retries: 5
+      delay: 10
+
+    - name: Display staging deployment info
+      debug:
+        msg: |
+          Staging Notarius deployment completed!
+          
+          Access URLs:
+          - Web UI: https://staging.notarius.com
+          - API: https://api-staging.notarius.com
+          - Grafana: https://monitoring-staging.notarius.com
+          
+          Environment: {{ environment }}
+          Git Branch: {{ git_branch }}
+

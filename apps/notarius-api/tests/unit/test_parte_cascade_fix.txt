@@ -1,0 +1,13 @@
+    def test_parte_cascade_delete(self):
+        """Test that deleting tenant cascades to partes."""
+        parte = Parte.objects.create(
+            tenant=self.tenant,
+            tipo="pf",
+            nome_token="PII_NOME_abc"
+        )
+        
+        parte_id = parte.id
+        self.tenant.delete()
+        
+        with self.assertRaises(Parte.DoesNotExist):
+            Parte.objects.get(id=parte_id)

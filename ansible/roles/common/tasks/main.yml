@@ -1,0 +1,66 @@
+---
+# Common system setup tasks
+- name: Install essential packages
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - vim
+      - htop
+      - unzip
+      - software-properties-common
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Create project directory
+  file:
+    path: "{{ project_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Create log directory
+  file:
+    path: "{{ log_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Create backup directory
+  file:
+    path: "{{ backup_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Set timezone
+  timezone:
+    name: "{{ timezone | default('UTC') }}"
+
+- name: Configure NTP
+  systemd:
+    name: systemd-timesyncd
+    state: started
+    enabled: yes
+
+- name: Set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+  when: environment != "local"
+
+- name: Update /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "127.0.0.1 {{ inventory_hostname }}"
+    state: present
+  when: environment != "local"
+

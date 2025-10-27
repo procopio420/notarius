@@ -1,0 +1,114 @@
+---
+# Security hardening tasks
+- name: Configure UFW firewall
+  ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+  when: firewall_enabled | default(true)
+
+- name: Allow SSH
+  ufw:
+    rule: allow
+    port: "22"
+    proto: tcp
+
+- name: Allow HTTP
+  ufw:
+    rule: allow
+    port: "80"
+    proto: tcp
+
+- name: Allow HTTPS
+  ufw:
+    rule: allow
+    port: "443"
+    proto: tcp
+
+- name: Allow application ports
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - "3000"  # Web UI
+    - "8000"  # API
+    - "8001"  # LexNode
+    - "8002"  # PII Vault
+    - "8003"  # Intent Engine
+    - "3001"  # Grafana
+    - "9090"  # Prometheus
+  when: environment == "local"
+
+- name: Install fail2ban
+  apt:
+    name: fail2ban
+    state: present
+  when: fail2ban_enabled | default(true) and ansible_os_family == "Debian"
+
+- name: Configure fail2ban
+  copy:
+    content: |
+      [DEFAULT]
+      bantime = 3600
+      findtime = 600
+      maxretry = 3
+      backend = systemd
+
+      [sshd]
+      enabled = true
+      port = ssh
+      filter = sshd
+      logpath = /var/log/auth.log
+      maxretry = 3
+    dest: /etc/fail2ban/jail.local
+    mode: '0644'
+  when: fail2ban_enabled | default(true)
+
+- name: Start and enable fail2ban
+  systemd:
+    name: fail2ban
+    state: started
+    enabled: yes
+  when: fail2ban_enabled | default(true)
+
+- name: Configure automatic security updates
+  apt:
+    name: unattended-upgrades
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Enable automatic security updates
+  copy:
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+      APT::Periodic::AutocleanInterval "7";
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    mode: '0644'
+  when: ansible_os_family == "Debian"
+
+- name: Disable root login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: 'PermitRootLogin no'
+    state: present
+  notify: restart ssh
+
+- name: Disable password authentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+    state: present
+  notify: restart ssh
+
+- name: Set SSH port
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?Port'
+    line: 'Port 22'
+    state: present
+  notify: restart ssh
+

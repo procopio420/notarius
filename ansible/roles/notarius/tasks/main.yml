@@ -1,0 +1,112 @@
+---
+# Notarius application deployment tasks
+- name: Clone Notarius repository
+  git:
+    repo: "{{ repository_url | default('https://github.com/your-org/notarius.git') }}"
+    dest: "{{ project_dir }}"
+    version: "{{ git_branch | default('main') }}"
+    force: yes
+  when: environment != "local"
+
+- name: Copy local project files
+  synchronize:
+    src: "{{ playbook_dir }}/../../"
+    dest: "{{ project_dir }}"
+    delete: yes
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=node_modules"
+      - "--exclude=__pycache__"
+      - "--exclude=.pytest_cache"
+      - "--exclude=venv"
+  when: environment == "local"
+
+- name: Create environment file
+  template:
+    src: "{{ docker_compose_env }}.env.j2"
+    dest: "{{ project_dir }}/.env"
+    mode: '0600'
+  when: environment != "local"
+
+- name: Create local environment file
+  copy:
+    src: "{{ playbook_dir }}/../../.env.example"
+    dest: "{{ project_dir }}/.env"
+    mode: '0600'
+  when: environment == "local"
+
+- name: Set proper ownership
+  file:
+    path: "{{ project_dir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+
+- name: Build Docker images
+  docker_compose:
+    project_src: "{{ project_dir }}"
+    build: yes
+    pull: yes
+  become_user: "{{ ansible_user }}"
+
+- name: Start Notarius services
+  docker_compose:
+    project_src: "{{ project_dir }}"
+    state: present
+    recreate: always
+  become_user: "{{ ansible_user }}"
+
+- name: Wait for services to be ready
+  wait_for:
+    port: "{{ item }}"
+    host: localhost
+    timeout: 60
+  loop:
+    - "8000"  # Notarius API
+    - "8001"  # LexNode API
+    - "8002"  # PII Vault
+    - "8003"  # Intent Engine
+    - "3000"  # Web UI
+
+- name: Run database migrations
+  docker_compose:
+    project_src: "{{ project_dir }}"
+    command: "python manage.py migrate"
+    services:
+      - notarius-api
+  become_user: "{{ ansible_user }}"
+
+- name: Collect static files
+  docker_compose:
+    project_src: "{{ project_dir }}"
+    command: "python manage.py collectstatic --noinput"
+    services:
+      - notarius-api
+  become_user: "{{ ansible_user }}"
+
+- name: Create superuser
+  docker_compose:
+    project_src: "{{ project_dir }}"
+    command: "python manage.py createsuperuser --noinput --username admin --email admin@notarius.com"
+    services:
+      - notarius-api
+  become_user: "{{ ansible_user }}"
+  ignore_errors: yes
+
+- name: Create systemd service for Notarius
+  template:
+    src: notarius.service.j2
+    dest: /etc/systemd/system/notarius.service
+    mode: '0644'
+  when: environment != "local"
+  notify:
+    - reload systemd
+    - enable notarius service
+
+- name: Start Notarius systemd service
+  systemd:
+    name: notarius
+    state: started
+    enabled: yes
+  when: environment != "local"
+

@@ -1,0 +1,13 @@
+    def test_processo_cascade_delete(self):
+        """Test that deleting tenant cascades to processos."""
+        processo = Processo.objects.create(
+            tenant=self.tenant,
+            tipo_ato="procuracao",
+            status="rascunho"
+        )
+        
+        processo_id = processo.id
+        self.tenant.delete()
+        
+        with self.assertRaises(Processo.DoesNotExist):
+            Processo.objects.get(id=processo_id)
