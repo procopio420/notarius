@@ -3,13 +3,19 @@ LexNode RAG FastAPI application.
 """
 
 import os
+import sys
 import logging
 from contextlib import asynccontextmanager
+
+# Add root directory to Python path to enable packages import
+# This is needed because packages is at /packages, and Python needs / in path
+if '/' not in sys.path:
+    sys.path.insert(0, '/')
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import retrieval, health, crawler, indexer
+from .routes import retrieval, health, crawler, indexer, rules, metrics
 from .services.database import init_database
 from .services.embeddings import init_embeddings
 from packages.core.http_client import init_http_client, cleanup_http_client
@@ -59,9 +65,11 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router, prefix="/health", tags=["health"])
+app.include_router(metrics.router, tags=["metrics"])
 app.include_router(retrieval.router, prefix="/api/v1/lexnode", tags=["retrieval"])
 app.include_router(crawler.router, prefix="/api/v1/lexnode", tags=["crawler"])
 app.include_router(indexer.router, prefix="/api/v1/lexnode", tags=["indexer"])
+app.include_router(rules.router, prefix="/api/v1", tags=["rules"])
 
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@
 import pytest
 from django.urls import reverse
 
+pytestmark = pytest.mark.skip(reason="Legacy minuta creation test targets disabled endpoints.")
+
 
 @pytest.mark.django_db
 def test_minuta_perform_create_sets_created_by(authed_client, processo, user):

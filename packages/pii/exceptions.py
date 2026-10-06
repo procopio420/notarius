@@ -33,6 +33,20 @@ class PIIValidationException(NotariusException):
         )
 
 
+class PIILeakException(NotariusException):
+    """Raised when PII is detected after extraction (potential leak)."""
+    
+    def __init__(self, message: str, text: str = None, extracted_pii: list = None):
+        super().__init__(
+            message=message,
+            error_code="PII_LEAK_ERROR",
+            details={
+                "text": text,
+                "extracted_pii": extracted_pii,
+            }
+        )
+
+
 class MorphEngineException(NotariusException):
     """Raised when Portuguese morphology processing fails."""
     

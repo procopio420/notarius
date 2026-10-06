@@ -2,8 +2,17 @@
 Health check endpoints for Intent Engine service.
 """
 
+import sys
+import os
+
+# Ensure root directory is in path to enable packages import
+if '/' not in sys.path:
+    sys.path.insert(0, '/')
+
 from fastapi import APIRouter
+from fastapi.responses import Response
 from packages.core.service_base import health_check_all_services
+from packages.observability.metrics import get_metrics_collector
 
 router = APIRouter()
 

@@ -3,12 +3,27 @@
 from django.core.management.base import BaseCommand
 from django.db.models import Count, Avg, Q, F
 from datetime import datetime, timedelta
-from apps.documentos.models import TRELLISInteractionLog, TRELLISClusterMetrics
+from apps.analytics.models import TRELLISInteractionLog, TRELLISClusterMetrics
 
 class Command(BaseCommand):
     help = 'Update TRELLIS cluster metrics for prioritization'
     
     def handle(self, *args, **options):
+        # Check if tables exist
+        from django.db import connection
+        try:
+            tables = connection.introspection.table_names()
+            if 'trellis_interaction_log' not in tables:
+                self.stdout.write(
+                    self.style.WARNING('TRELLIS tables do not exist. Run migrations first.')
+                )
+                return
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR(f'Error checking tables: {e}')
+            )
+            return
+        
         # Get all unique clusters
         clusters = TRELLISInteractionLog.objects.values_list('matched_cluster', flat=True).distinct()
         

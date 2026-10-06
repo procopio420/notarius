@@ -11,7 +11,8 @@ from django.db import transaction
 from apps.tenancy.models import Tenant
 from apps.processos.models import Processo
 from apps.partes.models import Parte
-from apps.documentos.models import Documento, Minuta, DocumentTemplate
+from apps.documentos.models import Documento, Minuta
+from apps.templates.models import DocumentTemplate
 
 from .factories import (
     TenantFactory, UserFactory, ProcessoFactory, ParteFactory,

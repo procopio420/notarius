@@ -23,7 +23,8 @@ COPY requirements.txt requirements-test.txt ./
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+    pip install -r requirements.txt && \
+    python -m spacy download pt_core_news_sm
 
 # Development stage
 FROM base as development

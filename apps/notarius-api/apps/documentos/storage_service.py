@@ -25,15 +25,40 @@ class StorageService:
         self.bucket_name = settings.AWS_STORAGE_BUCKET_NAME
         
         if self.use_s3 and BOTO3_AVAILABLE:
+            # Use internal endpoint for connections
+            endpoint_url = getattr(settings, 'AWS_S3_INTERNAL_ENDPOINT_URL', settings.AWS_S3_ENDPOINT_URL)
             self.s3_client = boto3.client(
                 's3',
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                 aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
                 region_name=settings.AWS_S3_REGION_NAME,
-                endpoint_url=settings.AWS_S3_ENDPOINT_URL,  # For R2 or other S3-compatible services
+                endpoint_url=endpoint_url,  # For MinIO or other S3-compatible services
             )
+            # Ensure bucket exists
+            self._ensure_bucket_exists()
         else:
             self.s3_client = None
+
+    def _ensure_bucket_exists(self):
+        """Ensure the S3 bucket exists, create it if it doesn't."""
+        if not self.use_s3 or not self.s3_client:
+            return
+            
+        try:
+            self.s3_client.head_bucket(Bucket=self.bucket_name)
+            print(f"Bucket {self.bucket_name} already exists")
+        except ClientError as e:
+            error_code = e.response['Error']['Code']
+            if error_code in ['404', 'NoSuchBucket']:
+                # Bucket doesn't exist, create it
+                try:
+                    print(f"Creating bucket {self.bucket_name}...")
+                    self.s3_client.create_bucket(Bucket=self.bucket_name)
+                    print(f"Successfully created bucket {self.bucket_name}")
+                except ClientError as create_error:
+                    print(f"Failed to create bucket {self.bucket_name}: {create_error}")
+            else:
+                print(f"Error checking bucket {self.bucket_name}: {e}")
 
     def upload_file(
         self, 

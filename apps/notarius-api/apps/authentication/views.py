@@ -1,18 +1,22 @@
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes, throttle_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from rest_framework.throttling import AnonRateThrottle
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from .serializers import LoginSerializer, RegisterSerializer, UserSerializer, UserTenantAssociationSerializer
 from apps.tenancy.models import Tenant
+from apps.auditoria.models import AuditLog
 
 User = get_user_model()
 
 
 @api_view(['POST'])
+@authentication_classes([])  # Disable authentication - don't check tokens on login
 @permission_classes([AllowAny])
 def login_view(request):
     """Login endpoint"""
@@ -56,32 +60,100 @@ def login_view(request):
     })
 
 
+class RegisterThrottle(AnonRateThrottle):
+    """Throttle for registration endpoint - allows more registrations in development"""
+    rate = '100/hour' if settings.DEBUG else '10/hour'
+
+
 @api_view(['POST'])
+@authentication_classes([])  # Disable authentication - don't check tokens on register
 @permission_classes([AllowAny])
+@throttle_classes([RegisterThrottle])
 def register_view(request):
-    """Register endpoint"""
+    """Register endpoint with cartório (tenant) support"""
     serializer = RegisterSerializer(data=request.data)
     
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     try:
+        # Extract cartorio_id before creating user
+        cartorio_id = serializer.validated_data.get('cartorio_id')
+        email = serializer.validated_data['email']
+        
+        # Create user
         user = serializer.save()
         
-        # Create token for the new user
-        token, created = Token.objects.get_or_create(user=user)
-        
-        return Response({
-            'token': token.key,
-            'user': UserSerializer(user).data,
-            'message': 'Account created successfully'
-        }, status=status.HTTP_201_CREATED)
+        # Handle tenant membership
+        if cartorio_id:
+            try:
+                tenant = Tenant.objects.get(id=cartorio_id)
+                # Add tenant to user's accessible tenants
+                user.profile.tenants.add(tenant)
+                # Set as default tenant
+                user.profile.default_tenant = tenant
+                user.profile.save()
+                
+                # Create audit log for registration with tenant
+                try:
+                    AuditLog.objects.create(
+                        tenant=tenant,
+                        actor=user,
+                        resource_type="user",
+                        resource_id=user.id,
+                        action="register",
+                        ip=get_client_ip(request),
+                        user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                        extra={
+                            'email': email,
+                            'cartorio_id': str(cartorio_id),
+                        }
+                    )
+                except Exception:
+                    # If audit log fails, don't fail registration
+                    pass
+                
+                # Create token for the new user
+                token, created = Token.objects.get_or_create(user=user)
+                
+                return Response({
+                    'status': 'ACTIVE',
+                    'redirect': '/inbox',
+                    'token': token.key,
+                    'user': UserSerializer(user).data,
+                }, status=status.HTTP_201_CREATED)
+            except Tenant.DoesNotExist:
+                return Response(
+                    {'detail': 'Cartório not found'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            # No tenant selected - user requested new cartório
+            # Create token for the new user
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return Response({
+                'status': 'NO_CARTORIO',
+                'redirect': '/onboarding/pending-cartorio',
+                'token': token.key,
+                'user': UserSerializer(user).data,
+            }, status=status.HTTP_201_CREATED)
         
     except Exception as e:
         return Response(
             {'detail': str(e)}, 
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+def get_client_ip(request):
+    """Get client IP address from request"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 
 @api_view(['POST'])

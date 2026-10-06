@@ -18,13 +18,14 @@ class RegisterSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
     first_name = serializers.CharField(max_length=30)
     last_name = serializers.CharField(max_length=30)
-    cpf = serializers.CharField(max_length=14)
-    phone = serializers.CharField(max_length=20)
+    cpf_hash = serializers.CharField(max_length=64, required=False, allow_blank=True)
+    phone_hash = serializers.CharField(max_length=64, required=False, allow_blank=True)
+    cartorio_id = serializers.UUIDField(required=False, allow_null=True)
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password', 'confirm_password', 
-                 'first_name', 'last_name', 'cpf', 'phone')
+                 'first_name', 'last_name', 'cpf_hash', 'phone_hash', 'cartorio_id')
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
@@ -41,9 +42,34 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Email already exists")
         return value
 
+    def validate_cpf_hash(self, value):
+        """Validate that cpf_hash is a valid SHA256 hex string (64 chars)"""
+        if value and len(value) != 64:
+            raise serializers.ValidationError("cpf_hash must be a 64-character hex string (SHA256)")
+        if value:
+            try:
+                int(value, 16)  # Check if it's valid hex
+            except ValueError:
+                raise serializers.ValidationError("cpf_hash must be a valid hex string")
+        return value
+
+    def validate_phone_hash(self, value):
+        """Validate that phone_hash is a valid SHA256 hex string (64 chars)"""
+        if value and len(value) != 64:
+            raise serializers.ValidationError("phone_hash must be a 64-character hex string (SHA256)")
+        if value:
+            try:
+                int(value, 16)  # Check if it's valid hex
+            except ValueError:
+                raise serializers.ValidationError("phone_hash must be a valid hex string")
+        return value
+
     def create(self, validated_data):
         validated_data.pop('confirm_password')
         password = validated_data.pop('password')
+        cpf_hash = validated_data.pop('cpf_hash', None)
+        phone_hash = validated_data.pop('phone_hash', None)
+        cartorio_id = validated_data.pop('cartorio_id', None)
         
         user = User.objects.create_user(
             username=validated_data['username'],
@@ -53,8 +79,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             last_name=validated_data['last_name'],
         )
         
-        # Store additional fields in user profile if needed
-        # For now, we'll just create the basic user
+        # Store hashed CPF/phone in profile if needed (for future use)
+        # For now, we don't store them as per requirements
         
         return user
 

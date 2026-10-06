@@ -1,14 +1,38 @@
+"""
+Base views for the application, including BaseTenantViewSet and static file serving.
+"""
+
 from rest_framework import permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
 
 from apps.tenancy.tenancy import get_current_tenant
 
 
+def get_tenant_for_request(request):
+    """
+    Resolve tenant from request: X-Tenant-ID / request.tenant, then thread-local,
+    then authenticated user's default_tenant. Returns None if no tenant can be resolved.
+    """
+    tenant = getattr(request, "tenant", None) or get_current_tenant()
+    if tenant is None and request.user.is_authenticated:
+        profile = getattr(request.user, "profile", None)
+        if profile is not None and getattr(profile, "default_tenant_id", None):
+            from apps.tenancy.models import Tenant
+            try:
+                tenant = Tenant.objects.get(pk=profile.default_tenant_id)
+                if profile.can_access_tenant(tenant):
+                    request.tenant = tenant
+                    return tenant
+            except Tenant.DoesNotExist:
+                pass
+    return tenant
+
+
 class BaseTenantViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_tenant(self):
-        return getattr(self.request, "tenant", None) or get_current_tenant()
+        return get_tenant_for_request(self.request)
 
     def _require_tenant(self):
         tenant = self.get_tenant()

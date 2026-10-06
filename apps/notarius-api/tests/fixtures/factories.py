@@ -53,6 +53,12 @@ class ProcessoFactory(factory.django.DjangoModelFactory):
     
     class Meta:
         model = Processo
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        # `created_by` was used in legacy tests; ignore if provided.
+        kwargs.pop("created_by", None)
+        return super()._create(model_class, *args, **kwargs)
     
     tenant = factory.SubFactory(TenantFactory)
     tipo_ato = factory.fuzzy.FuzzyChoice([

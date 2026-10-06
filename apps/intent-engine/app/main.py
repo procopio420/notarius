@@ -4,13 +4,19 @@ Provides NLP intent parsing, draft generation, and PII extraction.
 """
 
 import os
+import sys
 import logging
 from contextlib import asynccontextmanager
+
+# Add root directory to Python path to enable packages import
+# This is needed because packages is at /packages, and Python needs / in path
+if '/' not in sys.path:
+    sys.path.insert(0, '/')
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import health, intent, draft, pii_extraction, rewrite, trellis
+from .routes import health, intent, draft, pii_extraction, rewrite, trellis, metrics
 # OpenAI client is now handled by LLMService
 from .services.llm import init_llm
 from .services.rewrite_service import init_rewrite_service
@@ -64,6 +70,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router, prefix="/health", tags=["health"])
+app.include_router(metrics.router, tags=["metrics"])
 app.include_router(intent.router, prefix="/api/v1", tags=["intent"])
 app.include_router(draft.router, prefix="/api/v1", tags=["draft"])
 app.include_router(pii_extraction.router, prefix="/api/v1", tags=["pii"])

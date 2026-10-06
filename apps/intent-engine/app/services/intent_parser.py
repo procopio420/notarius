@@ -4,11 +4,73 @@ Intent parsing service using NLP and AI.
 
 import json
 import logging
+import hashlib
+import os
 from typing import Dict, List, Optional
 
 from .llm import get_llm_service
 
 logger = logging.getLogger(__name__)
+
+
+def hash_pii_for_cache(value: str, salt: Optional[str] = None) -> str:
+    """
+    Hash PII value for caching with salt.
+    
+    Args:
+        value: PII value to hash
+        salt: Optional salt (defaults to env var or default)
+        
+    Returns:
+        Hashed value
+    """
+    if salt is None:
+        salt = os.getenv("PII_HASH_SALT", "default_salt_change_in_production")
+    
+    # Use PBKDF2 for salted hashing
+    return hashlib.pbkdf2_hmac(
+        'sha256',
+        value.encode('utf-8'),
+        salt.encode('utf-8'),
+        100000  # iterations
+    ).hex()
+
+
+def create_cache_key(data: Dict, include_pii: bool = False) -> str:
+    """
+    Create deterministic cache key from data.
+    If include_pii is False, hash PII fields before creating key.
+    
+    Args:
+        data: Data dict
+        include_pii: Whether to include PII in key (should be False for caching)
+        
+    Returns:
+        Cache key string
+    """
+    # PII fields to hash
+    pii_fields = ['cpf', 'cnpj', 'rg', 'endereco', 'matricula', 'nome', 'email', 'phone']
+    
+    # Create a normalized copy
+    normalized = {}
+    for key, value in data.items():
+        key_lower = key.lower()
+        
+        # Hash PII fields
+        if not include_pii and any(pii_field in key_lower for pii_field in pii_fields):
+            if isinstance(value, str) and value:
+                normalized[key] = hash_pii_for_cache(value)
+            elif isinstance(value, dict):
+                # Recursively hash nested PII
+                normalized[key] = create_cache_key(value, include_pii=False)
+            else:
+                normalized[key] = value
+        else:
+            normalized[key] = value
+    
+    # Create deterministic hash of normalized data
+    data_str = json.dumps(normalized, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(data_str.encode('utf-8')).hexdigest()
 
 
 class IntentParser:
@@ -33,7 +95,8 @@ class IntentParser:
     async def parse_intent(
         self,
         intent_text: str,
-        context: Optional[Dict] = None
+        context: Optional[Dict] = None,
+        tenant_id: Optional[str] = None
     ) -> Dict:
         """
         Parse natural language intent.
@@ -59,11 +122,26 @@ class IntentParser:
         try:
             # Call LLM service
             llm_service = get_llm_service()
+            # Convert tenant_id to UUID if provided
+            from uuid import UUID
+            tenant_uuid = None
+            if tenant_id:
+                try:
+                    tenant_uuid = UUID(tenant_id) if isinstance(tenant_id, str) else tenant_id
+                except (ValueError, TypeError):
+                    tenant_uuid = None
+            elif context and 'tenant_id' in context:
+                try:
+                    tenant_uuid = UUID(context['tenant_id']) if isinstance(context['tenant_id'], str) else context['tenant_id']
+                except (ValueError, TypeError):
+                    tenant_uuid = None
+            
             response = await llm_service.chat_completion(
                 messages=messages,
                 model="gpt-4o-mini",
                 temperature=0.3,  # Low temperature for consistency
                 max_tokens=1000,
+                tenant_id=tenant_uuid,
             )
             
             # Parse JSON response

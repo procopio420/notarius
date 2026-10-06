@@ -7,12 +7,6 @@ ENDPOINTS = [
     "processo-parte-list",
     "documento-list",
     "minuta-list",
-    "checklist-list",
-    "financeiro-item-list",
-    "integracao-list",
-    "webhook-list",
-    "webhook-event-list",
-    "ai-chunk-list",
     "auditlog-list",
     "tenant-list",
 ]

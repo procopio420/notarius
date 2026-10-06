@@ -1,0 +1,258 @@
+[
+  {
+    "input_text": "Escritura de compra e venda. Vendedor: Eduardo Rocha, CPF 333.222.111-00. Compradora: Marina Costa, CPF 555.444.333-22. Imóvel: matrícula 12345, 2º RI Curitiba/PR. Preço R$ 450.000, pagamento à vista.",
+    "expected": {
+      "tipo_documento": "escritura_compra_venda",
+      "especialidade": "tabelionato_notas",
+      "campos": {
+        "vendedor": {
+          "nome": "Eduardo Rocha",
+          "cpf": "333.222.111-00"
+        },
+        "comprador": {
+          "nome": "Marina Costa",
+          "cpf": "555.444.333-22"
+        },
+        "imovel": {
+          "matricula": "12345",
+          "ri": "2º RI Curitiba/PR"
+        },
+        "financeiro": {
+          "preco": 450000.00,
+          "moeda": "BRL",
+          "condicao": "avista"
+        }
+      },
+      "checklist": [
+        "Certidão de matrícula (<=30 dias)",
+        "ITBI quitado",
+        "Qualificação/estado civil"
+      ],
+      "citacoes": [
+        "CC/2002",
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "Procuração ad judicia. Outorgante: Pedro Mendes, CPF 987.111.222-33. Outorgada: Ana Beatriz Rocha, OAB/SP 123456. Poderes gerais forenses e receber citação.",
+    "expected": {
+      "tipo_documento": "procuracao_ad_judicia",
+      "especialidade": "tabelionato_notas",
+      "campos": {
+        "outorgante": {
+          "nome": "Pedro Mendes",
+          "cpf": "987.111.222-33"
+        },
+        "procurador": {
+          "nome": "Ana Beatriz Rocha",
+          "oab": "SP-123456"
+        },
+        "poderes": [
+          "gerais_forenses",
+          "receber_citacao"
+        ]
+      },
+      "checklist": [
+        "Documento de identidade",
+        "Qualificação completa"
+      ],
+      "citacoes": [
+        "CC/2002",
+        "Lei 8.906/94"
+      ]
+    }
+  },
+  {
+    "input_text": "Registro de nascimento. Recém-nascida: Helena, 03/10/2025, Barra Mansa/RJ. Mãe: Carla Nunes CPF 22211100055. Pai: João Nunes CPF 33344455566.",
+    "expected": {
+      "tipo_documento": "assento_nascimento",
+      "especialidade": "rcpn",
+      "campos": {
+        "nascido": {
+          "nome": "Helena",
+          "data_nascimento": "2025-10-03",
+          "local": "Barra Mansa/RJ"
+        },
+        "genitores": [
+          {
+            "parentesco": "mae",
+            "nome": "Carla Nunes",
+            "cpf": "222.111.000-55"
+          },
+          {
+            "parentesco": "pai",
+            "nome": "João Nunes",
+            "cpf": "333.444.555-66"
+          }
+        ]
+      },
+      "checklist": [
+        "DNV",
+        "Docs dos genitores",
+        "Definição de sobrenome"
+      ],
+      "citacoes": [
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "RI: Registrar compra e venda. Matrícula 4567 do 1º RI São Paulo/SP. Vendedor: Imobiliária Alfa Ltda CNPJ 12.345.678/0001-00. Comprador: Lucas Procopio CPF 123.456.789-00. Título: escritura 5º Tabelionato 01/09/2025.",
+    "expected": {
+      "tipo_documento": "registro_compra_venda_ri",
+      "especialidade": "registro_imoveis",
+      "campos": {
+        "matricula": "4567",
+        "oficio": "1º RI São Paulo/SP",
+        "titulo": {
+          "tipo": "escritura_publica",
+          "tabelionato": "5º Tabelionato de Notas",
+          "data": "2025-09-01"
+        },
+        "partes": {
+          "vendedor": {
+            "razao_social": "Imobiliária Alfa Ltda",
+            "cnpj": "12.345.678/0001-00"
+          },
+          "comprador": {
+            "nome": "Lucas Procopio",
+            "cpf": "123.456.789-00"
+          }
+        }
+      },
+      "checklist": [
+        "ITBI",
+        "Emolumentos/FRJ/Fund. Estaduais",
+        "Poderes de representação"
+      ],
+      "citacoes": [
+        "Lei 6.015/73",
+        "Normas CGJ/SP"
+      ]
+    }
+  },
+  {
+    "input_text": "Averbação de construção: obra concluída em 20/10/2025 na matrícula 7890 (2º RI Niterói/RJ). Habite-se anexo. Área 180 m².",
+    "expected": {
+      "tipo_documento": "averbacao_construcao",
+      "especialidade": "registro_imoveis",
+      "campos": {
+        "matricula": "7890",
+        "ri": "2º RI Niterói/RJ",
+        "conclusao": "2025-10-20",
+        "area_m2": 180.0,
+        "habite_se": true
+      },
+      "checklist": [
+        "Habite-se/ART-RRT",
+        "Planta/memorial",
+        "Conferir cadastro municipal"
+      ],
+      "citacoes": [
+        "Lei 6.015/73",
+        "Normas CGJ/RJ"
+      ]
+    }
+  },
+  {
+    "input_text": "Registrar contrato de locação residencial por 30 meses. Locador: Bruno Costa CPF 000.111.222-33. Locatária: Ana Lima CPF 444.555.666-77. Imóvel Campinas/SP. Garantia: caução 3 aluguéis.",
+    "expected": {
+      "tipo_documento": "registro_contrato_locacao",
+      "especialidade": "rtd",
+      "campos": {
+        "locador": {
+          "nome": "Bruno Costa",
+          "cpf": "000.111.222-33"
+        },
+        "locatario": {
+          "nome": "Ana Lima",
+          "cpf": "444.555.666-77"
+        },
+        "prazo_meses": 30,
+        "garantia": "caucao_3_alugueis",
+        "imovel": {
+          "cidade": "Campinas",
+          "uf": "SP"
+        }
+      },
+      "checklist": [
+        "Firmas reconhecidas",
+        "Numeração de páginas",
+        "Anexos de vistoria"
+      ],
+      "citacoes": [
+        "Lei do Inquilinato",
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "Notificar extrajudicialmente João Pereira por inadimplemento do contrato de 10/08/2025 com BetaTech Ltda. Prazo 10 dias para purgar a mora.",
+    "expected": {
+      "tipo_documento": "notificacao_extrajudicial",
+      "especialidade": "rtd",
+      "campos": {
+        "notificante": "BetaTech Ltda",
+        "notificado": "João Pereira",
+        "fundamento": "inadimplemento",
+        "prazo": "10 dias"
+      },
+      "checklist": [
+        "Endereço completo",
+        "Cópia do contrato",
+        "Comprovação de entrega"
+      ],
+      "citacoes": [
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "Protesto de duplicata nº 00123 contra Comercial Delta ME, CNPJ 23.456.789/0001-55, valor R$ 12.400, venc. 15/09/2025, praça Rio de Janeiro/RJ.",
+    "expected": {
+      "tipo_documento": "protesto_titulo",
+      "especialidade": "protesto",
+      "campos": {
+        "titulo": {
+          "especie": "duplicata",
+          "numero": "00123",
+          "valor": 12400.00,
+          "vencimento": "2025-09-15"
+        },
+        "devedor": {
+          "razao_social": "Comercial Delta ME",
+          "cnpj": "23.456.789/0001-55"
+        },
+        "praca": "Rio de Janeiro/RJ"
+      },
+      "checklist": [
+        "Apresentação do título/documento representativo",
+        "Custas de distribuição",
+        "Dados para intimação"
+      ],
+      "citacoes": [
+        "Lei 9.492/97"
+      ]
+    }
+  },
+  {
+    "input_text": "Certidão de matrícula/ônus reais da matrícula 222233 do 3º RI Porto Alegre/RS.",
+    "expected": {
+      "tipo_documento": "certidao_onus_reais",
+      "especialidade": "registro_imoveis",
+      "campos": {
+        "matricula": "222233",
+        "ri": "3º RI Porto Alegre/RS"
+      },
+      "checklist": [
+        "Identificar titularidade e ônus",
+        "Emitir certidão dentro do prazo legal"
+      ],
+      "citacoes": [
+        "Lei 6.015/73"
+      ]
+    }
+  }
+]
+

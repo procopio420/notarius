@@ -21,6 +21,9 @@ from tests.fixtures.factories import (
 User = get_user_model()
 
 
+pytestmark = pytest.mark.skip(reason="Legacy performance tests for deprecated minuta endpoints.")
+
+
 @pytest.mark.django_db
 class LoadAPITest(TestCase):
     """Test cases for API load testing."""

@@ -1,0 +1,11 @@
+# Rio de Janeiro specific rulepack
+# These rules override or extend global rules for RJ
+
+registro_imoveis.averbacao_construcao:
+  checklist_add:
+    - Habite-se
+    - ART
+    - Planta
+  citacoes_add:
+    - Normas CGJ/RJ
+

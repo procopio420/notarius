@@ -152,7 +152,7 @@ class LegalTemplate(Base):
     jurisdiction = Column(String(10), nullable=False, index=True)  # "SP", "RJ"
     template_content = Column(Text, nullable=False)  # The actual template text
     schema = Column(JSONB, nullable=True)  # Variable schema definition
-    metadata = Column(JSONB, nullable=True)  # Additional metadata
+    metadata_json = Column(JSONB, nullable=True)  # Additional metadata
     source_url = Column(Text, nullable=True)  # URL where template was found
     relevance_score = Column(Float, nullable=False, default=0.8)  # 0.0 to 1.0
     embedding = Column(Vector(1536), nullable=True)  # For semantic search
@@ -166,4 +166,37 @@ class LegalTemplate(Base):
         Index('idx_template_active', 'is_active'),
         Index('idx_template_relevance', 'relevance_score'),
         Index('idx_template_embedding', 'embedding', postgresql_using='ivfflat'),
+    )
+
+
+class LegalRule(Base):
+    """Model for legal rules with citations and checklist items."""
+    
+    __tablename__ = "legal_rules"
+    
+    id = Column(PostgresUUID(as_uuid=True), primary_key=True, default=uuid4)
+    fonte = Column(String(100), nullable=False, index=True)  # "Lei 6.015/73", "CNJ Provimento X", "CGJ/SP"
+    artigo = Column(String(50), nullable=True, index=True)  # "Art. 123", "Art. 123, §2º"
+    provimento = Column(String(100), nullable=True)  # "Provimento CNJ 123/2024"
+    data = Column(DateTime, nullable=True, index=True)  # Effective date
+    uf = Column(String(2), nullable=True, index=True)  # State jurisdiction (SP, RJ, etc.)
+    document_types = Column(JSONB, nullable=True)  # ["escritura_compra_venda", "registro_compra_venda_ri"]
+    checklist_items = Column(JSONB, nullable=True)  # ["Certidão de matrícula (<=30 dias)", "ITBI quitado"]
+    citation = Column(Text, nullable=False)  # "Lei 6.015/73, Art. 123"
+    precedence = Column(String(20), nullable=False, index=True, default="federal")  # "federal", "state", "internal"
+    content = Column(Text, nullable=False)  # Full rule text
+    embedding = Column(Vector(1536), nullable=True)  # For semantic search
+    metadata_json = Column(JSONB, nullable=True)  # Additional metadata
+    is_active = Column(Boolean, default=True, nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    
+    # Indexes
+    __table_args__ = (
+        Index('idx_rule_fonte_artigo', 'fonte', 'artigo'),
+        Index('idx_rule_doctype', 'document_types', postgresql_using='gin'),  # GIN for JSONB queries
+        Index('idx_rule_uf', 'uf'),  # B-tree for VARCHAR equality queries
+        Index('idx_rule_precedence', 'precedence'),
+        Index('idx_rule_active', 'is_active'),
+        Index('idx_rule_embedding', 'embedding', postgresql_using='ivfflat'),
     )

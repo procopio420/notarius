@@ -28,17 +28,32 @@ from .morph_engine import (
     GenderAgreementEngine,
 )
 
-from .placeholders import (
-    PlaceholderGenerator,
-    PlaceholderResolver,
-    PlaceholderValidator,
-)
+# Optional modules - only import if they exist
+try:
+    from .placeholders import (
+        PlaceholderGenerator,
+        PlaceholderResolver,
+        PlaceholderValidator,
+    )
+    _placeholders_available = True
+except ImportError:
+    _placeholders_available = False
+    PlaceholderGenerator = None
+    PlaceholderResolver = None
+    PlaceholderValidator = None
 
-from .redaction import (
-    PIIRedactionMiddleware,
-    LogSanitizer,
-    PIILeakDetector,
-)
+try:
+    from .redaction import (
+        PIIRedactionMiddleware,
+        LogSanitizer,
+        PIILeakDetector,
+    )
+    _redaction_available = True
+except ImportError:
+    _redaction_available = False
+    PIIRedactionMiddleware = None
+    LogSanitizer = None
+    PIILeakDetector = None
 
 from .exceptions import (
     PIIExtractionException,
@@ -68,19 +83,16 @@ __all__ = [
     "ContractionEngine",
     "GenderAgreementEngine",
     
-    # Placeholders
-    "PlaceholderGenerator",
-    "PlaceholderResolver",
-    "PlaceholderValidator",
-    
-    # Redaction
-    "PIIRedactionMiddleware",
-    "LogSanitizer",
-    "PIILeakDetector",
-    
     # Exceptions
     "PIIExtractionException",
     "PIIValidationException",
     "MorphEngineException",
     "PlaceholderException",
 ]
+
+# Conditionally add optional modules to __all__
+if _placeholders_available:
+    __all__.extend(["PlaceholderGenerator", "PlaceholderResolver", "PlaceholderValidator"])
+
+if _redaction_available:
+    __all__.extend(["PIIRedactionMiddleware", "LogSanitizer", "PIILeakDetector"])

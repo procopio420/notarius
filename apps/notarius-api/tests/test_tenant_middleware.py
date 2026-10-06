@@ -5,7 +5,7 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import HttpResponse
 from django.test import RequestFactory
 
-from apps.base.middlewares import TenantMiddleware
+from apps.tenancy.middlewares import TenantMiddleware
 
 
 def _get_response(_):

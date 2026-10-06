@@ -164,7 +164,7 @@ services:
 
   # Production Traefik with SSL
   traefik:
-    image: traefik:v3.0
+    image: traefik:latest
     ports:
       - "80:80"
       - "443:443"

@@ -78,10 +78,18 @@ services:
       - LEXNODE_URL=http://lexnode-api:8000
       - DEBUG=True
       - ALLOWED_HOSTS=*
+      - USE_S3=True
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_STORAGE_BUCKET_NAME=notarius-files
+      - AWS_S3_ENDPOINT_URL=http://localhost:9000
+      - AWS_S3_INTERNAL_ENDPOINT_URL=http://localhost:9000
     depends_on:
       postgres-notarius:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     volumes:
       - ./apps/notarius-api:/app
@@ -133,6 +141,7 @@ services:
     ports:
       - "8003:8000"
     environment:
+      - PYTHONPATH=/app:/packages
       - REDIS_URL=redis://redis:6379/2
       - PII_VAULT_URL=http://pii-vault:8000
       - LEXNODE_URL=http://lexnode-api:8000
@@ -168,7 +177,7 @@ services:
 
   # API Gateway
   traefik:
-    image: traefik:v3.0
+    image: traefik:latest
     ports:
       - "80:80"
       - "8080:8080"
@@ -216,15 +225,19 @@ services:
   trellis-metrics-updater:
     build: ./apps/notarius-api
     command: >
-      sh -c "while true; do
-        python manage.py update_trellis_metrics &&
-        sleep 3600;
-      done"
+      sh -c "
+        python manage.py migrate &&
+        while true; do
+          python manage.py update_trellis_metrics &&
+          sleep 3600;
+        done
+      "
     environment:
       - DATABASE_URL=postgresql://notarius:notarius_dev@postgres-notarius:5432/notarius_db
       - PYTHONPATH=/app
     depends_on:
-      - postgres-notarius
+      postgres-notarius:
+        condition: service_healthy
 
   jaeger:
     image: jaegertracing/all-in-one:latest

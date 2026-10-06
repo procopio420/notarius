@@ -163,6 +163,47 @@ class MinutaViewSet(BaseTenantViewSet):
         tenant = self._require_tenant()
         serializer.save(tenant=tenant, created_by=self.request.user)
 
+    @action(detail=True, methods=['patch'], url_path='update_content')
+    def update_content(self, request, pk=None):
+        """Update minuta content (for auto-save functionality)."""
+        minuta = self.get_object()
+        
+        # Only allow updates for draft minutas
+        if minuta.status != 'rascunho':
+            return Response(
+                {"error": "Apenas minutas em rascunho podem ser atualizadas"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get update data
+        corpo_md = request.data.get('corpo_md')
+        variaveis_json = request.data.get('variaveis_json')
+        
+        # Update fields if provided
+        if corpo_md is not None:
+            minuta.corpo_md = corpo_md
+        if variaveis_json is not None:
+            minuta.variaveis_json = variaveis_json
+        
+        minuta.save(update_fields=['corpo_md', 'variaveis_json', 'updated_at'])
+        
+        # Create audit log
+        from apps.auditoria.models import AuditLog
+        AuditLog.objects.create(
+            tenant=self._require_tenant(),
+            actor=request.user,
+            resource_type='minuta',
+            resource_id=minuta.id,
+            action='update_content',
+            extra={
+                'content_length': len(corpo_md) if corpo_md else None,
+                'variables_updated': variaveis_json is not None,
+            }
+        )
+        
+        serializer = self.get_serializer(minuta)
+        return Response(serializer.data)
+
     @action(detail=True, methods=['post'], url_path='rewrite_with_ai')
     def rewrite_with_ai(self, request, pk=None):
         """Rewrite minuta content using AI based on user prompt."""
@@ -208,7 +249,7 @@ class MinutaViewSet(BaseTenantViewSet):
                 resource_type='minuta',
                 resource_id=minuta.id,
                 action='ai_rewrite',
-                details={
+                extra={
                     'improvement_prompt': improvement_prompt,
                     'is_partial': is_partial,
                     'content_length_before': len(content_to_rewrite),

@@ -9,6 +9,8 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from ..services.intent_parser import IntentParser
+from ..services.doc_classifier import DocumentClassifier
+from ..services.form_extractor import FormExtractor
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -45,8 +47,10 @@ class ValidateIntentResponse(BaseModel):
     suggestions: list
 
 
-# Initialize intent parser
+# Initialize intent parser, classifier, and form extractor
 intent_parser = IntentParser()
+doc_classifier = DocumentClassifier()
+form_extractor = FormExtractor()
 
 
 @router.post("/parse-intent", response_model=ParseIntentResponse)
@@ -70,7 +74,8 @@ async def parse_intent(request: ParseIntentRequest):
         # Parse intent
         parsed = await intent_parser.parse_intent(
             intent_text=request.intent,
-            context=context
+            context=context,
+            tenant_id=request.tenant_id
         )
         
         # Generate intent ID
@@ -184,3 +189,90 @@ async def get_intent_templates():
             },
         ]
     }
+
+
+class ClassifyDocumentRequest(BaseModel):
+    """Request to classify document from free-text."""
+    text: str = Field(..., description="Free-text input in Portuguese")
+    context: Optional[Dict] = Field(None, description="Additional context")
+    tenant_id: Optional[str] = Field(None, description="Tenant ID")
+
+
+class ClassifyDocumentResponse(BaseModel):
+    """Response from document classification."""
+    tipo_documento: Optional[str] = Field(None, description="Document type")
+    especialidade: Optional[str] = Field(None, description="Specialty (tabelionato_notas, rcpn, etc.)")
+    confianca: float = Field(..., description="Confidence score (0.0-1.0)")
+    method: Optional[str] = Field(None, description="Classification method used")
+
+
+@router.post("/classify-document", response_model=ClassifyDocumentResponse)
+async def classify_document(request: ClassifyDocumentRequest):
+    """
+    Classify free-text input into document type and specialty.
+    """
+    try:
+        if not request.text or not request.text.strip():
+            raise HTTPException(status_code=400, detail="Text cannot be empty")
+        
+        result = await doc_classifier.classify(
+            text=request.text,
+            context=request.context,
+            tenant_id=request.tenant_id
+        )
+        
+        return ClassifyDocumentResponse(
+            tipo_documento=result.get("tipo_documento"),
+            especialidade=result.get("especialidade"),
+            confianca=result.get("confianca", 0.0),
+            method=result.get("method")
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to classify document: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to classify document")
+
+
+class ExtractFormRequest(BaseModel):
+    """Request to extract form data from text."""
+    text: str = Field(..., description="Free-text input in Portuguese")
+    document_type: str = Field(..., description="Document type (e.g., 'escritura_compra_venda')")
+    context: Optional[Dict] = Field(None, description="Additional context")
+    tenant_id: Optional[str] = Field(None, description="Tenant ID")
+
+
+class ExtractFormResponse(BaseModel):
+    """Response from form extraction."""
+    campos: Dict = Field(..., description="Extracted and normalized form fields")
+
+
+@router.post("/extract-form", response_model=ExtractFormResponse)
+async def extract_form(request: ExtractFormRequest):
+    """
+    Extract structured form data from free-text input.
+    """
+    try:
+        if not request.text or not request.text.strip():
+            raise HTTPException(status_code=400, detail="Text cannot be empty")
+        
+        if not request.document_type:
+            raise HTTPException(status_code=400, detail="Document type is required")
+        
+        extracted = await form_extractor.extract(
+            text=request.text,
+            document_type=request.document_type,
+            context=request.context,
+            tenant_id=request.tenant_id
+        )
+        
+        return ExtractFormResponse(campos=extracted)
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to extract form: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to extract form")

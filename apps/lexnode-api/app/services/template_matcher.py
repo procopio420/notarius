@@ -9,7 +9,7 @@ from sqlalchemy import select, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import LegalTemplate
-from .embeddings import get_embedding
+from .embeddings import generate_embedding
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ class TemplateMatchingService:
             search_query = f"{document_type} {jurisdiction} template modelo"
             
             # Get embedding for search query
-            query_embedding = await get_embedding(search_query)
+            query_embedding = await generate_embedding(search_query)
             
             # Search for similar templates using vector similarity
             # Note: This assumes we have a vector similarity function in the database
@@ -110,7 +110,7 @@ class TemplateMatchingService:
             "jurisdiction": template.jurisdiction,
             "template_content": template.template_content,
             "schema": template.schema,
-            "metadata": template.metadata,
+            "metadata": template.metadata_json,
             "source_url": template.source_url,
             "relevance_score": template.relevance_score,
             "created_at": template.created_at.isoformat() if template.created_at else None,
@@ -130,7 +130,7 @@ class TemplateMatchingService:
         """Index a new template in the database."""
         try:
             # Get embedding for the template content
-            template_embedding = await get_embedding(template_content)
+            template_embedding = await generate_embedding(template_content)
             
             # Create new template
             template = LegalTemplate(
@@ -138,7 +138,7 @@ class TemplateMatchingService:
                 jurisdiction=jurisdiction,
                 template_content=template_content,
                 schema=schema,
-                metadata=metadata,
+                metadata_json=metadata,
                 source_url=source_url,
                 relevance_score=relevance_score,
                 embedding=template_embedding,

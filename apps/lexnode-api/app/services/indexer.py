@@ -11,6 +11,15 @@ import uuid
 from ..models.lexnode import LegalDocument
 from .embeddings import generate_embedding
 
+# Import PII redaction
+try:
+    from packages.pii.redaction import redact_pii_from_content
+    PII_REDACTION_AVAILABLE = True
+except ImportError:
+    PII_REDACTION_AVAILABLE = False
+    def redact_pii_from_content(content: str) -> str:
+        return content
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,6 +42,12 @@ class IndexerService:
             Document ID
         """
         logger.info(f"Indexing document: {document.get('id')}")
+        
+        # Redact PII from content before indexing
+        document_content = document.get("content", "")
+        if PII_REDACTION_AVAILABLE:
+            document_content = redact_pii_from_content(document_content)
+            document = {**document, "content": document_content}
         
         # Generate embedding for semantic search
         content_for_embedding = self._prepare_content_for_embedding(document)

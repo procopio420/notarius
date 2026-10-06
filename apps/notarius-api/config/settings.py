@@ -12,9 +12,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import environ
+import sys
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Add packages directory to Python path
+# In Docker, packages is mounted at /packages
+# In local dev, it's at the project root
+if os.path.exists('/packages'):
+    sys.path.insert(0, '/packages')
+elif os.path.exists(BASE_DIR.parent.parent / 'packages'):
+    sys.path.insert(0, str(BASE_DIR.parent.parent / 'packages'))
 
 # Initialize environment variables
 env = environ.Env()
@@ -58,6 +68,8 @@ INSTALLED_APPS = [
     "apps.workflows",
     "apps.partes",
     "apps.processos",
+    "apps.validation",
+    "apps.fees",
 ]
 
 MIDDLEWARE = [
@@ -95,12 +107,23 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Always use PostgreSQL via DATABASE_URL in Docker/production
+# For local development without Docker, SQLite can be used but DATABASE_URL should be set
+DATABASE_URL = env.str('DATABASE_URL', default='')
+if DATABASE_URL:
+    # Use PostgreSQL from DATABASE_URL
+    DATABASES = {
+        'default': env.db('DATABASE_URL', default=DATABASE_URL)
     }
-}
+else:
+    # Fallback to SQLite only for local development (not in Docker)
+    # In Docker, DATABASE_URL should always be set
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # Password validation
@@ -138,6 +161,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Media files (user uploads, PDFs, etc.)
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -164,17 +192,53 @@ JINJA2_TEMPLATES_DIR = BASE_DIR / "templates" / "documentos"
 PDF_TEMP_DIR = BASE_DIR / "media" / "pdfs"
 PDF_FONTS_DIR = BASE_DIR / "fonts"
 
-# Storage configuration
-USE_S3 = env.bool('USE_S3', default=False)
-AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', default='')
-AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', default='')
-AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', default='')
-AWS_S3_ENDPOINT_URL = env.str('AWS_S3_ENDPOINT_URL', default=None)  # For R2
+# Storage configuration - Use MinIO by default in development
+USE_S3 = env.bool('USE_S3', default=True)
+AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', default='minioadmin')
+AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', default='minioadmin')
+AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', default='notarius-files')
+AWS_S3_ENDPOINT_URL = env.str('AWS_S3_ENDPOINT_URL', default='http://localhost:9000')  # MinIO service for URLs
+AWS_S3_INTERNAL_ENDPOINT_URL = env.str('AWS_S3_INTERNAL_ENDPOINT_URL', default='http://localhost:9000')  # MinIO internal service
 AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', default='us-east-1')
+
+# Configure MinIO for static and media files
+# Note: During Docker build, USE_S3 will be False to allow collectstatic to work
+# At runtime, USE_S3 will be True and files will be served from MinIO
+if USE_S3:
+    # Static files served from MinIO
+    STATICFILES_STORAGE = 'apps.base.storage.MinIOStaticStorage'
+    # In development, serve static files through Django to avoid CORS/browser issues
+    # In production, files can be served directly from MinIO
+    if DEBUG:
+        STATIC_URL = "/static/"
+    else:
+        STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/static/"
+    
+    # Media files served from MinIO
+    DEFAULT_FILE_STORAGE = 'apps.base.storage.MinIOMediaStorage'
+    # In development, serve media files through Django
+    if DEBUG:
+        MEDIA_URL = "/media/"
+    else:
+        MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/media/"
+    
+    # S3 storage settings
+    AWS_S3_CUSTOM_DOMAIN = None
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_S3_FILE_OVERWRITE = False
 
 # Signature
 SIGNATURE_DEADLINE_DAYS = 30  # default deadline for signatures
 MOCK_SIGNATURE_ENABLED = DEBUG  # only allow mock in dev
+
+# Workflow Orchestrator Feature Flags
+ENABLE_ENOTARIADO = env.bool('ENABLE_ENOTARIADO', default=True)
+ENABLE_RI_CENTRAL = env.bool('ENABLE_RI_CENTRAL', default=True)
+ENABLE_RTDPJ_CENTRAL = env.bool('ENABLE_RTDPJ_CENTRAL', default=True)
+ENABLE_PROTESTO_CENTRAL = env.bool('ENABLE_PROTESTO_CENTRAL', default=True)
 
 # AI Configuration
 AI_MODEL_VERSION = env.str('AI_MODEL_VERSION', default='gpt-4o-mini')

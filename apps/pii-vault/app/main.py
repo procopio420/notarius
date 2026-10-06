@@ -4,13 +4,19 @@ Provides secure PII storage, tokenization, and encryption.
 """
 
 import os
+import sys
 import logging
 from contextlib import asynccontextmanager
+
+# Add root directory to Python path to enable packages import
+# This is needed because packages is at /packages, and Python needs / in path
+if '/' not in sys.path:
+    sys.path.insert(0, '/')
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import health, vault, tokenizer
+from .routes import health, vault, tokenizer, metrics
 from .services.database import init_database
 from packages.core.http_client import init_http_client, cleanup_http_client
 
@@ -58,6 +64,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router, prefix="/health", tags=["health"])
+app.include_router(metrics.router, tags=["metrics"])
 app.include_router(vault.router, prefix="/api/v1", tags=["vault"])
 app.include_router(tokenizer.router, prefix="/api/v1", tags=["tokenizer"])
 

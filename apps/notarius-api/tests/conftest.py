@@ -68,7 +68,13 @@ def parte(tenant):
     from apps.partes.models import Parte
 
     return baker.make(
-        Parte, tenant=tenant, tipo="pf", nome="João da Silva", nome_normalizado="joao da silva"
+        Parte,
+        tenant=tenant,
+        tipo="pf",
+        tipo_pessoa="pf",
+        nome_token="token_nome_joao",
+        nome_hash=b"\x00" * 32,
+        metadata={},
     )
 
 
@@ -89,8 +95,9 @@ def documento(tenant, processo):
         Documento,
         tenant=tenant,
         processo=processo,
-        tipo="rg",
         s3_key="docs/rg1.pdf",
         hash_sha256=b"\x00" * 32,
+        mime="application/pdf",
+        pages=1,
         status="novo",
     )

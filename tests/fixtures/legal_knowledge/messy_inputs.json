@@ -1,0 +1,457 @@
+[
+  {
+    "input_text": "(messy) escr comp e venda — vend: E Rocha CPF 33322211100; comp: M Costa cpf 55544433322; mat 12345 2 RI Curitiba; preço 450k a vista.",
+    "expected": {
+      "tipo_documento": "escritura_compra_venda",
+      "especialidade": "tabelionato_notas",
+      "campos": {
+        "vendedor": {
+          "nome": "E Rocha",
+          "cpf": "333.222.111-00"
+        },
+        "comprador": {
+          "nome": "M Costa",
+          "cpf": "555.444.333-22"
+        },
+        "imovel": {
+          "matricula": "12345",
+          "ri": "2º RI Curitiba"
+        },
+        "financeiro": {
+          "preco": 450000.00,
+          "moeda": "BRL",
+          "condicao": "avista"
+        }
+      },
+      "checklist": [
+        "Certidão de matrícula (<=30 dias)",
+        "ITBI quitado",
+        "Qualificação/estado civil"
+      ],
+      "citacoes": [
+        "CC/2002",
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "proc ad judicia. outorg: João Silva cpf 12345678900. outorgado: Maria Santos OABSP 987654. poderes gerais.",
+    "expected": {
+      "tipo_documento": "procuracao_ad_judicia",
+      "especialidade": "tabelionato_notas",
+      "campos": {
+        "outorgante": {
+          "nome": "João Silva",
+          "cpf": "123.456.789-00"
+        },
+        "procurador": {
+          "nome": "Maria Santos",
+          "oab": "SP-987654"
+        },
+        "poderes": [
+          "gerais_forenses"
+        ]
+      },
+      "checklist": [
+        "Documento de identidade",
+        "Qualificação completa"
+      ],
+      "citacoes": [
+        "CC/2002",
+        "Lei 8.906/94"
+      ]
+    }
+  },
+  {
+    "input_text": "proc veiculo. prop: Carlos Lima 98765432100. proc: Ana Paula 12345678900. carro Honda Civic 2018 placa ABC1234. val 180d.",
+    "expected": {
+      "tipo_documento": "procuracao_veiculo",
+      "especialidade": "tabelionato_notas",
+      "campos": {
+        "proprietario": {
+          "nome": "Carlos Lima",
+          "cpf": "987.654.321-00"
+        },
+        "procurador": {
+          "nome": "Ana Paula",
+          "cpf": "123.456.789-00"
+        },
+        "veiculo": {
+          "descricao": "Honda Civic 2018",
+          "placa": "ABC-1234"
+        },
+        "validade_dias": 180
+      },
+      "checklist": [
+        "CRLV/CRV",
+        "Identificação das partes",
+        "Poderes de transferência"
+      ],
+      "citacoes": [
+        "Res. Contran",
+        "CC/2002"
+      ]
+    }
+  },
+  {
+    "input_text": "reg nasc. bebe: Sofia, 15/03/2025, SP. mae: Paula Silva 11122233344. pai: Roberto Silva 44455566677.",
+    "expected": {
+      "tipo_documento": "assento_nascimento",
+      "especialidade": "rcpn",
+      "campos": {
+        "nascido": {
+          "nome": "Sofia",
+          "data_nascimento": "2025-03-15",
+          "local": "SP"
+        },
+        "genitores": [
+          {
+            "parentesco": "mae",
+            "nome": "Paula Silva",
+            "cpf": "111.222.333-44"
+          },
+          {
+            "parentesco": "pai",
+            "nome": "Roberto Silva",
+            "cpf": "444.555.666-77"
+          }
+        ]
+      },
+      "checklist": [
+        "DNV",
+        "Docs dos genitores",
+        "Definição de sobrenome"
+      ],
+      "citacoes": [
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "averbar divorcio. casal: João e Maria. casamento 2010. sentença jul/2025. Maria volta ao nome de solteira: Maria Santos.",
+    "expected": {
+      "tipo_documento": "averbacao_divorcio",
+      "especialidade": "rcpn",
+      "campos": {
+        "casal": {
+          "conjuge_1": "João",
+          "conjuge_2": "Maria"
+        },
+        "transito_em_julgado": "2025-07-01",
+        "efeitos_nome": {
+          "renomeacao": "Maria Santos"
+        }
+      },
+      "checklist": [
+        "Mandado/certidão de inteiro teor",
+        "Localizar assento de casamento"
+      ],
+      "citacoes": [
+        "Lei 6.015/73",
+        "CPC"
+      ]
+    }
+  },
+  {
+    "input_text": "RI: reg compra venda. mat 4567 1 RI SP. vend: Empresa XYZ Ltda cnpj 12345678000100. comp: Lucas Silva 12345678900. escritura 5 tab 01/09/2025.",
+    "expected": {
+      "tipo_documento": "registro_compra_venda_ri",
+      "especialidade": "registro_imoveis",
+      "campos": {
+        "matricula": "4567",
+        "oficio": "1º RI São Paulo/SP",
+        "titulo": {
+          "tipo": "escritura_publica",
+          "tabelionato": "5º Tabelionato de Notas",
+          "data": "2025-09-01"
+        },
+        "partes": {
+          "vendedor": {
+            "razao_social": "Empresa XYZ Ltda",
+            "cnpj": "12.345.678/0001-00"
+          },
+          "comprador": {
+            "nome": "Lucas Silva",
+            "cpf": "123.456.789-00"
+          }
+        }
+      },
+      "checklist": [
+        "ITBI",
+        "Emolumentos/FRJ/Fund. Estaduais",
+        "Poderes de representação"
+      ],
+      "citacoes": [
+        "Lei 6.015/73",
+        "Normas CGJ/SP"
+      ]
+    }
+  },
+  {
+    "input_text": "averb construcao. obra fim 20/10/2025 mat 7890 2 RI Niteroi RJ. habite se ok. area 180 m2.",
+    "expected": {
+      "tipo_documento": "averbacao_construcao",
+      "especialidade": "registro_imoveis",
+      "campos": {
+        "matricula": "7890",
+        "ri": "2º RI Niterói/RJ",
+        "conclusao": "2025-10-20",
+        "area_m2": 180.0,
+        "habite_se": true
+      },
+      "checklist": [
+        "Habite-se/ART-RRT",
+        "Planta/memorial",
+        "Conferir cadastro municipal"
+      ],
+      "citacoes": [
+        "Lei 6.015/73",
+        "Normas CGJ/RJ"
+      ]
+    }
+  },
+  {
+    "input_text": "reg contrato locacao 30 meses. locador: Bruno Costa 00011122233. locataria: Ana Lima 44455566677. imovel Campinas SP. garantia: caução 3 alugueis.",
+    "expected": {
+      "tipo_documento": "registro_contrato_locacao",
+      "especialidade": "rtd",
+      "campos": {
+        "locador": {
+          "nome": "Bruno Costa",
+          "cpf": "000.111.222-33"
+        },
+        "locatario": {
+          "nome": "Ana Lima",
+          "cpf": "444.555.666-77"
+        },
+        "prazo_meses": 30,
+        "garantia": "caucao_3_alugueis",
+        "imovel": {
+          "cidade": "Campinas",
+          "uf": "SP"
+        }
+      },
+      "checklist": [
+        "Firmas reconhecidas",
+        "Numeração de páginas",
+        "Anexos de vistoria"
+      ],
+      "citacoes": [
+        "Lei do Inquilinato",
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "notific extrajudicial. notificante: BetaTech Ltda. notificado: João Pereira. inadimplemento contrato 10/08/2025. prazo 10 dias purgar mora.",
+    "expected": {
+      "tipo_documento": "notificacao_extrajudicial",
+      "especialidade": "rtd",
+      "campos": {
+        "notificante": "BetaTech Ltda",
+        "notificado": "João Pereira",
+        "fundamento": "inadimplemento",
+        "prazo": "10 dias"
+      },
+      "checklist": [
+        "Endereço completo",
+        "Cópia do contrato",
+        "Comprovação de entrega"
+      ],
+      "citacoes": [
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "protesto duplicata 00123 contra Comercial Delta ME cnpj 23456789000155 valor R$ 12400 venci 15/09/2025 praça RJ.",
+    "expected": {
+      "tipo_documento": "protesto_titulo",
+      "especialidade": "protesto",
+      "campos": {
+        "titulo": {
+          "especie": "duplicata",
+          "numero": "00123",
+          "valor": 12400.00,
+          "vencimento": "2025-09-15"
+        },
+        "devedor": {
+          "razao_social": "Comercial Delta ME",
+          "cnpj": "23.456.789/0001-55"
+        },
+        "praca": "Rio de Janeiro/RJ"
+      },
+      "checklist": [
+        "Apresentação do título/documento representativo",
+        "Custas de distribuição",
+        "Dados para intimação"
+      ],
+      "citacoes": [
+        "Lei 9.492/97"
+      ]
+    }
+  },
+  {
+    "input_text": "cert onus reais mat 222233 3 RI Porto Alegre RS.",
+    "expected": {
+      "tipo_documento": "certidao_onus_reais",
+      "especialidade": "registro_imoveis",
+      "campos": {
+        "matricula": "222233",
+        "ri": "3º RI Porto Alegre/RS"
+      },
+      "checklist": [
+        "Identificar titularidade e ônus",
+        "Emitir certidão dentro do prazo legal"
+      ],
+      "citacoes": [
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "ata notarial instagram @lojax dia 05/11/2025 14h urls e prints.",
+    "expected": {
+      "tipo_documento": "ata_notarial_constatacao",
+      "especialidade": "tabelionato_notas",
+      "campos": {
+        "objeto": "conteudo_web",
+        "perfil": "@lojax",
+        "data_observacao": "2025-11-05T14:00:00",
+        "prints": true
+      },
+      "checklist": [
+        "Registro técnico do procedimento",
+        "Capturas anexas",
+        "Sincronização de horário"
+      ],
+      "citacoes": [
+        "CNN Notarial (prática)",
+        "CC/2002"
+      ]
+    }
+  },
+  {
+    "input_text": "escr compra venda imovel. vend: Silva e Associados cnpj 98765432000111. comp: Pedro Alves 65432198700. mat 9999 4 RI Belo Horizonte MG. valor 800 mil parcelado.",
+    "expected": {
+      "tipo_documento": "escritura_compra_venda",
+      "especialidade": "tabelionato_notas",
+      "campos": {
+        "vendedor": {
+          "razao_social": "Silva e Associados",
+          "cnpj": "98.765.432/0001-11"
+        },
+        "comprador": {
+          "nome": "Pedro Alves",
+          "cpf": "654.321.987-00"
+        },
+        "imovel": {
+          "matricula": "9999",
+          "ri": "4º RI Belo Horizonte/MG"
+        },
+        "financeiro": {
+          "preco": 800000.00,
+          "moeda": "BRL",
+          "condicao": "parcelado"
+        }
+      },
+      "checklist": [
+        "Certidão de matrícula (<=30 dias)",
+        "ITBI quitado",
+        "Qualificação/estado civil"
+      ],
+      "citacoes": [
+        "CC/2002",
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "proc ad judicia outorgante: Roberto Mendes 11122233344 outorgado: Advogado José Costa OABMG 123456 poderes gerais forenses receber citação assinar documentos.",
+    "expected": {
+      "tipo_documento": "procuracao_ad_judicia",
+      "especialidade": "tabelionato_notas",
+      "campos": {
+        "outorgante": {
+          "nome": "Roberto Mendes",
+          "cpf": "111.222.333-44"
+        },
+        "procurador": {
+          "nome": "Advogado José Costa",
+          "oab": "MG-123456"
+        },
+        "poderes": [
+          "gerais_forenses",
+          "receber_citacao",
+          "assinar_documentos"
+        ]
+      },
+      "checklist": [
+        "Documento de identidade",
+        "Qualificação completa"
+      ],
+      "citacoes": [
+        "CC/2002",
+        "Lei 8.906/94"
+      ]
+    }
+  },
+  {
+    "input_text": "reg nascimento criança: Leonardo 20/04/2025 Belém PA mãe: Fernanda Lima 22233344455 pai: Carlos Lima 55566677788.",
+    "expected": {
+      "tipo_documento": "assento_nascimento",
+      "especialidade": "rcpn",
+      "campos": {
+        "nascido": {
+          "nome": "Leonardo",
+          "data_nascimento": "2025-04-20",
+          "local": "Belém/PA"
+        },
+        "genitores": [
+          {
+            "parentesco": "mae",
+            "nome": "Fernanda Lima",
+            "cpf": "222.333.444-55"
+          },
+          {
+            "parentesco": "pai",
+            "nome": "Carlos Lima",
+            "cpf": "555.666.777-88"
+          }
+        ]
+      },
+      "checklist": [
+        "DNV",
+        "Docs dos genitores",
+        "Definição de sobrenome"
+      ],
+      "citacoes": [
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "averbacao construcao finalizada 30/11/2025 matricula 5432 1 RI Florianopolis SC habite se anexo area construida 250 m2.",
+    "expected": {
+      "tipo_documento": "averbacao_construcao",
+      "especialidade": "registro_imoveis",
+      "campos": {
+        "matricula": "5432",
+        "ri": "1º RI Florianópolis/SC",
+        "conclusao": "2025-11-30",
+        "area_m2": 250.0,
+        "habite_se": true
+      },
+      "checklist": [
+        "Habite-se/ART-RRT",
+        "Planta/memorial",
+        "Conferir cadastro municipal"
+      ],
+      "citacoes": [
+        "Lei 6.015/73",
+        "Normas CGJ/SC"
+      ]
+    }
+  }
+]
+

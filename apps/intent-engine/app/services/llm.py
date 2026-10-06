@@ -5,6 +5,7 @@ LLM service for Intent Engine using OpenAI with routing and cost management.
 import os
 import time
 from typing import List, Optional, Dict, Any
+from uuid import UUID
 
 import openai
 from openai import AsyncOpenAI
@@ -40,7 +41,7 @@ class LLMRouter:
         }
         
         self.daily_costs = {provider: 0.0 for provider in self.providers}
-        self.metrics = get_metrics_collector()
+        self.metrics = get_metrics_collector("intent-engine")
     
     async def route_request(self, request: LLMRequest) -> LLMResponse:
         """Route request to appropriate LLM provider."""
@@ -159,7 +160,7 @@ class LLMService(BaseService):
     def __init__(self, dependencies: Optional[Dict[str, Any]] = None):
         super().__init__(dependencies)
         self.router = LLMRouter()
-        self.metrics = get_metrics_collector()
+        self.metrics = get_metrics_collector("intent-engine")
     
     async def parse_intent(self, command: str, tenant_id: str) -> Dict[str, Any]:
         """Parse natural language command into structured intent."""
@@ -224,10 +225,15 @@ Return the draft in Markdown format with placeholders for PII.
         return response.content
     
     async def chat_completion(self, messages: List[Dict[str, str]], model: str = "gpt-4o-mini", 
-                            temperature: float = 0.7, max_tokens: int = 2000) -> str:
+                            temperature: float = 0.7, max_tokens: int = 2000, tenant_id: Optional[UUID] = None) -> str:
         """Simple chat completion interface for backward compatibility."""
         # Convert messages to a single prompt
         prompt = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
+        
+        # Use a default tenant_id if not provided (for backward compatibility)
+        if tenant_id is None:
+            import uuid
+            tenant_id = uuid.UUID('00000000-0000-0000-0000-000000000000')  # Default UUID
         
         request = LLMRequest(
             provider=LLMProvider.OPENAI,
@@ -235,7 +241,7 @@ Return the draft in Markdown format with placeholders for PII.
             prompt=prompt,
             max_tokens=max_tokens,
             temperature=temperature,
-            tenant_id="default",
+            tenant_id=tenant_id,
         )
         
         response = await self.router.route_request(request)

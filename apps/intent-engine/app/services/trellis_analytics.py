@@ -19,7 +19,7 @@ class TRELLISAnalyticsService:
     
     async def init(self):
         """Initialize HTTP client."""
-        self.http_client = await get_http_client()
+        self.http_client = get_http_client()
     
     async def log_interaction(
         self,

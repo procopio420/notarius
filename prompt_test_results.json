@@ -1,0 +1,147 @@
+[
+  {
+    "success": true,
+    "category": "Procurações",
+    "name": "Procuração para venda de imóvel",
+    "document_type": "procuracao",
+    "confidence": 1.0,
+    "entities_count": 5,
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Procurações",
+    "name": "Procuração para representação bancária",
+    "document_type": "procuracao",
+    "confidence": 1.0,
+    "entities_count": 4,
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Procurações",
+    "name": "Procuração ad judicia",
+    "document_type": "procuracao",
+    "confidence": 1.0,
+    "entities_count": 3,
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Reconhecimento de Firma / Autorização",
+    "name": "Autorização para transferência de veículo",
+    "document_type": "procuracao",
+    "confidence": 0.9,
+    "entities_count": 4,
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Reconhecimento de Firma / Autorização",
+    "name": "Autorização para viagem de menor",
+    "document_type": "procuracao",
+    "confidence": 0.9,
+    "entities_count": 5,
+    "pii_fields": [
+      "nome",
+      "rg"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Declarações",
+    "name": "Declaração de união estável",
+    "document_type": "certidao",
+    "confidence": 0.9,
+    "entities_count": 5,
+    "pii_fields": [
+      "nome",
+      "cpf",
+      "endereco"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Declarações",
+    "name": "Declaração de residência",
+    "document_type": "certidao",
+    "confidence": 0.9,
+    "entities_count": 3,
+    "pii_fields": [
+      "nome",
+      "cpf",
+      "endereco"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Declarações",
+    "name": "Declaração de herdeiro",
+    "document_type": "certidao",
+    "confidence": 0.9,
+    "entities_count": 4,
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Atas e Certidões",
+    "name": "Ata notarial de constatação",
+    "document_type": "certidao",
+    "confidence": 0.9,
+    "entities_count": 2,
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Atas e Certidões",
+    "name": "Certidão de casamento",
+    "document_type": "certidao",
+    "confidence": 1.0,
+    "entities_count": 3,
+    "pii_fields": [
+      "nome"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Outros tipos úteis",
+    "name": "Testamento público",
+    "document_type": "testamento",
+    "confidence": 0.9,
+    "entities_count": 2,
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Outros tipos úteis",
+    "name": "Escritura de compra e venda",
+    "document_type": "escritura",
+    "confidence": 1.0,
+    "entities_count": 5,
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  }
+]

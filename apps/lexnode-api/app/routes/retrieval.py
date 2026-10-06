@@ -124,13 +124,13 @@ async def generate_grounded_draft(
         metrics.record_lexnode_retrieve(jurisdiction, act_type, duration, confidence)
         
         logger.info(
-            "Grounded draft generation completed",
-            act_type=act_type,
-            jurisdiction=jurisdiction,
-            sections_count=len(sections),
-            confidence=confidence,
-            duration=duration,
-            correlation_id=correlation_id,
+            "Grounded draft generation completed act_type=%s jurisdiction=%s sections=%d confidence=%.2f duration=%.2fs correlation_id=%s",
+            act_type,
+            jurisdiction,
+            len(sections),
+            confidence,
+            duration,
+            correlation_id,
         )
         
         return GroundedDraftResponse(
@@ -148,12 +148,7 @@ async def generate_grounded_draft(
         # Record error metrics
         metrics.record_error("grounded_draft_error")
         
-        logger.error(
-            "Grounded draft generation failed",
-            error=str(e),
-            act_type=request.act_type,
-            correlation_id=correlation_id,
-        )
+        logger.exception("Grounded draft generation failed")
         
         raise HTTPException(status_code=500, detail="Grounded draft generation failed")
 

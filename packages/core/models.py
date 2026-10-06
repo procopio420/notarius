@@ -8,6 +8,7 @@ They ensure type safety and consistency across all services in the monorepo.
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
+import uuid
 
 from pydantic import BaseModel, Field, validator
 
@@ -217,7 +218,7 @@ class LLMRequest(BaseModel):
     temperature: float = Field(ge=0.0, le=2.0, default=0.7)
     tenant_id: UUID
     estimated_cost: Optional[float] = None
-    request_id: UUID = Field(default_factory=UUID)
+    request_id: UUID = Field(default_factory=uuid.uuid4)
 
 
 class LLMResponse(BaseModel):

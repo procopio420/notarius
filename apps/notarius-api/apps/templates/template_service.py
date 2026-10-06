@@ -17,6 +17,7 @@ from weasyprint import HTML, CSS
 from apps.auditoria.models import AuditLog
 from .models import Template
 from apps.documentos.models import Minuta
+from .services.renderer import TemplateRenderer
 
 
 class TemplateService:
@@ -28,6 +29,7 @@ class TemplateService:
             trim_blocks=True,
             lstrip_blocks=True,
         )
+        self.renderer = TemplateRenderer()
 
     def render_template(self, template_id: str, variaveis: Dict[str, Any]) -> str:
         """
@@ -50,9 +52,13 @@ class TemplateService:
         # Validate variables against schema
         self.validate_variables(template_id, variaveis)
         
-        # Render template
-        jinja_template = self.jinja_env.from_string(template.corpo_template)
-        rendered_content = jinja_template.render(**variaveis)
+        # Use renderer for PII redaction and state-specific clauses
+        uf = variaveis.get('uf') or variaveis.get('UF')
+        rendered_content = self.renderer.render(
+            template_content=template.corpo_template,
+            normalized_data=variaveis,
+            uf=uf
+        )
         
         return rendered_content
 

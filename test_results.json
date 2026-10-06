@@ -1,0 +1,201 @@
+[
+  {
+    "success": true,
+    "category": "Procurações",
+    "name": "Procuração para venda de imóvel",
+    "document_type": "procuracao",
+    "confidence": 1.0,
+    "entities": {
+      "outorgante": "João Silva",
+      "outorgado": "Maria Souza",
+      "objeto": "venda de imóvel",
+      "imovel": "Rua das Flores, 100, São Paulo/SP",
+      "validade": "90 dias"
+    },
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Procurações",
+    "name": "Procuração para representação bancária",
+    "document_type": "procuracao",
+    "confidence": 1.0,
+    "entities": {
+      "outorgante": "Fernanda Lopes",
+      "outorgado": "Carlos Pinto",
+      "objeto": "representação bancária",
+      "imovel": null
+    },
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Procurações",
+    "name": "Procuração ad judicia",
+    "document_type": "procuracao",
+    "confidence": 1.0,
+    "entities": {
+      "outorgante": "Pedro Mendes",
+      "outorgado": "Dra. Ana Beatriz Rocha",
+      "objeto": "representá-lo em processo de separação judicial"
+    },
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Reconhecimento de Firma / Autorização",
+    "name": "Autorização para transferência de veículo",
+    "document_type": "procuracao",
+    "confidence": 0.9,
+    "entities": {
+      "outorgante": "Marcos Lima",
+      "outorgado": "Paula Ramos",
+      "objeto": "transferência de veículo",
+      "imovel": "Honda Civic 2018, placa ABC-1234"
+    },
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Reconhecimento de Firma / Autorização",
+    "name": "Autorização para viagem de menor",
+    "document_type": "procuracao",
+    "confidence": 0.9,
+    "entities": {
+      "outorgante": "Bruno Almeida e Carla Almeida",
+      "outorgado": "Lucas Almeida",
+      "objeto": "Autorização para viagem de menor",
+      "destino": "Lisboa, Portugal",
+      "periodo": "10/12/2025 a 10/01/2026"
+    },
+    "pii_fields": [
+      "nome",
+      "rg"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Declarações",
+    "name": "Declaração de união estável",
+    "document_type": "certidao",
+    "confidence": 0.9,
+    "entities": {
+      "declarante_1": {
+        "nome": "Gustavo Nogueira",
+        "cpf": "321.654.987-00"
+      },
+      "declarante_2": {
+        "nome": "Carolina Figueira",
+        "cpf": "987.321.654-00"
+      },
+      "data_uniao": "15/03/2020",
+      "residencia_comum": "Belo Horizonte/MG"
+    },
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Declarações",
+    "name": "Declaração de residência",
+    "document_type": "certidao",
+    "confidence": 0.9,
+    "entities": {
+      "declarante": "Juliana Ferreira",
+      "endereco": "Rua das Laranjeiras, 250, Rio de Janeiro/RJ"
+    },
+    "pii_fields": [
+      "nome",
+      "cpf",
+      "endereco"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Declarações",
+    "name": "Declaração de herdeiro",
+    "document_type": "certidao",
+    "confidence": 0.9,
+    "entities": {
+      "declarante": "André Souza",
+      "pai": "José Souza",
+      "data_falecimento": "10/01/2024",
+      "certidao": "certidão de óbito"
+    },
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Atas e Certidões",
+    "name": "Ata notarial de constatação",
+    "document_type": "certidao",
+    "confidence": 0.9,
+    "entities": {
+      "outorgante": "Rafael Gomes",
+      "objeto": "Registrar conteúdo publicado em perfil de rede social Instagram em 05/11/2025"
+    },
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  },
+  {
+    "success": true,
+    "category": "Atas e Certidões",
+    "name": "Certidão de casamento",
+    "document_type": "certidao",
+    "confidence": 0.9,
+    "entities": {
+      "cônjuges": [
+        "Ricardo Oliveira",
+        "Bruna Castro"
+      ],
+      "data_casamento": "20/06/2018",
+      "cartorio": "Cartório de São José dos Campos/SP"
+    },
+    "pii_fields": [
+      "nome"
+    ]
+  },
+  {
+    "success": false,
+    "category": "Outros tipos úteis",
+    "name": "Testamento público",
+    "error": "HTTPConnectionPool(host='localhost', port=8003): Read timed out. (read timeout=30)"
+  },
+  {
+    "success": true,
+    "category": "Outros tipos úteis",
+    "name": "Escritura de compra e venda",
+    "document_type": "escritura",
+    "confidence": 1.0,
+    "entities": {
+      "outorgante": "Eduardo Rocha",
+      "outorgado": "Marina Costa",
+      "objeto": "compra e venda",
+      "valor": "R$ 450.000,00",
+      "imovel": "Curitiba/PR, matrícula 12345"
+    },
+    "pii_fields": [
+      "nome",
+      "cpf"
+    ]
+  }
+]

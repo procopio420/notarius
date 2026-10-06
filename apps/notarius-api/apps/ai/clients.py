@@ -4,12 +4,142 @@ Integration clients for AI services (PII Vault, Intent Engine, LexNode).
 
 import asyncio
 import logging
+import os
+import sys
+from pathlib import Path
 from typing import Dict, List, Optional, Any
 from uuid import UUID
 
 import httpx
 from django.conf import settings
-from packages.core.http_client import get_http_client
+
+# Ensure packages directory is in Python path
+# This is a safeguard in case Django hasn't loaded it yet
+def _setup_packages_path():
+    """Set up packages directory in Python path."""
+    # Check Docker mount point first - need to add parent of /packages (which is /)
+    # so that 'packages' can be imported as a package
+    if os.path.exists('/packages'):
+        # Add root directory so packages can be imported
+        if '/' not in sys.path:
+            sys.path.insert(0, '/')
+        # Also ensure /packages itself is not in path (would cause conflicts)
+        if '/packages' in sys.path:
+            sys.path.remove('/packages')
+        return
+    
+    # Check if we can already import packages
+    try:
+        import packages
+        return
+    except ImportError:
+        pass
+    
+    # Try to find packages directory relative to this file
+    current_file = Path(__file__).resolve()
+    # Go up: ai -> apps -> notarius-api -> apps -> project root
+    project_root = current_file.parent.parent.parent.parent.parent
+    packages_path = project_root / 'packages'
+    if packages_path.exists():
+        # Add project root to path so packages can be imported
+        if str(project_root) not in sys.path:
+            sys.path.insert(0, str(project_root))
+
+_setup_packages_path()
+
+# Import http_client with fallback for build time
+try:
+    from packages.core.http_client import get_http_client, init_http_client
+    # Store the init function for lazy initialization
+    _init_http_client_func = init_http_client
+except ImportError as e:
+    _init_http_client_func = None
+    # During Docker build or if packages aren't available, create a lazy loader
+    _http_client_import_error = e
+    
+    def get_http_client():
+        """Lazy-load HTTP client. Re-attempts import at runtime with path setup."""
+        # Ensure packages directory is in Python path before importing
+        _setup_packages_path()
+        
+        # Try multiple import strategies
+        try:
+            # Strategy 1: Standard import
+            from packages.core.http_client import get_http_client as _get_http_client, init_http_client as _init_http_client
+            # Try to get the client, initialize if needed
+            try:
+                return _get_http_client()
+            except RuntimeError as e:
+                if "not initialized" in str(e):
+                    # Initialize the HTTP client synchronously
+                    import asyncio
+                    try:
+                        # Try to get existing event loop
+                        loop = asyncio.get_event_loop()
+                        if loop.is_running():
+                            # If loop is running, we can't use it - create a new one
+                            # This shouldn't happen in Django views, but handle it
+                            asyncio.run(_init_http_client(service_name="notarius-api"))
+                        else:
+                            loop.run_until_complete(_init_http_client(service_name="notarius-api"))
+                    except RuntimeError:
+                        # No event loop, create one
+                        asyncio.run(_init_http_client(service_name="notarius-api"))
+                    return _get_http_client()
+                raise
+        except ImportError:
+            try:
+                # Strategy 2: If /packages is in path, try direct import
+                import importlib.util
+                if os.path.exists('/packages/core/http_client.py'):
+                    spec = importlib.util.spec_from_file_location(
+                        "packages.core.http_client",
+                        "/packages/core/http_client.py"
+                    )
+                    if spec and spec.loader:
+                        module = importlib.util.module_from_spec(spec)
+                        # Add parent to sys.path temporarily for relative imports
+                        if '/' not in sys.path:
+                            sys.path.insert(0, '/')
+                        spec.loader.exec_module(module)
+                        client = module.get_http_client()
+                        # Initialize if needed
+                        try:
+                            return client
+                        except RuntimeError as e:
+                            if "not initialized" in str(e):
+                                import asyncio
+                                asyncio.run(module.init_http_client(service_name="notarius-api"))
+                                return module.get_http_client()
+                        return client
+            except Exception:
+                pass
+            
+            # Strategy 3: Try adding parent directory and importing
+            try:
+                if os.path.exists('/packages') and '/' not in sys.path:
+                    sys.path.insert(0, '/')
+                    from packages.core.http_client import get_http_client as _get_http_client, init_http_client as _init_http_client
+                    try:
+                        return _get_http_client()
+                    except RuntimeError as e:
+                        if "not initialized" in str(e):
+                            import asyncio
+                            asyncio.run(_init_http_client(service_name="notarius-api"))
+                            return _get_http_client()
+                        raise
+            except ImportError:
+                pass
+            
+            # All strategies failed
+            raise RuntimeError(
+                f"HTTP client not available. Packages not found. "
+                f"Original error: {_http_client_import_error}. "
+                f"Make sure packages directory is in Python path. "
+                f"Current sys.path: {sys.path[:5]}. "
+                f"/packages exists: {os.path.exists('/packages')}. "
+                f"/packages/core/http_client.py exists: {os.path.exists('/packages/core/http_client.py') if os.path.exists('/packages') else False}"
+            ) from _http_client_import_error
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +149,65 @@ class PIIVaultClient:
     
     def __init__(self, base_url: str = None):
         self.base_url = base_url or getattr(settings, 'PII_VAULT_URL', 'http://pii-vault:8000')
-        self.http_client = get_http_client()
+        self._http_client = None
+    
+    def _ensure_http_client_initialized(self):
+        """Ensure HTTP client is initialized, handling both sync and async contexts."""
+        if self._http_client is None:
+            try:
+                self._http_client = get_http_client()
+            except RuntimeError as e:
+                if "not initialized" in str(e) and _init_http_client_func:
+                    # Initialize the HTTP client if not initialized
+                    import asyncio
+                    import concurrent.futures
+                    
+                    try:
+                        # Check if we're in a running event loop
+                        loop = asyncio.get_running_loop()
+                        # We're in an async context - can't use asyncio.run()
+                        # Use a thread to run the initialization
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            future = executor.submit(
+                                asyncio.run,
+                                _init_http_client_func(service_name="notarius-api")
+                            )
+                            future.result(timeout=10)  # Wait for initialization
+                    except RuntimeError:
+                        # No running loop - we can use asyncio.run() or get_event_loop()
+                        try:
+                            asyncio.run(_init_http_client_func(service_name="notarius-api"))
+                        except RuntimeError:
+                            # Try with existing event loop
+                            try:
+                                loop = asyncio.get_event_loop()
+                                if loop.is_running():
+                                    # Running loop - use thread
+                                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                                        future = executor.submit(
+                                            asyncio.run,
+                                            _init_http_client_func(service_name="notarius-api")
+                                        )
+                                        future.result(timeout=10)
+                                else:
+                                    loop.run_until_complete(_init_http_client_func(service_name="notarius-api"))
+                            except RuntimeError:
+                                # Last resort - use thread
+                                with concurrent.futures.ThreadPoolExecutor() as executor:
+                                    future = executor.submit(
+                                        asyncio.run,
+                                        _init_http_client_func(service_name="notarius-api")
+                                    )
+                                    future.result(timeout=10)
+                    self._http_client = get_http_client()
+                else:
+                    raise
+    
+    @property
+    def http_client(self):
+        """Lazy-load HTTP client when needed."""
+        self._ensure_http_client_initialized()
+        return self._http_client
     
     async def store_pii(self, pii_value: str, pii_type: str, tenant_id: UUID, user_id: UUID = None) -> Dict[str, Any]:
         """Store PII and get token."""
@@ -150,9 +338,67 @@ class IntentEngineClient:
     
     def __init__(self, base_url: str = None):
         self.base_url = base_url or getattr(settings, 'INTENT_ENGINE_URL', 'http://intent-engine:8000')
-        self.http_client = get_http_client()
+        self._http_client = None
     
-    async def parse_intent(self, intent: str, processo_id: UUID, tenant_id: UUID, user_id: UUID) -> Dict[str, Any]:
+    def _ensure_http_client_initialized(self):
+        """Ensure HTTP client is initialized, handling both sync and async contexts."""
+        if self._http_client is None:
+            try:
+                self._http_client = get_http_client()
+            except RuntimeError as e:
+                if "not initialized" in str(e) and _init_http_client_func:
+                    # Initialize the HTTP client if not initialized
+                    import asyncio
+                    import concurrent.futures
+                    
+                    try:
+                        # Check if we're in a running event loop
+                        loop = asyncio.get_running_loop()
+                        # We're in an async context - can't use asyncio.run()
+                        # Use a thread to run the initialization
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            future = executor.submit(
+                                asyncio.run,
+                                _init_http_client_func(service_name="notarius-api")
+                            )
+                            future.result(timeout=10)  # Wait for initialization
+                    except RuntimeError:
+                        # No running loop - we can use asyncio.run() or get_event_loop()
+                        try:
+                            asyncio.run(_init_http_client_func(service_name="notarius-api"))
+                        except RuntimeError:
+                            # Try with existing event loop
+                            try:
+                                loop = asyncio.get_event_loop()
+                                if loop.is_running():
+                                    # Running loop - use thread
+                                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                                        future = executor.submit(
+                                            asyncio.run,
+                                            _init_http_client_func(service_name="notarius-api")
+                                        )
+                                        future.result(timeout=10)
+                                else:
+                                    loop.run_until_complete(_init_http_client_func(service_name="notarius-api"))
+                            except RuntimeError:
+                                # Last resort - use thread
+                                with concurrent.futures.ThreadPoolExecutor() as executor:
+                                    future = executor.submit(
+                                        asyncio.run,
+                                        _init_http_client_func(service_name="notarius-api")
+                                    )
+                                    future.result(timeout=10)
+                    self._http_client = get_http_client()
+                else:
+                    raise
+    
+    @property
+    def http_client(self):
+        """Lazy-load HTTP client when needed."""
+        self._ensure_http_client_initialized()
+        return self._http_client
+    
+    async def parse_intent(self, intent: str, processo_id: UUID, tenant_id: UUID, user_id: Optional[UUID]) -> Dict[str, Any]:
         """Parse natural language intent into structured data."""
         try:
             response = await self.http_client.post(
@@ -161,7 +407,7 @@ class IntentEngineClient:
                     "intent": intent,
                     "processo_id": str(processo_id) if processo_id else None,
                     "tenant_id": str(tenant_id),
-                    "user_id": str(user_id),
+                    "user_id": str(user_id) if user_id else None,
                 }
             )
             response.raise_for_status()
@@ -244,7 +490,65 @@ class LexNodeClient:
     
     def __init__(self, base_url: str = None):
         self.base_url = base_url or getattr(settings, 'LEXNODE_URL', 'http://lexnode-api:8000')
-        self.http_client = get_http_client()
+        self._http_client = None
+    
+    def _ensure_http_client_initialized(self):
+        """Ensure HTTP client is initialized, handling both sync and async contexts."""
+        if self._http_client is None:
+            try:
+                self._http_client = get_http_client()
+            except RuntimeError as e:
+                if "not initialized" in str(e) and _init_http_client_func:
+                    # Initialize the HTTP client if not initialized
+                    import asyncio
+                    import concurrent.futures
+                    
+                    try:
+                        # Check if we're in a running event loop
+                        loop = asyncio.get_running_loop()
+                        # We're in an async context - can't use asyncio.run()
+                        # Use a thread to run the initialization
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            future = executor.submit(
+                                asyncio.run,
+                                _init_http_client_func(service_name="notarius-api")
+                            )
+                            future.result(timeout=10)  # Wait for initialization
+                    except RuntimeError:
+                        # No running loop - we can use asyncio.run() or get_event_loop()
+                        try:
+                            asyncio.run(_init_http_client_func(service_name="notarius-api"))
+                        except RuntimeError:
+                            # Try with existing event loop
+                            try:
+                                loop = asyncio.get_event_loop()
+                                if loop.is_running():
+                                    # Running loop - use thread
+                                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                                        future = executor.submit(
+                                            asyncio.run,
+                                            _init_http_client_func(service_name="notarius-api")
+                                        )
+                                        future.result(timeout=10)
+                                else:
+                                    loop.run_until_complete(_init_http_client_func(service_name="notarius-api"))
+                            except RuntimeError:
+                                # Last resort - use thread
+                                with concurrent.futures.ThreadPoolExecutor() as executor:
+                                    future = executor.submit(
+                                        asyncio.run,
+                                        _init_http_client_func(service_name="notarius-api")
+                                    )
+                                    future.result(timeout=10)
+                    self._http_client = get_http_client()
+                else:
+                    raise
+    
+    @property
+    def http_client(self):
+        """Lazy-load HTTP client when needed."""
+        self._ensure_http_client_initialized()
+        return self._http_client
     
     async def retrieve(self, query: str, constraints: Dict[str, Any] = None, top_k: int = 10) -> List[Dict[str, Any]]:
         """Retrieve legal documents."""
@@ -323,7 +627,7 @@ class AIServiceManager:
         self, 
         command: str, 
         tenant_id: UUID, 
-        user_id: UUID,
+        user_id: Optional[UUID],
         processo_id: UUID
     ) -> Dict[str, Any]:
         """
@@ -358,19 +662,30 @@ class AIServiceManager:
                 user_id=user_id
             )
             
-            # 4. Prepare minuta data
+            # 4. Prepare variaveis_json from pii_tokens
+            variaveis_json = {}
+            if pii_tokens and isinstance(pii_tokens, list):
+                for token in pii_tokens:
+                    if isinstance(token, dict) and 'entity' in token and 'token' in token:
+                        entity_type = token.get('entity', {}).get('type')
+                        token_value = token.get('token')
+                        if entity_type and token_value:
+                            variaveis_json[entity_type] = token_value
+            
+            # 5. Prepare minuta data
             minuta_data = {
                 'processo_id': processo_id,
                 'versao': 1,
                 'gerada_por': 'ia',
                 'status': 'rascunho',
                 'corpo_md': draft_result.get('content', ''),
-                'variaveis_json': {token['entity']['type']: token['token'] for token in pii_tokens},
+                'variaveis_json': variaveis_json,
                 'citations': draft_result.get('citations', []),
-                'grounding_confidence': draft_result.get('confidence', 0.0),
+                'grounding_confidence': draft_result.get('grounding_confidence', draft_result.get('confidence', 0.0)),
                 'skeleton_cache_key': draft_result.get('cache_key', ''),
                 'template_version': '1.0',
                 'lexnode_trace': draft_result.get('trace', {}),
+                'parsed_intent': intent_result.get('parsed_intent', {}),
             }
             
             logger.info(f"Successfully generated minuta with confidence: {draft_result.get('confidence', 0.0):.2f}")

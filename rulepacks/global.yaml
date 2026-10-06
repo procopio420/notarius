@@ -1,0 +1,120 @@
+# Global rulepack - Base rules for all document types
+# These rules apply to all UFs unless overridden by UF-specific rulepacks
+
+tabelionato_notas.escritura_compra_venda:
+  quem_assina:
+    - vendedor
+    - comprador
+    - tabeliao
+  checklist:
+    - Certidão matrícula <=30d
+    - ITBI
+    - Documentos de identidade
+    - Estado civil/procur. se aplicável
+  citacoes:
+    - CC/2002
+    - Lei 6.015/73
+    - Prov. CNJ 100
+  fees_hint:
+    - Emolumentos Notas
+    - ITBI
+  bloqueantes: []
+  alerta: []
+
+tabelionato_notas.procuracao_ad_judicia:
+  quem_assina:
+    - outorgante
+    - tabeliao
+  checklist:
+    - Doc. identidade
+    - Poderes específicos se houver
+  citacoes:
+    - CC/2002
+    - Lei 8.906/94
+    - Prov. CNJ 100
+  fees_hint:
+    - Emolumentos Notas
+  bloqueantes: []
+  alerta: []
+
+rcpn.assento_nascimento:
+  quem_assina:
+    - declarante
+    - oficial
+  assinatura_tipo: manual
+  checklist:
+    - DNV
+  citacoes:
+    - Lei 6.015/73
+  fees_hint:
+    - Emolumentos RCPN
+  bloqueantes: []
+  alerta: []
+
+registro_imoveis.registro_compra_venda_ri:
+  quem_assina:
+    - vendedor
+    - comprador
+  checklist:
+    - ITBI
+  citacoes:
+    - Lei 6.015/73
+  fees_hint:
+    - Emolumentos RI
+    - ITBI
+  bloqueantes: []
+  alerta: []
+
+registro_imoveis.averbacao_construcao:
+  quem_assina:
+    - proprietario
+  checklist:
+    - Habite-se/ART-RRT
+    - Planta/memorial
+  citacoes:
+    - Lei 6.015/73
+  fees_hint:
+    - Emolumentos RI
+  bloqueantes: []
+  alerta: []
+
+rtd.registro_contrato_locacao:
+  quem_assina:
+    - locador
+    - locatario
+  checklist:
+    - Firmas reconhecidas
+    - Numeração de páginas
+  citacoes:
+    - Lei 6.015/73
+  fees_hint:
+    - Emolumentos RTD
+  bloqueantes: []
+  alerta: []
+
+rtd.notificacao_extrajudicial:
+  quem_assina:
+    - credor
+  checklist:
+    - Endereço completo
+    - Cópia do contrato
+  citacoes:
+    - Lei 6.015/73
+  fees_hint:
+    - Emolumentos RTD
+  bloqueantes: []
+  alerta: []
+
+protesto.protesto_titulo:
+  quem_assina:
+    - credor
+  checklist:
+    - Apresentação do título
+    - Dados para intimação
+  citacoes:
+    - Lei 9.492/97
+  fees_hint:
+    - Custas de protesto
+  bloqueantes: []
+  alerta: []
+

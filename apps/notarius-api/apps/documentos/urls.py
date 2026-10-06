@@ -6,29 +6,21 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    DocumentoViewSet, MinutaViewSet, ChecklistViewSet, TemplateViewSet,
-    AssinaturaFluxoViewSet, AssinaturaItemViewSet, ClauseLibraryViewSet,
-    AIGeneratedMinutaViewSet, AIUsageAnalyticsViewSet, AIDocumentViewSet,
-    GenerateMinutaFromIntentView, ApproveMinutaView, FinalizeMinutaView,
-    DocumentTemplateViewSet,
+    DocumentoViewSet, MinutaViewSet,
 )
-from .trellis_views import TRELLISInteractionViewSet, TRELLISClusterMetricsViewSet
+# Import AI views from ai_documents app (for function-based views)
+from apps.ai_documents.views import (
+    GenerateMinutaFromIntentView, ApproveMinutaView, FinalizeMinutaView,
+)
 
 # Create router and register viewsets
 router = DefaultRouter()
 router.register(r'documentos', DocumentoViewSet, basename='documento')
 router.register(r'minutas', MinutaViewSet, basename='minuta')
-router.register(r'checklists', ChecklistViewSet, basename='checklist')
-router.register(r'templates', TemplateViewSet, basename='template')
-router.register(r'assinatura-fluxos', AssinaturaFluxoViewSet, basename='assinatura-fluxo')
-router.register(r'assinatura-itens', AssinaturaItemViewSet, basename='assinatura-item')
-router.register(r'clause-library', ClauseLibraryViewSet, basename='clause-library')
-router.register(r'ai-generated-minutas', AIGeneratedMinutaViewSet, basename='ai-generated-minuta')
-router.register(r'ai-usage-analytics', AIUsageAnalyticsViewSet, basename='ai-usage-analytics')
-router.register(r'ai-document', AIDocumentViewSet, basename='ai-document')
-router.register(r'document-templates', DocumentTemplateViewSet, basename='document-template')
-router.register(r'trellis/interactions', TRELLISInteractionViewSet, basename='trellis-interaction')
-router.register(r'trellis/cluster-metrics', TRELLISClusterMetricsViewSet, basename='trellis-metrics')
+# Note: Other viewsets are registered in their respective apps:
+# - templates: apps/templates/urls.py
+# - analytics: apps/analytics/urls.py
+# - ai-generated-minutas, ai-document: apps/ai_documents/urls.py
 
 urlpatterns = [
     # Include router URLs

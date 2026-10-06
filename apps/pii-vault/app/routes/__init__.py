@@ -1,5 +1,5 @@
 """PII Vault API routes."""
 
-from . import health, vault, tokenizer
+from . import health, vault, tokenizer, metrics
 
-__all__ = ["health", "vault", "tokenizer"]
+__all__ = ["health", "vault", "tokenizer", "metrics"]

@@ -1,0 +1,6 @@
+# São Paulo specific rulepack
+# These rules override or extend global rules for SP
+
+# No specific overrides for SP in the test fixtures
+# This file exists for future SP-specific customizations
+

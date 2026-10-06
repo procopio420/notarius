@@ -1,0 +1,295 @@
+[
+  {
+    "input_text": "Registro de nascimento. Recém-nascida: Helena, 03/10/2025, Barra Mansa/RJ. Mãe: Carla Nunes CPF 22211100055, união estável homoafetiva com Maria Silva CPF 77788899900. Pai biológico: João Nunes CPF 33344455566.",
+    "expected": {
+      "tipo_documento": "assento_nascimento",
+      "especialidade": "rcpn",
+      "campos": {
+        "nascido": {
+          "nome": "Helena",
+          "data_nascimento": "2025-10-03",
+          "local": "Barra Mansa/RJ"
+        },
+        "genitores": [
+          {
+            "parentesco": "mae",
+            "nome": "Carla Nunes",
+            "cpf": "222.111.000-55"
+          },
+          {
+            "parentesco": "mae",
+            "nome": "Maria Silva",
+            "cpf": "777.888.999-00"
+          },
+          {
+            "parentesco": "pai",
+            "nome": "João Nunes",
+            "cpf": "333.444.555-66"
+          }
+        ]
+      },
+      "checklist": [
+        "DNV",
+        "Docs dos genitores",
+        "Definição de sobrenome",
+        "Documentação de união estável"
+      ],
+      "citacoes": [
+        "Lei 6.015/73",
+        "STF ADI 4.277"
+      ]
+    }
+  },
+  {
+    "input_text": "Averbar divórcio de Paulo e Renata, casamento em 2012, sentença transitada em jul/2025. Renata volta ao nome de solteira: Renata Alves.",
+    "expected": {
+      "tipo_documento": "averbacao_divorcio",
+      "especialidade": "rcpn",
+      "campos": {
+        "casal": {
+          "conjuge_1": "Paulo",
+          "conjuge_2": "Renata"
+        },
+        "transito_em_julgado": "2025-07-01",
+        "efeitos_nome": {
+          "renomeacao": "Renata Alves"
+        }
+      },
+      "checklist": [
+        "Mandado/certidão de inteiro teor",
+        "Localizar assento de casamento"
+      ],
+      "citacoes": [
+        "Lei 6.015/73",
+        "CPC"
+      ]
+    }
+  },
+  {
+    "input_text": "Averbação de construção: obra concluída em 20/10/2025 na matrícula 7890 (2º RI Niterói/RJ). Área 180 m². Habite-se não anexo (em tramitação).",
+    "expected": {
+      "tipo_documento": "averbacao_construcao",
+      "especialidade": "registro_imoveis",
+      "campos": {
+        "matricula": "7890",
+        "ri": "2º RI Niterói/RJ",
+        "conclusao": "2025-10-20",
+        "area_m2": 180.0,
+        "habite_se": false
+      },
+      "checklist": [
+        "Habite-se/ART-RRT",
+        "Planta/memorial",
+        "Conferir cadastro municipal",
+        "Aguardar habite-se"
+      ],
+      "citacoes": [
+        "Lei 6.015/73",
+        "Normas CGJ/RJ"
+      ]
+    }
+  },
+  {
+    "input_text": "Escritura de compra e venda. Vendedor: Imobiliária Alfa Ltda CNPJ 12.345.678/0001-00 representada por diretor sem procuração específica. Comprador: Lucas Procopio CPF 123.456.789-00. Imóvel: matrícula 4567 do 1º RI São Paulo/SP. Preço R$ 450.000, pagamento à vista.",
+    "expected": {
+      "tipo_documento": "escritura_compra_venda",
+      "especialidade": "tabelionato_notas",
+      "campos": {
+        "vendedor": {
+          "razao_social": "Imobiliária Alfa Ltda",
+          "cnpj": "12.345.678/0001-00"
+        },
+        "comprador": {
+          "nome": "Lucas Procopio",
+          "cpf": "123.456.789-00"
+        },
+        "imovel": {
+          "matricula": "4567",
+          "ri": "1º RI São Paulo/SP"
+        },
+        "financeiro": {
+          "preco": 450000.00,
+          "moeda": "BRL",
+          "condicao": "avista"
+        }
+      },
+      "checklist": [
+        "Certidão de matrícula (<=30 dias)",
+        "ITBI quitado",
+        "Qualificação/estado civil",
+        "Poderes de representação para vendedor"
+      ],
+      "citacoes": [
+        "CC/2002",
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "Procuração ad judicia. Outorgante: Maria Silva CPF 111.222.333-44, casada em comunhão parcial de bens. Outorgada: Advogado Pedro Costa OAB/SP 123456. Poderes gerais forenses, receber citação, celebrar acordo.",
+    "expected": {
+      "tipo_documento": "procuracao_ad_judicia",
+      "especialidade": "tabelionato_notas",
+      "campos": {
+        "outorgante": {
+          "nome": "Maria Silva",
+          "cpf": "111.222.333-44",
+          "estado_civil": "casada"
+        },
+        "procurador": {
+          "nome": "Advogado Pedro Costa",
+          "oab": "SP-123456"
+        },
+        "poderes": [
+          "gerais_forenses",
+          "receber_citacao",
+          "celebrar_acordo"
+        ]
+      },
+      "checklist": [
+        "Documento de identidade",
+        "Qualificação completa",
+        "Consentimento do cônjuge (se necessário)"
+      ],
+      "citacoes": [
+        "CC/2002",
+        "Lei 8.906/94"
+      ]
+    }
+  },
+  {
+    "input_text": "Registro de contrato de locação residencial por 30 meses. Locador: Bruno Costa CPF 000.111.222-33, casado. Locatária: Ana Lima CPF 444.555.666-77, solteira. Imóvel Campinas/SP. Garantia: caução 3 aluguéis + fiador.",
+    "expected": {
+      "tipo_documento": "registro_contrato_locacao",
+      "especialidade": "rtd",
+      "campos": {
+        "locador": {
+          "nome": "Bruno Costa",
+          "cpf": "000.111.222-33",
+          "estado_civil": "casado"
+        },
+        "locatario": {
+          "nome": "Ana Lima",
+          "cpf": "444.555.666-77",
+          "estado_civil": "solteira"
+        },
+        "prazo_meses": 30,
+        "garantia": "caucao_3_alugueis_fiador",
+        "imovel": {
+          "cidade": "Campinas",
+          "uf": "SP"
+        }
+      },
+      "checklist": [
+        "Firmas reconhecidas",
+        "Numeração de páginas",
+        "Anexos de vistoria",
+        "Documentação do fiador"
+      ],
+      "citacoes": [
+        "Lei do Inquilinato",
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "Notificar extrajudicialmente João Pereira por inadimplemento do contrato de 10/08/2025 com BetaTech Ltda. Prazo 10 dias para purgar a mora. Valor devido: R$ 15.000,00.",
+    "expected": {
+      "tipo_documento": "notificacao_extrajudicial",
+      "especialidade": "rtd",
+      "campos": {
+        "notificante": "BetaTech Ltda",
+        "notificado": "João Pereira",
+        "fundamento": "inadimplemento",
+        "prazo": "10 dias",
+        "valor_devido": 15000.00
+      },
+      "checklist": [
+        "Endereço completo",
+        "Cópia do contrato",
+        "Comprovação de entrega"
+      ],
+      "citacoes": [
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "Protesto de duplicata nº 00123 contra Comercial Delta ME, CNPJ 23.456.789/0001-55, valor R$ 12.400, venc. 15/09/2025, praça Rio de Janeiro/RJ. Aceite tácito.",
+    "expected": {
+      "tipo_documento": "protesto_titulo",
+      "especialidade": "protesto",
+      "campos": {
+        "titulo": {
+          "especie": "duplicata",
+          "numero": "00123",
+          "valor": 12400.00,
+          "vencimento": "2025-09-15"
+        },
+        "devedor": {
+          "razao_social": "Comercial Delta ME",
+          "cnpj": "23.456.789/0001-55"
+        },
+        "praca": "Rio de Janeiro/RJ",
+        "aceite": "tacito"
+      },
+      "checklist": [
+        "Apresentação do título/documento representativo",
+        "Custas de distribuição",
+        "Dados para intimação"
+      ],
+      "citacoes": [
+        "Lei 9.492/97"
+      ]
+    }
+  },
+  {
+    "input_text": "Certidão de matrícula/ônus reais da matrícula 222233 do 3º RI Porto Alegre/RS. Incluir averbações de penhor, hipoteca e usufruto.",
+    "expected": {
+      "tipo_documento": "certidao_onus_reais",
+      "especialidade": "registro_imoveis",
+      "campos": {
+        "matricula": "222233",
+        "ri": "3º RI Porto Alegre/RS",
+        "tipos_onus": [
+          "penhor",
+          "hipoteca",
+          "usufruto"
+        ]
+      },
+      "checklist": [
+        "Identificar titularidade e ônus",
+        "Emitir certidão dentro do prazo legal"
+      ],
+      "citacoes": [
+        "Lei 6.015/73"
+      ]
+    }
+  },
+  {
+    "input_text": "Ata notarial para registrar conteúdo do Instagram @lojax em 05/11/2025 às 14h, com URLs e prints. Incluir histórico de posts e stories.",
+    "expected": {
+      "tipo_documento": "ata_notarial_constatacao",
+      "especialidade": "tabelionato_notas",
+      "campos": {
+        "objeto": "conteudo_web",
+        "perfil": "@lojax",
+        "data_observacao": "2025-11-05T14:00:00",
+        "urls": true,
+        "prints": true,
+        "incluir_historico": true
+      },
+      "checklist": [
+        "Registro técnico do procedimento",
+        "Capturas anexas",
+        "Sincronização de horário",
+        "Documentação de histórico"
+      ],
+      "citacoes": [
+        "CNN Notarial (prática)",
+        "CC/2002"
+      ]
+    }
+  }
+]
+

@@ -29,6 +29,105 @@ Notarius is a production-grade, privacy-preserving AI system designed for Brazil
 - **PDF Generation**: Professional document output
 - **Integration Ready**: e-Notariado, CRC, Selo Digital
 
+## 🔐 Register Flow (Cartório-aware, no invites)
+
+The registration flow is a 3-step process that captures tenant (cartório) selection during sign-up. Users can immediately claim any tenant and become ACTIVE without approval workflows.
+
+### Registration Steps
+
+1. **Account** - User provides email, name, and password (optional CPF/phone for client-side hashing)
+2. **Cartório Selection** - Typeahead search with UF filter to select tenant
+3. **Confirm & Create** - Summary and account creation
+
+### API Endpoints
+
+#### Register User
+
+```http
+POST /api/v1/auth/register/
+Content-Type: application/json
+
+{
+  "username": "user123",
+  "email": "user@example.com",
+  "password": "securepass123",
+  "confirm_password": "securepass123",
+  "first_name": "John",
+  "last_name": "Doe",
+  "cartorio_id": "uuid-here",  // Optional
+  "cpf_hash": "sha256-hex-64-chars",  // Optional, client-side hashed
+  "phone_hash": "sha256-hex-64-chars"  // Optional, client-side hashed
+}
+```
+
+**Response (with cartorio_id):**
+```json
+{
+  "status": "ACTIVE",
+  "redirect": "/app",
+  "token": "auth-token-here",
+  "user": { ... }
+}
+```
+
+**Response (without cartorio_id):**
+```json
+{
+  "status": "NO_CARTORIO",
+  "redirect": "/onboarding/pending-cartorio",
+  "token": "auth-token-here",
+  "user": { ... }
+}
+```
+
+#### Search Tenants
+
+```http
+GET /api/v1/tenancy/tenants/search/?q=Cartório&uf=SP&limit=20
+```
+
+**Response:**
+```json
+[
+  {
+    "id": "uuid",
+    "nome": "Cartório Central",
+    "municipio": "São Paulo",
+    "uf": "SP",
+    "tipo": "1º Ofício"
+  }
+]
+```
+
+#### Request New Tenant
+
+```http
+POST /api/v1/tenancy/tenants/request-new/
+Content-Type: application/json
+
+{
+  "nome": "Novo Cartório",
+  "municipio": "Brasília",
+  "uf": "DF",
+  "note": "Optional note"  // Optional
+}
+```
+
+**Response:**
+```json
+{
+  "request_id": "uuid"
+}
+```
+
+### Features
+
+- **Client-side PII hashing**: CPF/phone are hashed using SHA256 before sending to server
+- **No raw PII storage**: Server never receives raw CPF/phone values
+- **Rate limiting**: 5 registrations/hour per IP, 60 searches/minute per IP
+- **Audit logging**: All registrations are logged with tenant association
+- **Immediate activation**: Users with cartorio_id become ACTIVE immediately
+
 ## 🏗️ Architecture
 
 ### System Overview
