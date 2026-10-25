@@ -13,13 +13,21 @@ Prompt curto: `Leia docs/PLANO_PILOTO_PROFISSIONAL.md, siga a orientação inici
 | Etapa | Objetivo | Situação |
 |---|---|---|
 | 1 | Diagnóstico da adaptação profissional | Diagnóstico técnico entregue; material e decisões profissionais pendentes (ver registro abaixo) |
-| 2 | Parametrizar padrão autorizado | Depende do material completo e da revisão da escrevente |
+| 2 | Parametrizar padrão autorizado | Rascunho parcial preparado a partir de cinco imagens; pendente de texto legível, autorização e revisão da escrevente |
 | 3 | Configurar primeiro cenário | Depende das decisões profissionais |
 | 4 | Percorrer atendimento acompanhado | Depende de padrão aprovado e revisão dos controles de dados |
 | 5 | Conferir minuta e exportações | Depende da revisão da escrevente |
 | 6 | Ativar e avaliar IA real | Adiada até autorização específica e créditos |
 
-O PR foi aberto com somente o plano; a execução posterior da etapa 1 está registrada abaixo. Não contém documentos reais. O provedor documental real continua bloqueado. A conferência manual do piloto não comprova a qualidade da IA.
+O PR foi aberto com somente o plano; as execuções posteriores estão registradas abaixo. Os arquivos versionados não contêm documentos reais nem dados pessoais do exemplo. O provedor documental real continua bloqueado. A conferência manual do piloto não comprova a qualidade da IA.
+
+### Registro parcial da etapa 2 — 25/10/2026
+
+- Material: cinco imagens enviadas pelo usuário; originais preservados em pasta privada fora do repositório. Leitura visual, sem reconstruir tarjas, consultar links ou enviar a provedor externo.
+- Entrega para revisão: [rascunho parametrizado](piloto-profissional/modelo-v0.txt) e [mapa de texto/dados, confirmações, condições e dúvidas](piloto-profissional/REVISAO_MODELO_ETAPA_2.md). Só títulos e estrutura segura como texto fixo candidato; fatos, declarações e resultados ficam variáveis. Não se declara transcrição integral.
+- Verificações: 23 marcadores conferidos contra os campos existentes, delimitadores íntegros e rascunho sem CPF, e-mail, links, valores ou datas do exemplo; **6 testes de `tests.test_modelo_referencia` passaram em 9,422 s**, em banco isolado. Verificação de sistema sem problemas e `git diff --check` sem erros. Testes fictícios verificam o mecanismo existente, não homologam este padrão ou as cláusulas.
+- Arquivos alterados: este plano, `docs/piloto-profissional/modelo-v0.txt` e `docs/piloto-profissional/REVISAO_MODELO_ETAPA_2.md`. Nenhuma mudança de código, banco operacional, aprovação, biblioteca, regras ou cenário.
+- **Etapa 2 não concluída:** faltam texto fixo legível onde há tarjas, confirmação da integralidade/ordem, autorização da escrevente e revisão de redação/aplicabilidade. O rascunho não foi carregado como modelo aprovado. Aguardar revisão; etapas 3 a 6 não executadas.
 
 ### Registro da etapa 1 — 25/10/2026
 
