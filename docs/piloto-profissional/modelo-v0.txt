@@ -1,0 +1,48 @@
+RASCUNHO PARCIAL PARA REVISÃO DA ESCREVENTE — NÃO APROVADO
+Versão: piloto-imagens-v0
+Estrutura visível; não é transcrição integral nem modelo liberado para atendimento.
+
+ESCRITURA DE COMPRA E VENDA
+
+{{abertura}}
+
+OUTORGANTES VENDEDORES
+{{vendedores}}
+
+OUTORGADA COMPRADORA / OUTORGADOS COMPRADORES
+{{compradores}}
+
+REPRESENTAÇÃO
+{{representacao}}
+
+1.- DO IMÓVEL E SUA TITULAÇÃO
+1.1.- {{titularidade}}
+{{imovel}}
+1.2.- {{aquisicao}}
+1.3.- {{onus}}
+
+2.- {{preco}}
+{{pagamento}}
+2.1.- {{quitacao}}
+{{transmissao}}
+
+3.- {{declaracoes_vendedores}}
+
+4.- {{declaracoes_compradores}}
+
+5.- {{doi}}
+
+6.- IMPOSTO DE TRANSMISSÃO INTER VIVOS
+{{tributo}}
+
+7.- {{certidoes}}
+{{consultas}}
+
+8.- {{declaracoes_partes}}
+
+9.- {{requerimentos}}
+
+10.- {{encerramento}}
+{{emolumentos}}
+
+{{observacoes}}

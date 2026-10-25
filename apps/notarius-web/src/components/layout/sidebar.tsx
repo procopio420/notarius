@@ -41,7 +41,7 @@ import {
 const navigation = [
   { name: 'Inbox', href: '/inbox', icon: EnvelopeIcon },
   { name: 'Criar do Prompt', href: '/criar', icon: PencilIcon },
-  { name: 'Processos', href: '/processos', icon: ClipboardDocumentListIcon },
+  { name: 'Atendimentos', href: '/atendimentos', icon: ClipboardDocumentListIcon },
   { name: 'Minutas', href: '/minutas', icon: DocumentTextIcon },
   { name: 'Documentos', href: '/documentos', icon: DocumentDuplicateIcon },
   { name: 'Assistente', href: '/assistente', icon: SparklesIcon },

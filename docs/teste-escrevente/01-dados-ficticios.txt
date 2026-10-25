@@ -1,0 +1,11 @@
+DOCUMENTO INTEIRAMENTE FICTICIO PARA TESTE DE SOFTWARE
+SEM VALIDADE PARA QUALQUER ATO REAL
+
+Vendedores: PESSOA VENDEDORA DE TESTE
+Compradores: PESSOA COMPRADORA DE TESTE
+Imovel: IMOVEL FICTICIO SEM ENDERECO OU MATRICULA REAL
+Preco: R$ 100.000,00
+Forma de pagamento: CONDICAO FICTICIA SEM TRANSACAO REAL
+
+Estes campos foram rotulados para testar a conferencia conservadora.
+Nao representam documentos de identificacao, certidoes ou requisitos completos de uma escritura.

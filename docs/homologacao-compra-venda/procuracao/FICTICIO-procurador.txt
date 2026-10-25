@@ -1,0 +1,9 @@
+CENÁRIO FICTÍCIO PARA REVISÃO. Não é documento autêntico, modelo homologado ou resposta de IA real.
+nome: PESSOA PROCURADORA FICTÍCIA GAMA
+cpf: CPF-FICTICIO-GAMA-INVALIDO
+documento numero: ID-FICTICIO-GAMA
+orgao emissor: EMISSOR FICTÍCIO SEM VALIDADE
+nacionalidade: NACIONALIDADE FICTÍCIA
+profissao: PROFISSÃO FICTÍCIA
+estado civil: solteiro — DADO EXCLUSIVAMENTE FICTÍCIO
+endereco: ENDEREÇO INEXISTENTE GAMA

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, endpoints } from '@/lib/api'
 import { useAuthStore } from '@/store/slices/authSlice'
 import { queryKeys } from '@/lib/queryClient'
+import { useTenantStore } from '@/store/slices/tenantSlice'
 
 // Types
 interface LoginRequest {
@@ -56,7 +57,9 @@ export const useLogin = () => {
       return response.data
     },
     onSuccess: (data) => {
-      login(data.user, data.token)
+      queryClient.clear()
+      useTenantStore.getState().clearTenants()
+      window.localStorage.removeItem('tenant_id')
       window.localStorage.setItem('auth_token', data.token)
       
       // Set default tenant in localStorage if available
@@ -66,6 +69,7 @@ export const useLogin = () => {
       } else if (data.user.default_tenant && data.user.default_tenant.id) {
         window.localStorage.setItem('tenant_id', data.user.default_tenant.id)
       }
+      login(data.user, data.token)
       
       // Invalidate and refetch user-related queries
       queryClient.invalidateQueries({ queryKey: queryKeys.auth.currentUser })
@@ -97,6 +101,9 @@ export const useLogout = () => {
     },
     onSuccess: () => {
       logout()
+      useTenantStore.getState().clearTenants()
+      window.localStorage.removeItem('auth_token')
+      window.localStorage.removeItem('tenant_id')
       // Clear all cached data
       queryClient.clear()
     },
@@ -104,6 +111,9 @@ export const useLogout = () => {
       console.error('Logout failed:', error)
       // Still logout locally even if API call fails
       logout()
+      useTenantStore.getState().clearTenants()
+      window.localStorage.removeItem('auth_token')
+      window.localStorage.removeItem('tenant_id')
       queryClient.clear()
     },
   })

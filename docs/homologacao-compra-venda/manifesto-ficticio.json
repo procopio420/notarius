@@ -1,0 +1,495 @@
+[
+  {
+    "versao": "comparacao-compra-venda-ficticia-v1",
+    "variante": "direta",
+    "atendimento_id": "0a9ff6f1-9bbd-54c7-81f9-d032d55b4f5d",
+    "modelo_id": "82063d46-b0b1-46c7-a52c-3ce578d7d549",
+    "aviso": "CENÁRIO FICTÍCIO PARA REVISÃO. Não é documento autêntico, modelo homologado ou resposta de IA real.",
+    "modelo_aprovado": false,
+    "registros": {
+      "vendedor": "4b7da482-6fd2-4f25-9181-7849f034f6f0",
+      "comprador": "2e7da74b-1e5f-4d1b-b337-656110614608",
+      "bem": "d63bf0c6-cfc5-400a-906b-a494ef987302",
+      "papel_vendedor": "e3be8802-0d7e-4fbf-966b-c59c72dc23c2",
+      "papel_comprador": "fa626bf9-6475-47f9-ac42-680ee9374640",
+      "negocio": "3cd60633-0322-426d-a3e4-234bad9ab628"
+    },
+    "resultado_esperado_proposto": [
+      {
+        "proposta_id": "8a560b22-dc27-4ed8-8b88-ba0d6802148f",
+        "alias": "vendedor",
+        "objeto_id": "4b7da482-6fd2-4f25-9181-7849f034f6f0",
+        "chave": "cpf",
+        "valor_revisado_ficticio": "CPF-FICTICIO-ALFA-INVALIDO"
+      },
+      {
+        "proposta_id": "f7ccaf60-93ea-4f03-90aa-614a34dfb928",
+        "alias": "vendedor",
+        "objeto_id": "4b7da482-6fd2-4f25-9181-7849f034f6f0",
+        "chave": "nome",
+        "valor_revisado_ficticio": "PESSOA VENDEDORA FICTÍCIA ALFA"
+      },
+      {
+        "proposta_id": "22332de6-fd50-4673-bd69-8105ff0916cb",
+        "alias": "vendedor",
+        "objeto_id": "4b7da482-6fd2-4f25-9181-7849f034f6f0",
+        "chave": "orgao_emissor",
+        "valor_revisado_ficticio": "EMISSOR FICTÍCIO SEM VALIDADE"
+      },
+      {
+        "proposta_id": "fba4f4ac-143e-426a-966c-2853f8c02b1a",
+        "alias": "vendedor",
+        "objeto_id": "4b7da482-6fd2-4f25-9181-7849f034f6f0",
+        "chave": "documento_numero",
+        "valor_revisado_ficticio": "ID-FICTICIO-ALFA"
+      },
+      {
+        "proposta_id": "b3204672-bbb7-44c6-9889-31f37aa77d93",
+        "alias": "vendedor",
+        "objeto_id": "4b7da482-6fd2-4f25-9181-7849f034f6f0",
+        "chave": "nacionalidade",
+        "valor_revisado_ficticio": "NACIONALIDADE FICTÍCIA"
+      },
+      {
+        "proposta_id": "c8758688-2fa1-423e-a0d8-230e84ceb144",
+        "alias": "vendedor",
+        "objeto_id": "4b7da482-6fd2-4f25-9181-7849f034f6f0",
+        "chave": "profissao",
+        "valor_revisado_ficticio": "PROFISSÃO FICTÍCIA"
+      },
+      {
+        "proposta_id": "16edb9d5-340c-4b54-952d-1270c77ca807",
+        "alias": "vendedor",
+        "objeto_id": "4b7da482-6fd2-4f25-9181-7849f034f6f0",
+        "chave": "endereco",
+        "valor_revisado_ficticio": "ENDEREÇO INEXISTENTE ALFA"
+      },
+      {
+        "proposta_id": "b3aaf98c-7008-49af-9de1-71b67f342fd2",
+        "alias": "vendedor",
+        "objeto_id": "4b7da482-6fd2-4f25-9181-7849f034f6f0",
+        "chave": "estado_civil",
+        "valor_revisado_ficticio": "solteiro — DADO EXCLUSIVAMENTE FICTÍCIO"
+      },
+      {
+        "proposta_id": "d98f825f-f44e-4fa8-b497-a2ed83ff7dc5",
+        "alias": "comprador",
+        "objeto_id": "2e7da74b-1e5f-4d1b-b337-656110614608",
+        "chave": "nome",
+        "valor_revisado_ficticio": "PESSOA COMPRADORA FICTÍCIA BETA"
+      },
+      {
+        "proposta_id": "3212cfa0-2487-4a7d-b287-0c901885dc9f",
+        "alias": "comprador",
+        "objeto_id": "2e7da74b-1e5f-4d1b-b337-656110614608",
+        "chave": "cpf",
+        "valor_revisado_ficticio": "CPF-FICTICIO-BETA-INVALIDO"
+      },
+      {
+        "proposta_id": "cd95115c-5ffc-4b87-b6d7-308f2dd88fbe",
+        "alias": "comprador",
+        "objeto_id": "2e7da74b-1e5f-4d1b-b337-656110614608",
+        "chave": "documento_numero",
+        "valor_revisado_ficticio": "ID-FICTICIO-BETA"
+      },
+      {
+        "proposta_id": "f80b6964-d02a-4b6e-9957-6e0e84da2de0",
+        "alias": "comprador",
+        "objeto_id": "2e7da74b-1e5f-4d1b-b337-656110614608",
+        "chave": "orgao_emissor",
+        "valor_revisado_ficticio": "EMISSOR FICTÍCIO SEM VALIDADE"
+      },
+      {
+        "proposta_id": "0e4193e0-107a-4129-80b9-fee18f03e5c5",
+        "alias": "comprador",
+        "objeto_id": "2e7da74b-1e5f-4d1b-b337-656110614608",
+        "chave": "nacionalidade",
+        "valor_revisado_ficticio": "NACIONALIDADE FICTÍCIA"
+      },
+      {
+        "proposta_id": "51645a5a-0b4b-4b52-bdd6-490396252303",
+        "alias": "comprador",
+        "objeto_id": "2e7da74b-1e5f-4d1b-b337-656110614608",
+        "chave": "profissao",
+        "valor_revisado_ficticio": "PROFISSÃO FICTÍCIA"
+      },
+      {
+        "proposta_id": "29f7f48f-37ce-4337-9529-b85cdcab3edc",
+        "alias": "comprador",
+        "objeto_id": "2e7da74b-1e5f-4d1b-b337-656110614608",
+        "chave": "estado_civil",
+        "valor_revisado_ficticio": "solteiro — DADO EXCLUSIVAMENTE FICTÍCIO"
+      },
+      {
+        "proposta_id": "fcf42c7e-5f9b-4fff-9534-0573ba00d7d1",
+        "alias": "comprador",
+        "objeto_id": "2e7da74b-1e5f-4d1b-b337-656110614608",
+        "chave": "endereco",
+        "valor_revisado_ficticio": "ENDEREÇO INEXISTENTE BETA"
+      },
+      {
+        "proposta_id": "b39e4505-7b08-4906-bc60-ee17ddfd04e6",
+        "alias": "bem",
+        "objeto_id": "d63bf0c6-cfc5-400a-906b-a494ef987302",
+        "chave": "descricao",
+        "valor_revisado_ficticio": "IMÓVEL INEXISTENTE — UNIDADE DE TESTE"
+      },
+      {
+        "proposta_id": "b71eb907-b9e8-43f2-8c00-a4cdc95842a2",
+        "alias": "bem",
+        "objeto_id": "d63bf0c6-cfc5-400a-906b-a494ef987302",
+        "chave": "matricula",
+        "valor_revisado_ficticio": "MATRICULA-FICTICIA-SEM-VALIDADE"
+      },
+      {
+        "proposta_id": "73ad3395-2afa-42c4-b5a4-b4ec982b20e4",
+        "alias": "bem",
+        "objeto_id": "d63bf0c6-cfc5-400a-906b-a494ef987302",
+        "chave": "registro",
+        "valor_revisado_ficticio": "REGISTRO FICTÍCIO"
+      },
+      {
+        "proposta_id": "042e1bd0-e27e-49b1-8a40-d895433fe681",
+        "alias": "bem",
+        "objeto_id": "d63bf0c6-cfc5-400a-906b-a494ef987302",
+        "chave": "titularidade",
+        "valor_revisado_ficticio": "TITULARIDADE FICTÍCIA ALFA — APENAS CENÁRIO"
+      },
+      {
+        "proposta_id": "f57a29c0-943a-407d-ab32-7b5e9fdcf4cd",
+        "alias": "bem",
+        "objeto_id": "d63bf0c6-cfc5-400a-906b-a494ef987302",
+        "chave": "aquisicao",
+        "valor_revisado_ficticio": "TÍTULO FICTÍCIO SEM VALIDADE"
+      },
+      {
+        "proposta_id": "6c454015-4970-4aaf-8e9c-03aaa5c3c631",
+        "alias": "bem",
+        "objeto_id": "d63bf0c6-cfc5-400a-906b-a494ef987302",
+        "chave": "onus",
+        "valor_revisado_ficticio": "TEXTO FICTÍCIO PARA TESTAR CONFERÊNCIA DE ÔNUS; NÃO É CERTIDÃO"
+      },
+      {
+        "proposta_id": "e3e371a7-c298-4e47-9d3b-8d6ee25e6be3",
+        "alias": "papel_vendedor",
+        "objeto_id": "e3be8802-0d7e-4fbf-966b-c59c72dc23c2",
+        "chave": "tipo_papel",
+        "valor_revisado_ficticio": "vendedor"
+      },
+      {
+        "proposta_id": "021ec148-d021-4187-bee9-1c6308eb475a",
+        "alias": "papel_comprador",
+        "objeto_id": "fa626bf9-6475-47f9-ac42-680ee9374640",
+        "chave": "tipo_papel",
+        "valor_revisado_ficticio": "comprador"
+      },
+      {
+        "proposta_id": "d684f533-6dd8-483f-8893-195d80b4cb65",
+        "alias": "negocio",
+        "objeto_id": "3cd60633-0322-426d-a3e4-234bad9ab628",
+        "chave": "preco",
+        "valor_revisado_ficticio": "R$ 200.000,00 — VALOR FICTÍCIO"
+      },
+      {
+        "proposta_id": "b8a2964e-4919-4df8-9fd5-b0d9fa73b643",
+        "alias": "negocio",
+        "objeto_id": "3cd60633-0322-426d-a3e4-234bad9ab628",
+        "chave": "condicoes",
+        "valor_revisado_ficticio": "PREVISÃO FICTÍCIA DE PAGAMENTO FUTURO"
+      },
+      {
+        "proposta_id": "d60fc94e-88c8-4a8f-937b-82055428d85b",
+        "alias": "negocio",
+        "objeto_id": "3cd60633-0322-426d-a3e4-234bad9ab628",
+        "chave": "situacao_pagamento",
+        "valor_revisado_ficticio": "previsto"
+      }
+    ]
+  },
+  {
+    "versao": "comparacao-compra-venda-ficticia-v1",
+    "variante": "procuracao",
+    "atendimento_id": "a8ed8261-ef71-5eac-bb03-5226c7588f45",
+    "modelo_id": "2316d5b6-7884-4145-9ed6-7d8cd37feece",
+    "aviso": "CENÁRIO FICTÍCIO PARA REVISÃO. Não é documento autêntico, modelo homologado ou resposta de IA real.",
+    "modelo_aprovado": false,
+    "registros": {
+      "vendedor": "b013cb12-a735-49e9-aabf-a0d1a0c0a30d",
+      "comprador": "0d637a29-bc19-439e-8336-2f74776f2e2e",
+      "procurador": "fd9ede87-9871-49ae-a0c2-222c3af441b9",
+      "bem": "f89c9db6-ad79-4b0e-a79e-c00850bf7536",
+      "papel_vendedor": "82b9de46-179a-467f-a839-0286fc1a9b4b",
+      "papel_comprador": "a249ae10-0b4b-4e26-9679-3c31e23a2ce3",
+      "negocio": "2f11400d-91cc-4c60-ba8c-df38ac7d6e2d",
+      "representacao": "d49e8150-832c-495f-8b8c-2f5ae97d3906"
+    },
+    "resultado_esperado_proposto": [
+      {
+        "proposta_id": "7fc5e9fe-2bd6-4221-976d-ef800d9463a0",
+        "alias": "vendedor",
+        "objeto_id": "b013cb12-a735-49e9-aabf-a0d1a0c0a30d",
+        "chave": "nome",
+        "valor_revisado_ficticio": "PESSOA VENDEDORA FICTÍCIA ALFA"
+      },
+      {
+        "proposta_id": "d59a826f-f9d6-4524-b3a9-f32271a07f9f",
+        "alias": "vendedor",
+        "objeto_id": "b013cb12-a735-49e9-aabf-a0d1a0c0a30d",
+        "chave": "cpf",
+        "valor_revisado_ficticio": "CPF-FICTICIO-ALFA-INVALIDO"
+      },
+      {
+        "proposta_id": "da832043-0c34-42ad-bcaa-031dd273a9cb",
+        "alias": "vendedor",
+        "objeto_id": "b013cb12-a735-49e9-aabf-a0d1a0c0a30d",
+        "chave": "documento_numero",
+        "valor_revisado_ficticio": "ID-FICTICIO-ALFA"
+      },
+      {
+        "proposta_id": "02c1fa6d-7586-47f1-86c8-01571722044d",
+        "alias": "vendedor",
+        "objeto_id": "b013cb12-a735-49e9-aabf-a0d1a0c0a30d",
+        "chave": "orgao_emissor",
+        "valor_revisado_ficticio": "EMISSOR FICTÍCIO SEM VALIDADE"
+      },
+      {
+        "proposta_id": "d2ba7e9a-47a9-4514-87a1-db35b2b815f6",
+        "alias": "vendedor",
+        "objeto_id": "b013cb12-a735-49e9-aabf-a0d1a0c0a30d",
+        "chave": "nacionalidade",
+        "valor_revisado_ficticio": "NACIONALIDADE FICTÍCIA"
+      },
+      {
+        "proposta_id": "2fd27654-6d0e-418d-8f77-5333b5c4e474",
+        "alias": "vendedor",
+        "objeto_id": "b013cb12-a735-49e9-aabf-a0d1a0c0a30d",
+        "chave": "estado_civil",
+        "valor_revisado_ficticio": "solteiro — DADO EXCLUSIVAMENTE FICTÍCIO"
+      },
+      {
+        "proposta_id": "e1b7888b-1613-45e5-96ec-8caf2e78f5ba",
+        "alias": "vendedor",
+        "objeto_id": "b013cb12-a735-49e9-aabf-a0d1a0c0a30d",
+        "chave": "profissao",
+        "valor_revisado_ficticio": "PROFISSÃO FICTÍCIA"
+      },
+      {
+        "proposta_id": "279eb291-5bc6-4ad4-a908-6a4f76f2a863",
+        "alias": "vendedor",
+        "objeto_id": "b013cb12-a735-49e9-aabf-a0d1a0c0a30d",
+        "chave": "endereco",
+        "valor_revisado_ficticio": "ENDEREÇO INEXISTENTE ALFA"
+      },
+      {
+        "proposta_id": "08b96bbb-8997-4cf3-891f-96045cda2d52",
+        "alias": "comprador",
+        "objeto_id": "0d637a29-bc19-439e-8336-2f74776f2e2e",
+        "chave": "nome",
+        "valor_revisado_ficticio": "PESSOA COMPRADORA FICTÍCIA BETA"
+      },
+      {
+        "proposta_id": "2f5ea471-0421-42c5-958f-118f6dfae03b",
+        "alias": "comprador",
+        "objeto_id": "0d637a29-bc19-439e-8336-2f74776f2e2e",
+        "chave": "documento_numero",
+        "valor_revisado_ficticio": "ID-FICTICIO-BETA"
+      },
+      {
+        "proposta_id": "e106d5cd-8ad4-4233-a815-6c28f2c44b3b",
+        "alias": "comprador",
+        "objeto_id": "0d637a29-bc19-439e-8336-2f74776f2e2e",
+        "chave": "cpf",
+        "valor_revisado_ficticio": "CPF-FICTICIO-BETA-INVALIDO"
+      },
+      {
+        "proposta_id": "a6877fa5-bf8f-4d6d-bac8-f34ed00d8b90",
+        "alias": "comprador",
+        "objeto_id": "0d637a29-bc19-439e-8336-2f74776f2e2e",
+        "chave": "orgao_emissor",
+        "valor_revisado_ficticio": "EMISSOR FICTÍCIO SEM VALIDADE"
+      },
+      {
+        "proposta_id": "50c658cb-d4b6-4948-b913-1aa8758bbc79",
+        "alias": "comprador",
+        "objeto_id": "0d637a29-bc19-439e-8336-2f74776f2e2e",
+        "chave": "nacionalidade",
+        "valor_revisado_ficticio": "NACIONALIDADE FICTÍCIA"
+      },
+      {
+        "proposta_id": "b549530e-6f46-42d7-a673-56745318160b",
+        "alias": "comprador",
+        "objeto_id": "0d637a29-bc19-439e-8336-2f74776f2e2e",
+        "chave": "profissao",
+        "valor_revisado_ficticio": "PROFISSÃO FICTÍCIA"
+      },
+      {
+        "proposta_id": "30f6eae9-c8a9-4786-a5bd-bbd9a2404e78",
+        "alias": "comprador",
+        "objeto_id": "0d637a29-bc19-439e-8336-2f74776f2e2e",
+        "chave": "estado_civil",
+        "valor_revisado_ficticio": "solteiro — DADO EXCLUSIVAMENTE FICTÍCIO"
+      },
+      {
+        "proposta_id": "96441cd4-7c21-4a07-a0da-59552626ccbe",
+        "alias": "comprador",
+        "objeto_id": "0d637a29-bc19-439e-8336-2f74776f2e2e",
+        "chave": "endereco",
+        "valor_revisado_ficticio": "ENDEREÇO INEXISTENTE BETA"
+      },
+      {
+        "proposta_id": "318c64b7-afdb-4bcb-95fa-9d059b7a6b94",
+        "alias": "procurador",
+        "objeto_id": "fd9ede87-9871-49ae-a0c2-222c3af441b9",
+        "chave": "nome",
+        "valor_revisado_ficticio": "PESSOA PROCURADORA FICTÍCIA GAMA"
+      },
+      {
+        "proposta_id": "dca6ccbc-df4c-4aae-8f7e-846abf9ce754",
+        "alias": "procurador",
+        "objeto_id": "fd9ede87-9871-49ae-a0c2-222c3af441b9",
+        "chave": "cpf",
+        "valor_revisado_ficticio": "CPF-FICTICIO-GAMA-INVALIDO"
+      },
+      {
+        "proposta_id": "6a3d8d96-9320-4786-b0f6-a3a11bc3d37d",
+        "alias": "procurador",
+        "objeto_id": "fd9ede87-9871-49ae-a0c2-222c3af441b9",
+        "chave": "orgao_emissor",
+        "valor_revisado_ficticio": "EMISSOR FICTÍCIO SEM VALIDADE"
+      },
+      {
+        "proposta_id": "b753a1e9-f1e0-40af-8212-0e564c52335c",
+        "alias": "procurador",
+        "objeto_id": "fd9ede87-9871-49ae-a0c2-222c3af441b9",
+        "chave": "documento_numero",
+        "valor_revisado_ficticio": "ID-FICTICIO-GAMA"
+      },
+      {
+        "proposta_id": "cb6df31d-af49-47bf-afef-293579a8343b",
+        "alias": "procurador",
+        "objeto_id": "fd9ede87-9871-49ae-a0c2-222c3af441b9",
+        "chave": "nacionalidade",
+        "valor_revisado_ficticio": "NACIONALIDADE FICTÍCIA"
+      },
+      {
+        "proposta_id": "39fbc451-e66d-4265-b89f-08083ecb8184",
+        "alias": "procurador",
+        "objeto_id": "fd9ede87-9871-49ae-a0c2-222c3af441b9",
+        "chave": "profissao",
+        "valor_revisado_ficticio": "PROFISSÃO FICTÍCIA"
+      },
+      {
+        "proposta_id": "7035617c-f2fd-4547-aab8-4be1a550d307",
+        "alias": "procurador",
+        "objeto_id": "fd9ede87-9871-49ae-a0c2-222c3af441b9",
+        "chave": "estado_civil",
+        "valor_revisado_ficticio": "solteiro — DADO EXCLUSIVAMENTE FICTÍCIO"
+      },
+      {
+        "proposta_id": "c1148afa-74fe-48fc-9422-5132644de8ee",
+        "alias": "procurador",
+        "objeto_id": "fd9ede87-9871-49ae-a0c2-222c3af441b9",
+        "chave": "endereco",
+        "valor_revisado_ficticio": "ENDEREÇO INEXISTENTE GAMA"
+      },
+      {
+        "proposta_id": "cc74db3b-0783-437c-ac45-0472f3031d6a",
+        "alias": "bem",
+        "objeto_id": "f89c9db6-ad79-4b0e-a79e-c00850bf7536",
+        "chave": "descricao",
+        "valor_revisado_ficticio": "IMÓVEL INEXISTENTE — UNIDADE DE TESTE"
+      },
+      {
+        "proposta_id": "461be14c-0b22-466b-b780-05f67664504a",
+        "alias": "bem",
+        "objeto_id": "f89c9db6-ad79-4b0e-a79e-c00850bf7536",
+        "chave": "matricula",
+        "valor_revisado_ficticio": "MATRICULA-FICTICIA-SEM-VALIDADE"
+      },
+      {
+        "proposta_id": "ddfbe7c9-5adf-484e-9dd4-2789fb03c67c",
+        "alias": "bem",
+        "objeto_id": "f89c9db6-ad79-4b0e-a79e-c00850bf7536",
+        "chave": "registro",
+        "valor_revisado_ficticio": "REGISTRO FICTÍCIO"
+      },
+      {
+        "proposta_id": "421a9998-fa05-4151-b028-6f90e37f77db",
+        "alias": "bem",
+        "objeto_id": "f89c9db6-ad79-4b0e-a79e-c00850bf7536",
+        "chave": "titularidade",
+        "valor_revisado_ficticio": "TITULARIDADE FICTÍCIA ALFA — APENAS CENÁRIO"
+      },
+      {
+        "proposta_id": "0573fd7e-8935-451a-b5fa-3c653e8c803f",
+        "alias": "bem",
+        "objeto_id": "f89c9db6-ad79-4b0e-a79e-c00850bf7536",
+        "chave": "aquisicao",
+        "valor_revisado_ficticio": "TÍTULO FICTÍCIO SEM VALIDADE"
+      },
+      {
+        "proposta_id": "b6c6cb35-4cb4-40c4-b911-7f0c7bd6ddaa",
+        "alias": "bem",
+        "objeto_id": "f89c9db6-ad79-4b0e-a79e-c00850bf7536",
+        "chave": "onus",
+        "valor_revisado_ficticio": "TEXTO FICTÍCIO PARA TESTAR CONFERÊNCIA DE ÔNUS; NÃO É CERTIDÃO"
+      },
+      {
+        "proposta_id": "00061469-3881-4af1-9ec7-5288716ff626",
+        "alias": "papel_vendedor",
+        "objeto_id": "82b9de46-179a-467f-a839-0286fc1a9b4b",
+        "chave": "tipo_papel",
+        "valor_revisado_ficticio": "vendedor"
+      },
+      {
+        "proposta_id": "d482ae19-a8cf-49a0-88f2-ea3fb8447535",
+        "alias": "papel_comprador",
+        "objeto_id": "a249ae10-0b4b-4e26-9679-3c31e23a2ce3",
+        "chave": "tipo_papel",
+        "valor_revisado_ficticio": "comprador"
+      },
+      {
+        "proposta_id": "3f0c4654-0aad-4975-bb49-5ea23f479515",
+        "alias": "negocio",
+        "objeto_id": "2f11400d-91cc-4c60-ba8c-df38ac7d6e2d",
+        "chave": "preco",
+        "valor_revisado_ficticio": "R$ 200.000,00 — VALOR FICTÍCIO"
+      },
+      {
+        "proposta_id": "f7d86c86-29b1-4bc9-9546-798097e6c424",
+        "alias": "representacao",
+        "objeto_id": "d49e8150-832c-495f-8b8c-2f5ae97d3906",
+        "chave": "tipo_relacao",
+        "valor_revisado_ficticio": "representante_de"
+      },
+      {
+        "proposta_id": "61506f88-f913-45a9-a152-bb36496c031d",
+        "alias": "representacao",
+        "objeto_id": "d49e8150-832c-495f-8b8c-2f5ae97d3906",
+        "chave": "descricao",
+        "valor_revisado_ficticio": "DESCRIÇÃO FICTÍCIA DE REPRESENTAÇÃO; NÃO ATESTA PODERES, SUFICIÊNCIA OU VALIDADE"
+      },
+      {
+        "proposta_id": "d2edc982-d5ac-4a3f-98aa-38a81f7023f2",
+        "alias": "representacao",
+        "objeto_id": "d49e8150-832c-495f-8b8c-2f5ae97d3906",
+        "chave": "instrumento",
+        "valor_revisado_ficticio": "INSTRUMENTO-FICTICIO-PROC-001 — SEM VALIDADE"
+      },
+      {
+        "proposta_id": "6312b591-dc82-424b-9540-5612046f130f",
+        "alias": "negocio",
+        "objeto_id": "2f11400d-91cc-4c60-ba8c-df38ac7d6e2d",
+        "chave": "situacao_pagamento",
+        "valor_revisado_ficticio": "previsto"
+      },
+      {
+        "proposta_id": "a824f55d-74a9-47d5-b927-8bd80f8b1022",
+        "alias": "negocio",
+        "objeto_id": "2f11400d-91cc-4c60-ba8c-df38ac7d6e2d",
+        "chave": "condicoes",
+        "valor_revisado_ficticio": "PREVISÃO FICTÍCIA DE PAGAMENTO FUTURO"
+      }
+    ]
+  }
+]

@@ -58,7 +58,9 @@ export const useProcessos = (params?: {
       if (params?.page_size) searchParams.append('page_size', params.page_size.toString())
       
       const response = await api.get(`/api/v1/processos/?${searchParams}`)
-      return response.data
+      return Array.isArray(response.data)
+        ? { results: response.data, count: response.data.length }
+        : response.data
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
   })

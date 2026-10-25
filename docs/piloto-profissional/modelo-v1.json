@@ -1,0 +1,31 @@
+{
+  "nome": "Compra e venda — padrão enviado para revisão",
+  "versao_preparacao": "piloto-imagens-v1",
+  "estado": "aguardando_revisao_profissional",
+  "aprovado": false,
+  "origem": {
+    "imagens": [
+      "I1",
+      "I2",
+      "I3",
+      "I4"
+    ],
+    "manifesto_excluido": "I5",
+    "integralidade_confirmada_pelo_usuario": true,
+    "tarjas_confirmadas_como_dados_sensiveis": true
+  },
+  "redacao_para_revisao": "REDACAO_PARAMETRIZADA_V1.md",
+  "aviso": "Pacote técnico de revisão; não importa dados, não configura cenário e não aprova o modelo. Fórmulas candidatas do documento de revisão não são fatos nem valores iniciais.",
+  "modelo": {
+    "corpo": "ESCRITURA DE COMPRA E VENDA\n\n{{abertura}}\n\nQUALIFICAÇÃO DA PARTE VENDEDORA\n{{vendedores}}\n\nQUALIFICAÇÃO DA PARTE COMPRADORA\n{{compradores}}\n\n{{representacao}}\n\n1.- DO IMÓVEL E SUA TITULAÇÃO\n1.1.- {{titularidade}}\n{{imovel}}\n1.2.- {{aquisicao}}\n1.3.- {{onus}}\n\n2.- {{preco}}\n{{pagamento}}\n2.1.- {{quitacao}}\n{{transmissao}}\n\n3.- {{declaracoes_vendedores}}\n\n4.- {{declaracoes_compradores}}\n\n5.- {{doi}}\n\n6.- IMPOSTO DE TRANSMISSÃO INTER VIVOS\n{{tributo}}\n\n7.- {{certidoes}}\n{{consultas}}\n\n8.- {{declaracoes_partes}}\n\n9.- {{requerimentos}}\n\n10.- {{encerramento}}\n{{emolumentos}}",
+    "representacao": "",
+    "observacoes": "{{observacoes}}",
+    "registros_minuta": [],
+    "campos_qualificacao": [],
+    "campos_obrigatorios_ficha": [],
+    "dependencias_campos_ficha": [],
+    "aprovado": false,
+    "justificativa": "Preparação técnica baseada no padrão enviado, sem dados do exemplo. Aguardando revisão profissional.",
+    "versao_esperada": 0
+  }
+}

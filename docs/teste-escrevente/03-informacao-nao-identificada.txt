@@ -1,0 +1,5 @@
+DOCUMENTO INTEIRAMENTE FICTICIO
+
+Esta pagina usa texto livre sem os campos rotulados reconhecidos pelo prototipo.
+O sistema deve informar que nao conseguiu associar os dados automaticamente.
+Nao deve inventar pessoas, imovel, preco ou forma de pagamento a partir deste texto.

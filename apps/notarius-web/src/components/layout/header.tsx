@@ -82,7 +82,7 @@ export function Header({ className }: HeaderProps) {
     >
       <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, sm: 3 } }}>
         {/* Search */}
-        <Box sx={{ flexGrow: 1, maxWidth: 600, mr: 3 }}>
+        <Box sx={{ flexGrow: 1, minWidth: 0, maxWidth: 600, mr: { xs: 0, sm: 3 } }}>
           <TextField
             fullWidth
             size="small"
@@ -103,7 +103,7 @@ export function Header({ className }: HeaderProps) {
         </Box>
 
         {/* Right side */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', minWidth: 0, alignItems: 'center', gap: 1 }}>
           {/* Tenant Selector */}
           <TenantSelector />
           

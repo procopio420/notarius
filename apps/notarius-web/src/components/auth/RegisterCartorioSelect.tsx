@@ -84,7 +84,7 @@ export function RegisterCartorioSelect({
   const listRef = useRef<HTMLDivElement>(null)
   const searchTimeoutRef = useRef<NodeJS.Timeout>()
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api/v1'
 
   const searchTenants = useCallback(async (query: string, uf?: string) => {
     if (!query.trim()) {

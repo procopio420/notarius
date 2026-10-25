@@ -40,7 +40,7 @@ export function LoginForm() {
     setError(null)
     try {
       await loginMutation.mutateAsync(data)
-      router.push('/inbox')
+      router.push('/atendimentos')
     } catch (err: unknown) {
       const errorMessage = err instanceof Error && 'response' in err 
         ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail || 'Falha no login. Tente novamente.'

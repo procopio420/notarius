@@ -53,7 +53,7 @@ export default function InboxPage() {
   }
 
   const handleCreateProcess = () => {
-    router.push('/criar')
+    router.push('/atendimentos')
   }
 
   const handleClearFilters = () => {

@@ -225,7 +225,7 @@ console.log('generatedDocument', generatedDocument)
 
               // First, approve the minuta
               const approveResponse = await fetch(
-                `http://localhost:8000/api/v1/ai/approve-minuta/${generatedDocument.minuta.id}/`,
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api/v1'}/ai/approve-minuta/${generatedDocument.minuta.id}/`,
                 {
                   method: 'POST',
                   headers: {
@@ -243,7 +243,7 @@ console.log('generatedDocument', generatedDocument)
 
               // Then, finalize the minuta
               const response = await fetch(
-                `http://localhost:8000/api/v1/ai/finalize-minuta/${generatedDocument.minuta.id}/`,
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api/v1'}/ai/finalize-minuta/${generatedDocument.minuta.id}/`,
                 {
                   method: 'POST',
                   headers: {

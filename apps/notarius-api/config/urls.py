@@ -10,10 +10,12 @@ from apps.tenancy.views import TenantViewSet
 from apps.documentos.views import DocumentoViewSet, MinutaViewSet
 from apps.partes.views import ParteViewSet
 from apps.processos.views import ProcessoParteViewSet, ProcessoViewSet, ProtocoloViewSet
+from apps.processos.views import AtendimentoViewSet
 from apps.ai_documents import views as ai_documents_views
 from apps.base.metrics_views import metrics_view
 
 router = DefaultRouter()
+router.register(r"atendimentos", AtendimentoViewSet, basename="atendimento")
 router.register(r"tenants", TenantViewSet, basename="tenant")
 router.register(r"audit-logs", AuditLogViewSet, basename="auditlog")
 router.register(r"partes", ParteViewSet, basename="parte")

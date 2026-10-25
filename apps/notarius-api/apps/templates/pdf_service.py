@@ -12,7 +12,6 @@ from django.core.files.base import ContentFile
 from django.utils import timezone
 from jinja2 import Environment, Template, TemplateError
 from markdown2 import markdown
-from weasyprint import HTML, CSS
 
 from apps.auditoria.models import AuditLog
 from .models import Template
@@ -146,6 +145,7 @@ class PDFService:
         """Convert HTML content to PDF bytes."""
         try:
             # Create HTML object
+            from weasyprint import HTML
             html_obj = HTML(string=html_content)
             
             # Generate PDF

@@ -35,7 +35,10 @@ export const useTenantStore = create<TenantState & TenantActions>()(
       isLoading: false,
 
       // Actions
-      setSelectedTenant: (selectedTenant) => set({ selectedTenant }),
+      setSelectedTenant: (selectedTenant) => {
+        if (typeof window !== 'undefined') window.localStorage.setItem('tenant_id', selectedTenant.id)
+        set({ selectedTenant })
+      },
       setAvailableTenants: (availableTenants) => set({ availableTenants }),
       setLoading: (isLoading) => set({ isLoading }),
       clearTenants: () => set({ 

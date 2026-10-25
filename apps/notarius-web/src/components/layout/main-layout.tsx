@@ -26,6 +26,7 @@ export function MainLayout({ children, hideSidebar = false, hideHeader = false }
           component="main"
           sx={{
             flexGrow: 1,
+            minWidth: 0,
             ml: { lg: hideSidebar ? 0 : `${drawerWidth}px` },
             display: 'flex',
             flexDirection: 'column',
