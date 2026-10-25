@@ -12,18 +12,27 @@ Prompt curto: `Leia docs/PLANO_PILOTO_PROFISSIONAL.md, siga a orientação inici
 
 | Etapa | Objetivo | Situação |
 |---|---|---|
-| 1 | Diagnóstico da adaptação profissional | A executar |
+| 1 | Diagnóstico da adaptação profissional | Diagnóstico técnico entregue; material e decisões profissionais pendentes (ver registro abaixo) |
 | 2 | Parametrizar padrão autorizado | Depende do material completo e da revisão da escrevente |
 | 3 | Configurar primeiro cenário | Depende das decisões profissionais |
 | 4 | Percorrer atendimento acompanhado | Depende de padrão aprovado e revisão dos controles de dados |
 | 5 | Conferir minuta e exportações | Depende da revisão da escrevente |
 | 6 | Ativar e avaliar IA real | Adiada até autorização específica e créditos |
 
-Este PR entrega somente o plano. Não contém documentos reais nem implementa as etapas. O provedor documental real continua bloqueado. A conferência manual do piloto não comprova a qualidade da IA.
+O PR foi aberto com somente o plano; a execução posterior da etapa 1 está registrada abaixo. Não contém documentos reais. O provedor documental real continua bloqueado. A conferência manual do piloto não comprova a qualidade da IA.
+
+### Registro da etapa 1 — 25/10/2026
+
+- Relatório: [Diagnóstico da adaptação profissional](DIAGNOSTICO_PILOTO_PROFISSIONAL_ETAPA_1.md), com reaproveitamento, ajustes, material/decisões pendentes e critérios propostos para o primeiro caso acompanhado.
+- Base inspecionada: `75b2857`, branch `codex/plano-piloto-profissional`, confirmada como origem do PR #2 de `evgrotz/notarius`. Lidos os documentos da orientação inicial e a conclusão da etapa 9 na seção 23 de `EXECUCAO_FLUXO_PRINCIPAL.md`.
+- Verificação nesta rodada: **33 testes passaram**, em banco de testes isolado, com `manage.py test tests.test_preparacao_documental.PreparacaoOfflineTests tests.test_blocos_minuta tests.test_redacao_estruturada --noinput` (22,525 s); verificação de sistema sem problemas e `git diff --check` sem erros. São testes fictícios/offline; não comprovam IA real ou aceite profissional.
+- Arquivos alterados: este plano e `docs/DIAGNOSTICO_PILOTO_PROFISSIONAL_ETAPA_1.md`. Sem mudanças de implementação ou configuração; sem dados reais ou envio externo.
+- Pendências: padrão integral autorizado, esclarecimento de rasuras, cenário/participantes, campos/fontes, condições das cláusulas e apresentação aprovados pela escrevente; usuário organiza entrega privada, acompanhamento e condições de operação local.
+- Diagnóstico técnico entregue, **sem marcar adaptação ou homologação profissional como concluída**. Etapas 2 a 6 não executadas; aguardar nova solicitação.
 
 ## Prompts de cada etapa
 
-+### Orientação inicial
+### Orientação inicial
 
 ```text
 Vamos adaptar o Notarius existente para um piloto acompanhado de compra e venda com documentos reais.
