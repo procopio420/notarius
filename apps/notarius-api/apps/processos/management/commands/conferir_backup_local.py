@@ -2,7 +2,7 @@ from getpass import getpass
 from pathlib import Path
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from apps.processos.backup_local import read_backup, write_new, MAX_DB, BackupInvalido
+from apps.processos.backup_local import read_backup, write_new, MAX_DB, BackupInvalido, conferir_destino_privado
 
 class Command(BaseCommand):
     help = 'Verifica backup e opcionalmente recupera uma cópia SQLite NOVA, sem substituir o banco ativo.'
@@ -14,6 +14,11 @@ class Command(BaseCommand):
         destination=Path(options['recuperar_em']).resolve() if options['recuperar_em'] else None
         if destination and (destination.exists() or destination == Path(settings.DATABASES['default']['NAME']).resolve() or not destination.parent.is_dir()):
             raise CommandError('A recuperação exige um arquivo NOVO e não pode substituir o banco ativo.')
+        if destination:
+            try:
+                conferir_destino_privado(destination)
+            except (BackupInvalido, OSError) as error:
+                raise CommandError(str(error)) from None
         if not source.is_file() or source.stat().st_size > MAX_DB+65536:
             raise CommandError('Backup ausente ou acima do limite de tamanho.')
         try:

@@ -2,7 +2,7 @@ from getpass import getpass
 from pathlib import Path
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from apps.processos.backup_local import make_backup, write_new, BackupInvalido
+from apps.processos.backup_local import make_backup, write_new, BackupInvalido, conferir_destino_privado
 
 class Command(BaseCommand):
     help = 'Cria backup local criptografado do SQLite; senha solicitada sem aparecer na tela.'
@@ -15,6 +15,10 @@ class Command(BaseCommand):
         target=Path(options['saida']).resolve()
         if target.exists() or not target.parent.is_dir():
             raise CommandError('Escolha um arquivo novo em uma pasta existente.')
+        try:
+            conferir_destino_privado(target)
+        except (BackupInvalido, OSError) as error:
+            raise CommandError(str(error)) from None
         self.stdout.write('Inclui TODOS os cartórios, usuários e anexos no banco. Não inclui .env nem arquivos externos. Guarde a senha: ela não pode ser recuperada.')
         password=getpass('Senha do backup (mínimo 12 caracteres): ')
         if password != getpass('Repita a senha: '):

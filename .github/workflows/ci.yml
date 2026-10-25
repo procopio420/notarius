@@ -5,6 +5,13 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      publicar_ambiente:
+        description: 'Publicar imagens e executar deploy (requer autorização operacional específica)'
+        type: boolean
+        required: true
+        default: false
 
 env:
   PYTHON_VERSION: '3.11'
@@ -355,7 +362,8 @@ jobs:
     name: Build Docker Images
     runs-on: ubuntu-latest
     needs: [lint, test, integration-test, pii-test, contract-test, e2e-test]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    # Merging the local pilot is not authorization to publish or deploy it.
+    if: github.event_name == 'workflow_dispatch' && inputs.publicar_ambiente && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     strategy:
       matrix:
         service: [notarius-api, pii-vault, lexnode-api, intent-engine]
@@ -388,7 +396,7 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: [build]
-    if: github.ref == 'refs/heads/develop'
+    if: github.event_name == 'workflow_dispatch' && inputs.publicar_ambiente && github.ref == 'refs/heads/develop'
     environment: staging
     steps:
       - name: Checkout code
@@ -413,7 +421,7 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: [build]
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && inputs.publicar_ambiente && github.ref == 'refs/heads/main'
     environment: production
     steps:
       - name: Checkout code
@@ -544,7 +552,7 @@ jobs:
     name: Notify Success
     runs-on: ubuntu-latest
     needs: [deploy-production]
-    if: github.ref == 'refs/heads/main' && always()
+    if: github.event_name == 'workflow_dispatch' && inputs.publicar_ambiente && github.ref == 'refs/heads/main' && needs.deploy-production.result == 'success'
     steps:
       - name: Notify deployment success
         run: |

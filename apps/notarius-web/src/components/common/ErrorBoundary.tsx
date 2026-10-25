@@ -26,7 +26,11 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
+    if (process.env.NEXT_PUBLIC_PILOTO_LOCAL === '1') {
+      console.error('Falha de interface. Reabra o atendimento e confira o estado salvo.')
+    } else {
+      console.error('ErrorBoundary caught an error:', error, errorInfo)
+    }
     this.setState({ error, errorInfo })
   }
 
@@ -81,7 +85,7 @@ function DefaultErrorFallback({ error, resetError }: { error: Error; resetError:
             Ocorreu um erro inesperado. Nossa equipe foi notificada e está trabalhando para resolver o problema.
           </Typography>
           
-          {process.env.NODE_ENV === 'development' && (
+          {process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_PILOTO_LOCAL !== '1' && (
             <Box sx={{ textAlign: 'left', mb: 3 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                 Detalhes do erro (desenvolvimento):

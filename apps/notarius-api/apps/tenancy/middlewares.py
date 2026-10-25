@@ -1,4 +1,5 @@
 from django.utils.deprecation import MiddlewareMixin
+from django.core.exceptions import ValidationError
 
 from .models import Tenant
 from .tenancy import set_current_tenant
@@ -20,7 +21,7 @@ class TenantMiddleware(MiddlewareMixin):
         if tid and request.user.is_authenticated and request.user.is_superuser:
             try:
                 tenant = Tenant.objects.get(pk=tid)
-            except Tenant.DoesNotExist:
+            except (Tenant.DoesNotExist, ValidationError, ValueError):
                 tenant = None
 
         if tenant is None:
@@ -28,7 +29,7 @@ class TenantMiddleware(MiddlewareMixin):
             if hdr:
                 try:
                     tenant = Tenant.objects.get(pk=hdr)
-                except Tenant.DoesNotExist:
+                except (Tenant.DoesNotExist, ValidationError, ValueError):
                     tenant = None
 
         if tenant is None:
@@ -49,7 +50,7 @@ class TenantMiddleware(MiddlewareMixin):
                 if tid:
                     try:
                         tenant = Tenant.objects.get(pk=tid)
-                    except Tenant.DoesNotExist:
+                    except (Tenant.DoesNotExist, ValidationError, ValueError):
                         tenant = None
         request.tenant = tenant
         set_current_tenant(tenant)

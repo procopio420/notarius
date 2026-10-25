@@ -11,6 +11,9 @@ The main CI/CD pipeline that runs on every push and pull request.
 **Triggers:**
 - Push to `main` or `develop` branches
 - Pull requests to `main` or `develop` branches
+- Manual workflow dispatch for explicitly authorized publication/deployment
+
+For the accompanied local pilot, merging into `main` does not publish images or deploy services. In `ci.yml`, the Build/ECR and deployment jobs require `workflow_dispatch` with `publicar_ambiente=true` (default: false). Testing remains triggered by push and pull request. The separate tag-based release workflow is unchanged; no release tag is created by the pilot integration. See [pilot delivery](../../docs/ENTREGA_PILOTO_ACOMPANHADO_2026_10_25.md).
 
 **Jobs:**
 - **Lint**: Code quality checks (Python, Node.js, security)
