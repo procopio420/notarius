@@ -16,10 +16,19 @@ Prompt curto: `Leia docs/PLANO_PILOTO_PROFISSIONAL.md, siga a orientação inici
 | 2 | Parametrizar padrão autorizado | Preparação v1 entregue; revisão/correções e aprovação da escrevente marcadas como pendentes; usuário autorizou avançar à etapa 3 |
 | 3 | Configurar primeiro cenário | Configuração técnica provisória preparada; hipótese e regras profissionais aguardam confirmação da escrevente |
 | 4 | Percorrer atendimento acompanhado | Preparação técnica e roteiro entregues; atendimento real pendente de padrão/cenário aprovados, controles locais e sessão com a escrevente |
-| 5 | Conferir minuta e exportações | Depende da revisão da escrevente |
+| 5 | Conferir minuta e exportações | Conferência fictícia de conteúdo e PDF visual realizada; Word visual e conferência profissional do caso continuam pendentes |
 | 6 | Ativar e avaliar IA real | Adiada até autorização específica e créditos |
 
 O PR foi aberto com somente o plano; as execuções posteriores estão registradas abaixo. Os arquivos versionados não contêm documentos reais nem dados pessoais do exemplo. O provedor documental real continua bloqueado. A conferência manual do piloto não comprova a qualidade da IA.
+
+### Registro da etapa 5 — conferência técnica fictícia, 25/10/2026
+
+- Continuação autorizada pelo usuário; pendências anteriores preservadas. [Relatório com resultados e limitações](piloto-profissional/ETAPA_5_CONFERENCIA_TECNICA.md).
+- Dois novos testes em `tests.test_exportacao_piloto` conferem corpo completo do Word e PDF paginado com nomes, números/zeros, valores, acentos, caracteres literais e ordem. PDF comparado após normalização de espaços e remoção de metadados conhecidos; não é prova de identidade de layout.
+- Primeira seleção de 20 testes: 19 aprovados, um teste de dimensão corrigido por arredondamento da unidade Word. Verificação final de quatro testes (o corrigido e três casos de blocos): todos passaram. **23 testes distintos aprovados ao final**, incluindo revisão, comparação, exportação e cenário provisório. Sistema e diff sem problemas. Detalhes/comandos no relatório e arquivos de teste.
+- Amostras fictícias geradas fora do Git em `.local/piloto-etapa5/`. PDF de três páginas renderizado e inspecionado integralmente, sem cortes/sobreposição. Conteúdo Word conferido, mas renderização Word indisponível (`soffice.exe` não encontrado); **Word visual pendente**, sem declaração de apresentação homologada.
+- Arquivos versionados: testes novos, relatório e este plano. Sem mudança de exportador, aprovação profissional, banco operacional, dados reais ou envio externo.
+- **Etapa 5 profissional continua pendente** da versão do caso revisada pela escrevente, decisões/modelo/cenário das etapas anteriores e conferência visual Word/PDF no programa usado por ela. Etapa 6 não iniciada; IA externa permanece bloqueada.
 
 ### Registro da etapa 4 — preparação técnica, 25/10/2026
 
