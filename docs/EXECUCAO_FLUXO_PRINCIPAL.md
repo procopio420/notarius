@@ -1,6 +1,6 @@
 # Notarius — documento único de execução do fluxo principal
 
-Versão 1.14 · 25/10/2026 · Diagnóstico original preservado nas seções 1–8; ficha na seção 9; propostas na seção 10; pendências na seção 11; preenchimento na seção 12; cenários na seção 13; ato e complementos na seção 14; homologação na seção 15; ensaio técnico integral na seção 16; documentos vinculados na seção 17; contrato de análise documental na seção 18; comparação entre fontes na seção 19; conversa orientada pelas pendências na seção 20; blocos explícitos da minuta na seção 21; teste integrado na seção 22.
+Versão 1.15 · 25/10/2026 · Diagnóstico original preservado nas seções 1–8; ficha na seção 9; propostas na seção 10; pendências na seção 11; preenchimento na seção 12; cenários na seção 13; ato e complementos na seção 14; homologação na seção 15; ensaio técnico integral na seção 16; documentos vinculados na seção 17; contrato de análise documental na seção 18; comparação entre fontes na seção 19; conversa orientada pelas pendências na seção 20; blocos explícitos da minuta na seção 21; teste integrado na seção 22; preparação offline para IA real na seção 23.
 
 A numeração das solicitações do usuário prevalece sobre o roteiro proposto originalmente: a **Etapa 2 autorizada é a ficha estruturada**, não a homologação do cenário. Sua execução não marca decisões profissionais pendentes como aprovadas.
 
@@ -1125,3 +1125,35 @@ O início recomendado é o atendimento simples `caefe3c0-5620-49d1-9d8c-6c95e126
 O teste automatizado prova o comportamento local nos dados sintéticos definidos; não prova facilidade para uma usuária iniciante, qualidade geral de OCR/IA, validade jurídica, identidade, autenticidade ou prontidão de produção. A própria mãe ainda precisa executar o roteiro; o relatório orienta registrar ajuda necessária, dúvidas de linguagem e possibilidade de retomar o fluxo. O padrão profissional continua pendente da escrevente, conforme seção 21.4.
 
 Avaliação real de IA continua **não realizada**: requer autorização futura, amostras adequadas e critérios por campo, participante, documento/página/leitura/trecho, omissões, conflitos, recusas e tentativas de instrução maliciosa. Não se trocou simulação por provedor real nesta etapa. A comparação de conteúdo Word/PDF não substitui avaliação visual no programa da escrevente. Edições manuais livres exigem conferência humana; não são interpretadas semanticamente. Celular, acessibilidade completa, PostgreSQL, segurança e desempenho de produção permanecem fora desta verificação local.
+
+## 23. Etapa 9 autorizada — preparação offline para ativação posterior
+
+### 23.1 Implementação e correções
+
+`politica_documental.py` centraliza limites, códigos públicos de erro e diagnóstico sem segredos. `provedor_documental.py` continua sem cliente SDK ou transporte e com bloqueio incondicional: somente constrói a requisição planejada e interpreta envelopes locais. Nenhuma variável de ambiente ou comando habilita envio. O modelo deve ser explicitamente escolhido futuramente; não se adotou um modelo padrão por suposição. O diagnóstico não consulta saldo ou credencial, não revela seu valor/nome de modelo e mantém impedimentos de autorização, transporte, avaliação real e homologação.
+
+Foi corrigida uma brecha de repetição: `analise_documental.executar` retornava a análise anterior antes de verificar o provedor. Agora a verificação precede também esse retorno; o POST normal não reapresenta um resultado simulado salvo como resposta operacional. A consulta histórica conserva identificação e conteúdo originais. O provedor de teste continua exclusivo de banco/configuração de testes e não é selecionável por HTTP.
+
+Falhas usam códigos permitidos (`ia_bloqueada`, `chave_ausente`, `creditos_indisponiveis`, `tempo_esgotado`, `limite_temporario`, `credencial_recusada`, `provedor_indisponivel`, `simulacao_fora_teste`). O servidor não publica texto arbitrário de exceção. Timeout/quota/falha em testes não aplicam propostas nem alteram ficha; repetição é decisão explícita, sem fallback. Timeout não permite prometer ausência de cobrança. Dúvida vazia foi rejeitada para que uma resposta sem interpretação não pareça concluída.
+
+Limites: 5 documentos, 200 unidades, 4.000 caracteres por unidade, 100.000 caracteres de texto, 600.000 bytes de entrada documental com metadados/assinatura, 500.000 bytes de saída estruturada, até 200 propostas totais. Construtor solicita 12.000 tokens; 1 tentativa/ação, SDK retries=0. Conexão/leitura/escrita/pool planejados em 5/45/10/5 segundos; prazo total absoluto planejado de 60 segundos. **Sem transporte, esses prazos e o limite de recebimento em rede não estão implementados/validados.** A entrada limitada não inclui o acréscimo de instruções/esquema ao envelope HTTP futuro. Nenhum truncamento silencioso foi introduzido.
+
+O GET protegido da análise inclui diagnóstico `preparacao`, mantém `disponivel=False` e `Cache-Control: no-store`. Não houve mudança na navegação Conversa/Documentos/Minuta, migração ou aprovação de dados/modelos locais. O interpretador por rótulos continua ação local distinta, explicitamente identificada; não substitui IA real.
+
+### 23.2 Avaliação fictícia e comandos
+
+`casos_avaliacao_documental.py` fornece dez casos inteiramente fictícios: nome simples; nomes próximos; cônjuge não deduzido; representação incerta; CPF divergente; página sem texto; preço ausente; pagamento futuro; releitura; instrução maliciosa. `avaliacao_documental.py` confere contrato, cobertura, fonte/versão/valor/associação, omissões e contexto literal dos exercícios. Oráculo fica separado da requisição destinada ao modelo. Casos, instruções e esquemas têm hashes.
+
+`diagnosticar_ia_documental --saida ARQUIVO_NOVO` salva diagnóstico local sem chave. `avaliar_ia_documental --saida ARQUIVO_NOVO` gera plano offline, sem escolher modelo ou acessar atendimentos. `--modelo` apenas prepara um corpo local; `--respostas` confere arquivo local completo/versionado, com procedência explicitamente **não atestada**. `--executar-real` é recusado sem envio. Nenhum desses comandos avalia IA real ou confirma dados. O comando histórico `avaliar_ia_compra_venda` foi identificado como avaliação de mensagens/rótulos, distinta do contrato documental.
+
+`docs/ATIVACAO_IA_DOCUMENTAL.md` registra inventário de dados, ação e destino planejados (OpenAI Responses API), limites, recuperação, formato de respostas e comandos. O texto selecionado poderá conter dados pessoais/financeiros; `store=False` não prova retenção zero. Documentação oficial atual, suporte ao esquema/modelo, termos e tratamento dos dados precisam ser verificados antes do piloto. Nesta etapa, por proibição de chamadas externas, consultou-se apenas código/SDK locais. Não se testaram crédito, autenticação ou qualidade do provedor.
+
+### 23.3 Verificação e alcance do aceite
+
+**126 testes passaram** na bateria final desta etapa (`.local/etapa9-regressao.log`): preparação (10 novos testes), contrato documental, ficha, comparação, conversa, pendências, propostas, redação/blocos e percursos integrados. Os dez testes novos incluem subcasos de falta de chave, quota/limite/timeout, segredo em exceção, limites/Unicode/JSON, dez oráculos fictícios, comandos sem rede, fonte/pessoa/valor incorretos, replay de simulação, uso fora do teste e dúvida vazia. As respostas e falhas de provedor são fabricadas em testes; fixtures derivadas do oráculo verificam o avaliador, não a inteligência de um modelo.
+
+Django `check`, `makemigrations --check --dry-run` e verificação de espaços do diff sem erros. Não houve migração. Os comandos offline foram executados: `.local/etapa9-diagnostico.json` e `.local/etapa9-plano-documental.json`; este último contém dez entradas/oráculos e nenhuma resposta real. A etapa 8 permanece com sua bateria de 143 testes e avaliação visual local documentadas; os 126 desta etapa são outra seleção de regressão, não uma soma de testes distintos.
+
+`docs/MATRIZ_ACEITE_FINAL.md` separa: (1) implementação verificada localmente; (2) redação, regras/cenários e uso dependentes da escrevente; (3) transporte/piloto/avaliação real dependentes de autorização, escolha de modelo, créditos e validações futuras. A implementação de transporte ativo ainda falta: remover bloqueio ou definir chave não basta. O piloto deverá começar exclusivamente pelos casos fictícios, com limite de gasto autorizado e revisão humana; documentos reais exigem nova autorização e validações adequadas.
+
+**Não há declaração de prontidão para documentos reais, homologação profissional ou produção.** Nenhum dado foi enviado, nenhuma chave exibida e nenhuma configuração de cobrança alterada.

@@ -26,7 +26,7 @@ def resposta_manual(case):
         for expected in case['obrigatorios']:
             if expected['unidade_id']!=unit['unidade_id']: continue
             proposals.append({**{k:v for k,v in expected.items() if k!='unidade_id'},
-                'relacionado_id':expected['registro_sugerido_id'],'fonte':unit['fonte'],
+                'relacionado_id':expected['registro_sugerido_id'],'fonte':deepcopy(unit['fonte']),
                 'trecho':unit['texto'],'inicio':0,'fim':len(unit['texto'])})
         rows.append({'unidade_id':unit['unidade_id'],'situacao':'propostas' if proposals else 'revisao_manual',
                      'propostas':proposals,'duvidas':['FIXTURE SIMULADA: revisão humana necessária.'] if case['duvida_obrigatoria'] or not proposals else []})
@@ -146,7 +146,7 @@ class PreservacaoDocumentalTests(APITestCase):
         self.assertEqual(response.data['codigo'],'ia_bloqueada')
         self.assertEqual(before,self.counts()); sdk.assert_not_called()
         history=self.client.get(self.url).data
-        self.assertTrue(history['analises'][0]['simulado'])
+        self.assertEqual(history['analises'][0]['provedor'],'simulado_documental_teste_v1')
         self.assertFalse(history['preparacao']['disponivel'])
 
     def test_failures_preserve_work_are_clear_and_can_be_retried_explicitly(self):
