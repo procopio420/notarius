@@ -25,6 +25,8 @@ Não integram o commit: `.local`, banco operacional ou de exercício, anexos, cr
 
 ## Validação e limites
 
+Integração: [PR #2](https://github.com/procopio420/notarius/pull/2), com destino à main. O histórico da PR registra o resultado do merge. No CI remoto desta PR, `pii-detection` e `API Performance Testing` falharam na preparação por `actions/upload-artifact@v3` desativado. `PII Protection Scan` falhou porque `.secrets.baseline` não existe, situação também conferida na main de origem. Essas falhas não constituem aprovação dos testes nem resultado de detecção de dados pessoais. Não foi realizada correção geral dos workflows legados ou contorno de proteções de branch.
+
 **86 testes passaram em 263,320 segundos**, sem testes pulados, na regressão conjunta desta integração:
 
 ```text

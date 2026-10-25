@@ -157,6 +157,8 @@ Conferência de encerramento desta etapa: banco operacional reselecionado e hash
 
 ## Integração em PR solicitada em 25/10/2026
 
+PR criada: [#2 — piloto local acompanhado](https://github.com/procopio420/notarius/pull/2). O resultado de integração na main é rastreável no histórico da PR. CI remoto com falhas confirmadas por `actions/upload-artifact@v3` desativado e ausência de `.secrets.baseline` no scanner; esse arquivo já estava ausente na main de origem. Não se declara CI integralmente aprovado. Os 86 testes locais isolados passaram. A retomada profissional continua sendo a revisão explícita da escrevente descrita acima; merge não aprova o padrão e não publica serviços.
+
 O usuário autorizou documentar, criar PR e fazer merge na main. Destino confirmado pelo histórico de integração e pelos remotes: `procopio420/notarius`, base `origin/main` em `b0c882e`; a PR #1 da entrega anterior está mesclada. Branch nova `codex/piloto-local-acompanhado`, sem atualizar as PRs antigas abertas no fork `evgrotz/notarius`.
 
 Resumo para revisão: [Entrega do piloto acompanhado](ENTREGA_PILOTO_ACOMPANHADO_2026_10_25.md). **86 testes passaram em 263,320 s**, sem testes pulados, reunindo perfil local, backup, atendimentos, exportação, padrão/cenário, redação e blocos. Comando completo na entrega; log fora do Git em `.local/pr-piloto-regressao.log`. Não somar contagens das execuções anteriores. Permanecem os limites de validação global já registrados.
