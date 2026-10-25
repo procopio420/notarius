@@ -5,6 +5,7 @@
 Este repositório preserva o desenvolvimento do fluxo de compra e venda: atendimento, documentos/OCR, ficha detalhada, fontes, pendências, modelo parametrizado, revisão e exportação. É um piloto em desenvolvimento, não um produto homologado para uso profissional autônomo.
 
 - Referência de execução: [Fluxo principal](docs/EXECUCAO_FLUXO_PRINCIPAL.md).
+- Consolidação para integração: [Entrega de 25/10/2026](docs/ENTREGA_COMPRA_VENDA_2026_10_25.md), com escopo implementado, validações e pendências.
 - Evidência e roteiro: [Teste integrado](docs/teste-integrado-etapa8/RELATORIO_ETAPA8.md) e [roteiro da escrevente](docs/teste-integrado-etapa8/ROTEIRO_PARA_MAE.md).
 - A análise documental real e a homologação do padrão profissional dependem das validações descritas nesses documentos. Uma chave de API, isoladamente, não comprova que a integração esteja ativa ou validada.
 - Banco, anexos reais, `.env`, chaves e backups locais não são versionados. Os arquivos documentais versionados são exemplos fictícios de teste.
