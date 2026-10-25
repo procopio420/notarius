@@ -15,11 +15,21 @@ Prompt curto: `Leia docs/PLANO_PILOTO_PROFISSIONAL.md, siga a orientação inici
 | 1 | Diagnóstico da adaptação profissional | Diagnóstico técnico entregue; material e decisões profissionais pendentes (ver registro abaixo) |
 | 2 | Parametrizar padrão autorizado | Preparação v1 entregue; revisão/correções e aprovação da escrevente marcadas como pendentes; usuário autorizou avançar à etapa 3 |
 | 3 | Configurar primeiro cenário | Configuração técnica provisória preparada; hipótese e regras profissionais aguardam confirmação da escrevente |
-| 4 | Percorrer atendimento acompanhado | Depende de padrão aprovado e revisão dos controles de dados |
+| 4 | Percorrer atendimento acompanhado | Preparação técnica e roteiro entregues; atendimento real pendente de padrão/cenário aprovados, controles locais e sessão com a escrevente |
 | 5 | Conferir minuta e exportações | Depende da revisão da escrevente |
 | 6 | Ativar e avaliar IA real | Adiada até autorização específica e créditos |
 
 O PR foi aberto com somente o plano; as execuções posteriores estão registradas abaixo. Os arquivos versionados não contêm documentos reais nem dados pessoais do exemplo. O provedor documental real continua bloqueado. A conferência manual do piloto não comprova a qualidade da IA.
+
+### Registro da etapa 4 — preparação técnica, 25/10/2026
+
+- Continuação autorizada pelo usuário, com pendências das etapas 2 e 3 preservadas. [Roteiro da sessão acompanhada](piloto-profissional/ROTEIRO_ETAPA_4.md) e [relatório técnico](piloto-profissional/ETAPA_4_PREPARACAO_TECNICA.md).
+- **23 testes passaram em 73,980 s**, sem testes pulados: organização de anexos, OCR e função principal integrada, em banco isolado e com arquivos fictícios. OCR nativo local PNG/JPG/PDF misto executado nesta seleção; não prova qualidade em documentos reais.
+- Outros **3 testes de autenticação e isolamento passaram em 1,106 s**, incluindo recusa de download fora do atendimento/cartório. Total: **26 testes aprovados**. Verificação de sistema e `git diff --check` sem problemas; sem auditoria de permissões do equipamento ou produção.
+- Conferidos original preservado, destinatários/páginas, fontes/versões, documentos de referência separados dos fatos, divergências, leitura incompleta, edição e desatualização. Aprovações/decisões positivas são fictícias, somente no banco de teste.
+- Roteiro distingue preparação, sessão real e registro de problemas. Sem nova inspeção visual do navegador ou teste humano; nenhuma correção de interface por suposição. Exportação nos testes é regressão do fluxo fictício, não execução da etapa 5 profissional.
+- Arquivos alterados: este plano, roteiro e relatório da etapa 4. Sem mudanças de implementação, banco operacional, configurações, credenciais ou envio externo.
+- **Etapa 4 real continua pendente:** revisão/aprovação da etapa 2, cenário profissional final da etapa 3, controles locais de acesso/armazenamento/banco/backup e sessão acompanhada pela escrevente. Etapa 5 não iniciada.
 
 ### Registro da etapa 3 — configuração provisória, 25/10/2026
 
