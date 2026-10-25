@@ -13,13 +13,23 @@ Prompt curto: `Leia docs/PLANO_PILOTO_PROFISSIONAL.md, siga a orientação inici
 | Etapa | Objetivo | Situação |
 |---|---|---|
 | 1 | Diagnóstico da adaptação profissional | Diagnóstico técnico entregue; material e decisões profissionais pendentes (ver registro abaixo) |
-| 2 | Parametrizar padrão autorizado | Preparação técnica v1 entregue; integralidade/tarjas esclarecidas pelo usuário; aguardando revisão e aprovação profissional |
-| 3 | Configurar primeiro cenário | Depende das decisões profissionais |
+| 2 | Parametrizar padrão autorizado | Preparação v1 entregue; revisão/correções e aprovação da escrevente marcadas como pendentes; usuário autorizou avançar à etapa 3 |
+| 3 | Configurar primeiro cenário | Configuração técnica provisória preparada; hipótese e regras profissionais aguardam confirmação da escrevente |
 | 4 | Percorrer atendimento acompanhado | Depende de padrão aprovado e revisão dos controles de dados |
 | 5 | Conferir minuta e exportações | Depende da revisão da escrevente |
 | 6 | Ativar e avaliar IA real | Adiada até autorização específica e créditos |
 
 O PR foi aberto com somente o plano; as execuções posteriores estão registradas abaixo. Os arquivos versionados não contêm documentos reais nem dados pessoais do exemplo. O provedor documental real continua bloqueado. A conferência manual do piloto não comprova a qualidade da IA.
+
+### Registro da etapa 3 — configuração provisória, 25/10/2026
+
+- O usuário autorizou expressamente avançar à etapa 3 mantendo pendências da etapa 2. Revisão/correções e aprovação da redação pela escrevente ficam **pendentes**, sem serem declaradas concluídas.
+- [Configuração executável provisória](piloto-profissional/cenario-provisorio-v1.json) e [relatório](piloto-profissional/ETAPA_3_CENARIO_PROVISORIO.md): participação direta, uma pessoa vendedora, uma compradora, um imóvel, pagamento previsto; hipóteses de teste ainda não homologadas. Seis posições, vínculos explícitos, campos exigidos provisoriamente, dependências e três blocos condicionais. Não contém dados do exemplo nem uma minuta profissional integral.
+- Configuração reutiliza o contrato existente, sem novo motor ou importação automática. Mantém `aprovado=false`. Somente o banco isolado dos testes recebeu aprovação simulada para exercitar o caminho positivo; banco operacional e decisões profissionais intactos.
+- **37 testes passaram em 61,843 s**, incluindo seis novos em `tests.test_cenario_piloto_provisorio`, quatro do pacote e 27 de blocos/redação. Testados pagamento previsto sem quitação, nomes iguais com IDs separados, troca de vínculo recusada, pagamento fora do domínio bloqueado, campo obrigatório ausente e revisão de dependências após correção de preço.
+- Verificações de sistema, migrações e diff sem problemas. Arquivos desta etapa: configuração JSON, relatório, testes novos e este plano. Sem alteração de código de produção, configuração do ambiente, banco operacional ou IA externa.
+- **Etapa 3 profissional permanece pendente** da confirmação/substituição da hipótese pela escrevente, aprovação de campos/documentos/regras e conexão da redação profissional aprovada. Fora do cenário: interromper para decisão humana; o mecanismo não interpreta juridicamente uma exclusão justificada. Não declarar bloqueio semântico universal.
+- Etapa 4 não iniciada; aguardar nova solicitação.
 
 ### Atualização da etapa 2 — preparação v1, 25/10/2026
 

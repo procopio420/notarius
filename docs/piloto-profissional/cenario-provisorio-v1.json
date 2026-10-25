@@ -1,0 +1,128 @@
+{
+  "nome": "Cenário piloto provisório — direta, um imóvel, pagamento previsto",
+  "versao_preparacao": "cenario-provisorio-v1",
+  "estado": "aguardando_decisoes_profissionais",
+  "aprovado": false,
+  "origem_modelo": "modelo-v1.json",
+  "autorizacao_usuario": "Avançar à etapa 3 mantendo o que faltou na etapa 2 como pendente.",
+  "hipoteses_nao_homologadas": {
+    "vendedores": 1,
+    "compradores": 1,
+    "imoveis": 1,
+    "participacao": "direta",
+    "situacao_pagamento": "previsto"
+  },
+  "pendencias": [
+    "Aprovação da redação da etapa 2",
+    "Confirmação ou substituição deste cenário pela escrevente",
+    "Revisão dos campos e dependências propostos",
+    "Documentos, declarações, cláusulas e condições profissionais",
+    "Concordâncias e apresentação final"
+  ],
+  "modelo": {
+    "corpo": "CENÁRIO PROVISÓRIO DE TESTE — NÃO APROVADO PARA USO PROFISSIONAL\nParticipação direta de uma pessoa vendedora e uma compradora; um imóvel; pagamento previsto.\nDados abaixo dependem de confirmação específica. Não é escritura profissional concluída.\n\n{% se venda {\"campo\":\"papel_vendedor.tipo_papel\",\"permitidos\":[\"vendedor\"],\"incluir\":[\"vendedor\"]} %}PARTE VENDEDORA\n{{vendedor.nome}}\n{{papel_vendedor.tipo_papel}}\n{% fim %}\n{% se compra {\"campo\":\"papel_comprador.tipo_papel\",\"permitidos\":[\"comprador\"],\"incluir\":[\"comprador\"]} %}PARTE COMPRADORA\n{{comprador.nome}}\n{{papel_comprador.tipo_papel}}\n{% fim %}\nIMÓVEL\n{{bem.descricao}}\nReferência de matrícula: {{bem.matricula}}\nRegistro informado: {{bem.registro}}\n\nCONDIÇÕES DO NEGÓCIO\nPreço informado: {{negocio.preco}}\nSituação informada: {{negocio.situacao_pagamento}}\n{% se previsao {\"campo\":\"negocio.situacao_pagamento\",\"permitidos\":[\"previsto\"],\"incluir\":[\"previsto\"]} %}Condições previstas: {{negocio.condicoes}}\n{% fim %}\nFIM DO RASCUNHO TÉCNICO. Redação profissional, declarações, documentos e encerramento ainda dependem de revisão.",
+    "representacao": "",
+    "observacoes": "",
+    "aprovado": false,
+    "justificativa": "Hipótese técnica provisória solicitada pelo usuário; não é decisão ou aprovação da escrevente.",
+    "versao_esperada": 0,
+    "registros_minuta": [
+      {
+        "chave": "vendedor",
+        "rotulo": "Pessoa vendedora — hipótese provisória",
+        "tipo": "pessoa",
+        "vinculos": {}
+      },
+      {
+        "chave": "comprador",
+        "rotulo": "Pessoa compradora — hipótese provisória",
+        "tipo": "pessoa",
+        "vinculos": {}
+      },
+      {
+        "chave": "papel_vendedor",
+        "rotulo": "Papel de vendedor",
+        "tipo": "papel",
+        "vinculos": {
+          "pessoa_a": "vendedor"
+        }
+      },
+      {
+        "chave": "papel_comprador",
+        "rotulo": "Papel de comprador",
+        "tipo": "papel",
+        "vinculos": {
+          "pessoa_a": "comprador"
+        }
+      },
+      {
+        "chave": "bem",
+        "rotulo": "Único imóvel do cenário provisório",
+        "tipo": "imovel",
+        "vinculos": {}
+      },
+      {
+        "chave": "negocio",
+        "rotulo": "Negociação do imóvel",
+        "tipo": "negociacao",
+        "vinculos": {
+          "imovel": "bem"
+        }
+      }
+    ],
+    "campos_qualificacao": [],
+    "campos_obrigatorios_ficha": [
+      {
+        "tipo": "pessoa",
+        "chave": "nome"
+      },
+      {
+        "tipo": "papel",
+        "chave": "tipo_papel"
+      },
+      {
+        "tipo": "imovel",
+        "chave": "descricao"
+      },
+      {
+        "tipo": "imovel",
+        "chave": "matricula"
+      },
+      {
+        "tipo": "imovel",
+        "chave": "registro"
+      },
+      {
+        "tipo": "negociacao",
+        "chave": "preco"
+      },
+      {
+        "tipo": "negociacao",
+        "chave": "situacao_pagamento"
+      },
+      {
+        "tipo": "negociacao",
+        "chave": "condicoes"
+      }
+    ],
+    "dependencias_campos_ficha": [
+      {
+        "tipo": "negociacao",
+        "chave": "condicoes",
+        "depende_de": [
+          "preco",
+          "situacao_pagamento"
+        ]
+      },
+      {
+        "tipo": "negociacao",
+        "chave": "quitacao",
+        "depende_de": [
+          "preco",
+          "situacao_pagamento",
+          "condicoes"
+        ]
+      }
+    ]
+  }
+}
