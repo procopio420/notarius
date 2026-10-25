@@ -199,3 +199,11 @@ cython_debug/
 # Local development
 .local/
 local/
+
+# Private pilot databases, credentials and encrypted backups (all locations)
+*.sqlite3*
+*.notarius
+*.key
+*.pem
+.env.*
+!.env.example

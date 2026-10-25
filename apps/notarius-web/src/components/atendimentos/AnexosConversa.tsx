@@ -101,7 +101,9 @@ export function AnexosConversa({ id, scope, onSource, pedido, onPedidoConsumido 
     {query.isSuccess && !query.data.length && <Box sx={{ p: 3, bgcolor: '#f5f8fc', borderRadius: 2 }}><Typography fontWeight={600}>Nenhum documento enviado</Typography><Typography color="text.secondary">Use o botão acima para enviar o primeiro arquivo deste atendimento.</Typography></Box>}
     {error && <Alert severity="error">{error}</Alert>}
     {notice && <Alert severity="info">{notice}</Alert>}
-    <Typography variant="body2" color="text.secondary">A análise documental por IA está bloqueada nesta fase. A extração por rótulos abaixo é local e explícita; o provedor simulado existe somente nos testes.</Typography>
+    <Alert severity="info">Análise automática por IA indisponível neste piloto. Para continuar manualmente: confira o original e a leitura, classifique a quem o documento pertence e abra Conversa → Ficha detalhada. Escolha a pessoa ou o imóvel e o campo; selecione a página como fonte, transcreva o trecho e revise o valor. Informação expressa da escrevente também pode ser registrada, preservando uma mensagem de origem. Nada é confirmado ao enviar o arquivo.</Alert>
+    <Typography variant="body2" color="text.secondary">A extração por rótulos abaixo é local e limitada; não interpreta livremente documentos. O provedor simulado existe somente nos testes.</Typography>
+    {sheet.isLoading && <Typography role="status">Consultando pessoas e imóveis para mostrar os destinatários e permitir a classificação…</Typography>}
     {!!query.data?.length && <Stack spacing={1} direction={{ xs: 'column', md: 'row' }}>
       <TextField select label="Finalidade" value={purposeFilter} onChange={e => setPurposeFilter(e.target.value)} fullWidth><MenuItem value="todos">Todos os arquivos</MenuItem>{Object.entries(finalidadesDocumento).map(([v, label]) => <MenuItem key={v} value={v}>{label}</MenuItem>)}</TextField>
       <TextField select label="Tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} fullWidth><MenuItem value="todos">Todos os tipos</MenuItem>{[...new Set(query.data.map(a => a.organizacao?.tipo_documento).filter((v): v is string => !!v))].map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}</TextField>
@@ -116,7 +118,7 @@ export function AnexosConversa({ id, scope, onSource, pedido, onPedidoConsumido 
       <Button size="small" disabled={busy || sheet.isError || sheet.isLoading} onClick={() => setOrganizing(item.id)}>Classificar e vincular documento</Button>
       {item.organizacao?.finalidade === 'referencia_redacao' && <Alert severity="info">Referência de redação separada das fontes do caso. Nenhum dado deste exemplo deve preencher a compra e venda.</Alert>}
       {item.organizacao?.versao > 0 && !item.organizacao.leitura_atual && <Alert severity="warning">Confira a classificação e os destinatários novamente após a releitura.</Alert>}
-      <Typography variant="body2" color={item.situacao === 'revisao' ? 'warning.main' : 'text.secondary'}>{item.situacao === 'revisao' ? 'Preciso da sua revisão para este arquivo.' : 'Texto disponível para conferir; dados ainda não confirmados.'}</Typography>
+      <Typography variant="body2" color={item.situacao === 'revisao' ? 'warning.main' : 'text.secondary'}>{item.situacao === 'revisao' ? 'Preciso da sua revisão para este arquivo.' : 'Texto disponível para conferir. A situação de cada dado está na ficha; a leitura do arquivo não confirma seus campos.'}</Typography>
       <Button size="small" onClick={() => setDetail(item)}>Conferir leitura</Button><Button size="small" onClick={() => download(item)}>Baixar original</Button>
       <Button size="small" disabled={busy || ['referencia_redacao', 'nao_utilizar'].includes(item.organizacao?.finalidade)} onClick={() => extract(item)}>Guardar propostas locais para revisão</Button>
       {item.mime !== 'text/plain' && <Button size="small" disabled={busy} onClick={() => reread(item)}>Ler novamente</Button>}

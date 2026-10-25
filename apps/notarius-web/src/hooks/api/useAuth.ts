@@ -74,8 +74,8 @@ export const useLogin = () => {
       // Invalidate and refetch user-related queries
       queryClient.invalidateQueries({ queryKey: queryKeys.auth.currentUser })
     },
-    onError: (error) => {
-      console.error('Login failed:', error)
+    onError: () => {
+      console.error('Não foi possível entrar.')
     },
     onSettled: () => {
       setLoading(false)
@@ -94,9 +94,9 @@ export const useLogout = () => {
       // Call logout endpoint if it exists
       try {
         await api.post(endpoints.logout)
-      } catch (error) {
+      } catch {
         // Even if the API call fails, we should still logout locally
-        console.warn('Logout API call failed:', error)
+        console.warn('Não foi possível encerrar a sessão no servidor.')
       }
     },
     onSuccess: () => {
@@ -107,8 +107,8 @@ export const useLogout = () => {
       // Clear all cached data
       queryClient.clear()
     },
-    onError: (error) => {
-      console.error('Logout failed:', error)
+    onError: () => {
+      console.error('Não foi possível encerrar a sessão.')
       // Still logout locally even if API call fails
       logout()
       useTenantStore.getState().clearTenants()
@@ -127,7 +127,7 @@ export const useCurrentUser = () => {
     queryKey: queryKeys.auth.currentUser,
     queryFn: async (): Promise<User> => {
       const response = await api.get(endpoints.userProfile)
-      return response.data
+      return response.data.user
     },
     enabled: isAuthenticated && !!token,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -173,8 +173,8 @@ export const useSetDefaultTenant = () => {
       queryClient.invalidateQueries({ queryKey: ['user-tenants'] })
       queryClient.invalidateQueries({ queryKey: queryKeys.auth.currentUser })
     },
-    onError: (error) => {
-      console.error('Failed to set default tenant:', error)
+    onError: () => {
+      console.error('Não foi possível selecionar o cartório.')
     },
   })
 }

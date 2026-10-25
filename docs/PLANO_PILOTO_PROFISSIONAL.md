@@ -10,6 +10,8 @@ Prompt curto: `Leia docs/PLANO_PILOTO_PROFISSIONAL.md, siga a orientação inici
 
 ## Acompanhamento
 
+Atualização do ciclo operacional solicitado pelo usuário em 25/10/2026: a nova **etapa 3** reúne o padrão parametrizado e o cenário provisório em um [candidato acompanhado v2](piloto-profissional/padrao-acompanhado-v2.json), com [revisão simples](piloto-profissional/REVISAO_PADRAO_ACOMPANHADO_V2.md) disponível na interface e salvamento de rascunho. Não representa aprovação profissional nem execução do atendimento real. O detalhamento e as evidências atuais estão em [Continuidade do piloto real](CONTINUIDADE_PILOTO_REAL.md); a tabela e os registros abaixo preservam a numeração histórica.
+
 | Etapa | Objetivo | Situação |
 |---|---|---|
 | 1 | Diagnóstico da adaptação profissional | Diagnóstico técnico entregue; material e decisões profissionais pendentes (ver registro abaixo) |

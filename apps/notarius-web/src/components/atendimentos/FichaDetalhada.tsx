@@ -248,6 +248,7 @@ export function FichaDetalhada({ id, scope, messages, selectedMessage, selectedD
       <DialogTitle>Ficha de compra e venda</DialogTitle><DialogContent><Stack spacing={2}>
         {error && !editing && !creating && <Alert severity="error">{error}</Alert>}
         <Alert severity="info">Pessoas, papéis e relações são registros separados. Nenhuma relação é deduzida por nome ou estado civil. Dados de formato consistente não comprovam identidade.</Alert>
+        <Typography variant="body2">Preenchimento manual disponível: abra o campo do registro correto e escolha a página, mensagem ou informação expressa da escrevente como fonte. Confira o trecho literal e registre o valor como informado; a confirmação exige conferência explícita do dado e da fonte. A IA documental está indisponível neste piloto.</Typography>
         {(selectedMessage || selectedDocument) && <Alert severity="info">Fonte selecionada. Escolha explicitamente o registro e o campo para revisar o trecho. <Button onClick={() => { setOpen(false); onLegacy() }}>Usar nos blocos antigos</Button></Alert>}
         {data.isLoading && <Typography>Carregando ficha…</Typography>}
         {data.isError && <Alert severity="error" action={<Button onClick={() => data.refetch()}>Tentar novamente</Button>}>Não foi possível consultar os dados.</Alert>}

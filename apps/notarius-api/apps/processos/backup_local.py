@@ -6,6 +6,7 @@ from pathlib import Path
 import sqlite3
 import struct
 import time
+import subprocess
 from contextlib import closing
 from datetime import datetime, timezone
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -26,6 +27,22 @@ OPTIONAL_TABLES = {'analises_documentais':'processos_analisedocumentalatendiment
 
 class BackupInvalido(Exception):
     pass
+
+
+def conferir_destino_privado(path):
+    """Refuse tracked/unignored output in any enclosing Git checkout."""
+    path = Path(path).resolve()
+    parent = path.parent
+    probe = subprocess.run(['git', '-C', str(parent), 'rev-parse', '--show-toplevel'],
+                           capture_output=True)
+    if probe.returncode != 0:
+        return  # Outside a Git checkout.
+    ignored = subprocess.run(['git', '-C', str(parent), 'check-ignore', '--quiet', '--', str(path)],
+                             capture_output=True)
+    tracked = subprocess.run(['git', '-C', str(parent), 'ls-files', '--error-unmatch', '--', str(path)],
+                             capture_output=True)
+    if ignored.returncode != 0 or tracked.returncode == 0:
+        raise BackupInvalido('Escolha um destino privado fora do Git ou ignorado e não rastreado, como .local.')
 
 def key(password, salt):
     if not isinstance(password,str) or not 12 <= len(password) <= 1024:

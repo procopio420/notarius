@@ -13,6 +13,7 @@ import { VinculacaoMinuta } from './VinculacaoMinuta'
 import { RegrasRevisaoModelo } from './RegrasRevisaoModelo'
 import { CamposQualificacaoModelo } from './CamposQualificacaoModelo'
 import { useRascunhoSessao } from '@/lib/rascunhoSessao'
+import { RevisaoPadraoPiloto } from './RevisaoPadraoPiloto'
 
 interface ModeloLocal { modelo: TextoModelo; motivo: string; versao: number; referencia: string | null }
 interface EdicaoLocal { minuta_id: string; versao: number; corpo: string; motivo: string }
@@ -140,13 +141,18 @@ export function PreparacaoMinuta({ id, scope }: { id: string; scope: (string | u
     {modelLocal.value && <Alert severity="info">Há rascunho local do modelo. “Revisar modelo” retoma o texto, mantendo a versão de origem e sem recuperar aprovação.</Alert>}
     {editLocal.value.map(e => <Button key={e.minuta_id} onClick={() => { const item = state.data?.versoes.find(m => m.id === e.minuta_id); if (!item) { setError('Versão do rascunho indisponível. O texto local foi preservado.'); return } setPreview(item); setEditedText(e.corpo); setEditReason(e.motivo); setEditing(true); setError('') }}>Retomar edição local da minuta v{e.versao}, sem revisar ou assinar</Button>)}
     {(modelLocal.aviso || editLocal.aviso || attemptLocal.aviso) && <Alert severity="warning">{modelLocal.aviso || editLocal.aviso || attemptLocal.aviso}</Alert>}
-    {models.isError || state.isError ? <Alert severity="error" action={<Button onClick={() => { void models.refetch(); void state.refetch() }}>Atualizar</Button>}>Não foi possível conferir o modelo e a minuta.</Alert> : <Typography variant="caption" color="text.secondary">{!state.data?.modelo_aprovado ? 'A escrevente precisa revisar e aprovar o modelo antes de preparar a minuta.' : state.data?.pendencias ? 'Modelo aprovado; falta resolver as pendências do atendimento.' : 'Modelo aprovado e verificações iniciais respondidas. A minuta ainda exigirá revisão.'}</Typography>}
+    {models.isError || state.isError ? <Alert severity="error" action={<Button onClick={() => { void models.refetch(); void state.refetch() }}>Atualizar</Button>}>Não foi possível conferir o modelo e a minuta.</Alert> : models.isLoading || state.isLoading ? <Typography role="status">Consultando o modelo, as versões salvas e a revisão atual…</Typography> : <Typography variant="caption" color="text.secondary">{!state.data?.modelo_aprovado ? 'A escrevente precisa revisar e aprovar o modelo antes de preparar a minuta.' : state.data?.pendencias ? 'Modelo aprovado; falta resolver as pendências do atendimento.' : 'Modelo aprovado e verificações iniciais respondidas. A minuta ainda exigirá revisão.'}</Typography>}
     {state.data?.versoes[0]?.desatualizada && <Alert severity="warning">Os dados ou o modelo mudaram após a preparação. Confira as pendências e prepare uma nova versão.</Alert>}
     {state.data?.modelo_aprovado && !state.data.pronto && !state.data.pendencias && state.data.motivo_bloqueio && <Alert severity="warning">{state.data.motivo_bloqueio}</Alert>}
     {error && !showModel && <Alert severity="error">{error}</Alert>}
     <Dialog open={showModel} onClose={() => !busy && setShowModel(false)} fullWidth maxWidth="md"><DialogTitle>Modelo de compra e venda</DialogTitle>
       <DialogContent><Stack spacing={2} sx={{ pt: 1 }}>
         <Alert severity="warning">A base oferecida é uma estrutura inicial, não um padrão completo aprovado do cartório. O modelo não é fonte de pagamento realizado, consulta efetuada ou assinatura. Registre acontecimentos somente nos campos, com fonte e confirmação específica. A verificação automática de frases é limitada; revise todo o texto fixo antes de aprovar.</Alert>
+        {models.data?.padrao_piloto && <RevisaoPadraoPiloto padrao={models.data.padrao_piloto} disabled={busy} onLoad={() => {
+          const candidate = models.data!.padrao_piloto
+          setDraft(candidate.modelo); setReferenceId(null); setApproved(false)
+          setExpectedVersion(current?.versao || 0); setReason(candidate.modelo.justificativa); setError('')
+        }} />}
         {models.data?.referencia && <Box>
           <Button disabled={busy} onClick={() => {
             setDraft({ ...models.data!.referencia.modelo }); setReferenceId(null); setApproved(false); setReason(''); setError('')

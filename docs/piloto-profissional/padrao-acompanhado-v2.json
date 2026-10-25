@@ -1,0 +1,431 @@
+{
+  "nome": "Compra e venda — padrão candidato para uso acompanhado",
+  "versao": "piloto-acompanhado-v2",
+  "aprovado": false,
+  "estado": "aguardando_revisao_profissional",
+  "origens": [
+    "modelo-v1.json",
+    "cenario-provisorio-v1.json",
+    "REDACAO_PARAMETRIZADA_V1.md"
+  ],
+  "hipoteses_nao_homologadas": {
+    "vendedores": 1,
+    "compradores": 1,
+    "imoveis": 1,
+    "participacao": "direta",
+    "situacao_pagamento": "previsto"
+  },
+  "aviso": "Carregar não aprova, não cria participantes e não confirma fatos. As posições de complemento são propostas de organização, não exigências jurídicas. Revisar/apagar posições e trechos inaplicáveis antes da aprovação explícita.",
+  "limites": [
+    "Todos os campos referenciados exigem valor e confirmação atual, mesmo em blocos condicionais omitidos. Não há campo opcional implícito.",
+    "Qualificação utiliza campos básicos, sem inferir vínculos conjugais, gênero ou representação. A escrevente revisa e adapta o conjunto necessário.",
+    "A classificação e a situação de cada complemento exigem decisão explícita. Texto livre confirmado ainda exige conferência profissional de sua coerência.",
+    "Observações e demais complementos mantidos exigem conteúdo confirmado. Ausência não é não se aplica; não confirmar conteúdo fictício para avançar."
+  ],
+  "revisao": [
+    {
+      "chave": "abertura",
+      "rotulo": "Abertura",
+      "campos": "ato.abertura",
+      "origem": "I1",
+      "condicao": "Conteúdo informado do caso; não afirmar comparecimento, capacidade ou identificação por carregar este padrão."
+    },
+    {
+      "chave": "vendedores",
+      "rotulo": "Qualificação vendedora",
+      "campos": "vendedor.* + papel_vendedor",
+      "origem": "I1",
+      "condicao": "Uma pessoa; vínculo explícito ao papel vendedor; descrição do papel igual a direta. Revisar suficiência e concordância."
+    },
+    {
+      "chave": "compradores",
+      "rotulo": "Qualificação compradora",
+      "campos": "comprador.* + papel_comprador",
+      "origem": "I1",
+      "condicao": "Uma pessoa; vínculo explícito ao papel comprador; descrição do papel igual a direta. Revisar suficiência e concordância."
+    },
+    {
+      "chave": "representacao",
+      "rotulo": "Representação",
+      "campos": "fora_deste_cenario",
+      "origem": "I1",
+      "condicao": "Não incluída. Representação exige adaptar cenário, posições e redação; não usar exclusão como interpretação jurídica."
+    },
+    {
+      "chave": "imovel",
+      "rotulo": "Imóvel",
+      "campos": "bem.descricao, bem.matricula, bem.registro",
+      "origem": "I2",
+      "condicao": "Um imóvel; negociação vinculada ao mesmo ID. Certidões pessoais adicionais exigem posições próprias."
+    },
+    {
+      "chave": "titularidade",
+      "rotulo": "Titularidade",
+      "campos": "bem.titularidade",
+      "origem": "I2",
+      "condicao": "Conteúdo confirmado com fonte, sem presumir proprietário pelo papel vendedor."
+    },
+    {
+      "chave": "aquisicao",
+      "rotulo": "Aquisição",
+      "campos": "bem.aquisicao",
+      "origem": "I2",
+      "condicao": "Texto do título e fonte do caso, sem copiar adquirente anterior do exemplo."
+    },
+    {
+      "chave": "onus",
+      "rotulo": "Ônus e disponibilidade",
+      "campos": "bem.onus",
+      "origem": "I2",
+      "condicao": "Não interpretar ausência de informação como negativa de ônus."
+    },
+    {
+      "chave": "preco",
+      "rotulo": "Preço",
+      "campos": "negocio.preco",
+      "origem": "I2",
+      "condicao": "Literal confirmado; não gera extenso ou escolhe valor divergente."
+    },
+    {
+      "chave": "pagamento",
+      "rotulo": "Condições previstas",
+      "campos": "negocio.situacao_pagamento, negocio.condicoes",
+      "origem": "I2",
+      "condicao": "Somente previsto. Outro valor confirmado fica fora do cenário e bloqueia geração."
+    },
+    {
+      "chave": "quitacao",
+      "rotulo": "Declaração específica de quitação",
+      "campos": "fora_deste_cenario",
+      "origem": "I2",
+      "condicao": "Não incluída neste cenário de pagamento previsto; uma declaração existente exige revisão profissional do cenário, sem ser apagada da ficha."
+    },
+    {
+      "chave": "transmissao",
+      "rotulo": "Transmissão",
+      "campos": "transmissao.conteudo",
+      "origem": "I2",
+      "condicao": "Texto e condições confirmados, com complemento vinculado ao imóvel."
+    },
+    {
+      "chave": "declaracoes_vendedores",
+      "rotulo": "Declarações vendedora",
+      "campos": "declaracao_vendedor.conteudo",
+      "origem": "I2",
+      "condicao": "Vínculo à pessoa vendedora; não inserir declaração negativa ou assinatura por padrão."
+    },
+    {
+      "chave": "declaracoes_compradores",
+      "rotulo": "Declarações compradora",
+      "campos": "declaracao_comprador.conteudo",
+      "origem": "I2",
+      "condicao": "Vínculo à pessoa compradora; não presumir aceite do ato."
+    },
+    {
+      "chave": "doi",
+      "rotulo": "DOI",
+      "campos": "doi.conteudo",
+      "origem": "I2",
+      "condicao": "Revisar aplicabilidade e distinguir providência futura de realização."
+    },
+    {
+      "chave": "tributo",
+      "rotulo": "Tributo",
+      "campos": "tributo.conteudo",
+      "origem": "I2-I3",
+      "condicao": "Guia ou previsão não comprovam recolhimento; decidir redação e fonte."
+    },
+    {
+      "chave": "certidoes",
+      "rotulo": "Documentos do imóvel",
+      "campos": "certidoes.conteudo",
+      "origem": "I2-I3",
+      "condicao": "Relatar apenas documentos apresentados do imóvel. Os documentos de pessoas não pertencem a essa posição."
+    },
+    {
+      "chave": "consultas",
+      "rotulo": "Consultas individuais",
+      "campos": "consulta_vendedor.conteudo, consulta_comprador.conteudo",
+      "origem": "I2-I3",
+      "condicao": "Cada consulta com pessoa e fonte explícitas. Revisar/remover posição não aplicável antes de aprovar."
+    },
+    {
+      "chave": "declaracoes_partes",
+      "rotulo": "Declarações específicas individuais",
+      "campos": "declaracao_especifica_vendedor.conteudo, declaracao_especifica_comprador.conteudo",
+      "origem": "I3",
+      "condicao": "Decisões e conteúdo separados por pessoa; nenhuma resposta inicial."
+    },
+    {
+      "chave": "requerimentos",
+      "rotulo": "Requerimento",
+      "campos": "requerimento.conteudo",
+      "origem": "I3",
+      "condicao": "Revisar pedido, aplicabilidade e vínculo ao imóvel."
+    },
+    {
+      "chave": "encerramento",
+      "rotulo": "Encerramento",
+      "campos": "ato.encerramento",
+      "origem": "I3-I4",
+      "condicao": "Texto adequado ao estágio do caso. Preparar minuta não comprova leitura, aceite ou assinatura."
+    },
+    {
+      "chave": "emolumentos",
+      "rotulo": "Despesas",
+      "campos": "despesas.conteudo",
+      "origem": "I3-I4",
+      "condicao": "Rubricas e valores do caso, sem copiar tabela, cobrança ou recolhimento do exemplo."
+    },
+    {
+      "chave": "observacoes",
+      "rotulo": "Observações",
+      "campos": "observacoes.conteudo",
+      "origem": "modelo-v1",
+      "condicao": "Bloco adicional sempre incluído se mantido no modelo estruturado. Se inaplicável, revisar/remover bloco e posição antes de aprovar, sem inventar texto para preencher."
+    }
+  ],
+  "decisoes": [
+    "Confirmar ou substituir a hipótese: uma pessoa vendedora, uma compradora, um imóvel, participação direta e pagamento previsto.",
+    "Revisar qualificação, concordâncias e texto integral de cada seção, aproveitando as fórmulas candidatas da REDACAO_PARAMETRIZADA_V1.md.",
+    "Decidir quais complementos e documentos se aplicam; retirar/adaptar posições e texto dos que não se aplicam, antes de aprovar. Não se exige declaração ou consulta inexistente.",
+    "Confirmar que a versão salva corresponde ao padrão revisado e aprová-la explicitamente para o atendimento."
+  ],
+  "modelo": {
+    "corpo": "ESCRITURA DE COMPRA E VENDA\n\n{{ato.abertura}}\n\n{% se direta_vendedor {\"campo\":\"papel_vendedor.descricao\",\"permitidos\":[\"direta\"],\"incluir\":[\"direta\"]} %}{% fim %}{% se venda {\"campo\":\"papel_vendedor.tipo_papel\",\"permitidos\":[\"vendedor\"],\"incluir\":[\"vendedor\"]} %}QUALIFICAÇÃO DA PARTE VENDEDORA\n{{vendedor.nome}}, {{vendedor.nacionalidade}}, {{vendedor.profissao}}, {{vendedor.estado_civil}}, {{vendedor.documento_tipo}} nº {{vendedor.documento_numero}}, {{vendedor.orgao_emissor}}, CPF {{vendedor.cpf}}, {{vendedor.endereco}}.{% fim %}\n\n{% se direta_comprador {\"campo\":\"papel_comprador.descricao\",\"permitidos\":[\"direta\"],\"incluir\":[\"direta\"]} %}{% fim %}{% se compra {\"campo\":\"papel_comprador.tipo_papel\",\"permitidos\":[\"comprador\"],\"incluir\":[\"comprador\"]} %}QUALIFICAÇÃO DA PARTE COMPRADORA\n{{comprador.nome}}, {{comprador.nacionalidade}}, {{comprador.profissao}}, {{comprador.estado_civil}}, {{comprador.documento_tipo}} nº {{comprador.documento_numero}}, {{comprador.orgao_emissor}}, CPF {{comprador.cpf}}, {{comprador.endereco}}.{% fim %}\n\n1.- DO IMÓVEL E SUA TITULAÇÃO\n1.1.- {{bem.titularidade}}\n{{bem.descricao}}\nMatrícula: {{bem.matricula}}\nRegistro: {{bem.registro}}\n1.2.- {{bem.aquisicao}}\n1.3.- {{bem.onus}}\n\n2.- DO NEGÓCIO\nPreço informado: {{negocio.preco}}\n{% se previsao {\"campo\":\"negocio.situacao_pagamento\",\"permitidos\":[\"previsto\"],\"incluir\":[\"previsto\"]} %}Condições previstas: {{negocio.condicoes}}{% fim %}\n{{transmissao.conteudo}}\n\n3.- DECLARAÇÕES DA PARTE VENDEDORA\n{{declaracao_vendedor.conteudo}}\n\n4.- DECLARAÇÕES DA PARTE COMPRADORA\n{{declaracao_comprador.conteudo}}\n\n5.- INFORMAÇÃO DE DOI\n{{doi.conteudo}}\n\n6.- IMPOSTO DE TRANSMISSÃO INTER VIVOS\n{{tributo.conteudo}}\n\n7.- DOCUMENTOS E CONSULTAS\n{{certidoes.conteudo}}\n{{consulta_vendedor.conteudo}}\n{{consulta_comprador.conteudo}}\n\n8.- DECLARAÇÕES ESPECÍFICAS\n{{declaracao_especifica_vendedor.conteudo}}\n{{declaracao_especifica_comprador.conteudo}}\n\n9.- REQUERIMENTOS\n{{requerimento.conteudo}}\n\n10.- ENCERRAMENTO\n{{ato.encerramento}}\n{{despesas.conteudo}}",
+    "representacao": "",
+    "observacoes": "{{observacoes.conteudo}}",
+    "aprovado": false,
+    "justificativa": "Padrão candidato piloto-acompanhado-v2, derivado do modelo-v1 e cenário provisório. Rascunho para revisão da escrevente; sem fatos do exemplo.",
+    "versao_esperada": 0,
+    "registros_minuta": [
+      {
+        "chave": "vendedor",
+        "rotulo": "Pessoa vendedora — hipótese provisória",
+        "tipo": "pessoa",
+        "vinculos": {}
+      },
+      {
+        "chave": "comprador",
+        "rotulo": "Pessoa compradora — hipótese provisória",
+        "tipo": "pessoa",
+        "vinculos": {}
+      },
+      {
+        "chave": "papel_vendedor",
+        "rotulo": "Papel de vendedor",
+        "tipo": "papel",
+        "vinculos": {
+          "pessoa_a": "vendedor"
+        }
+      },
+      {
+        "chave": "papel_comprador",
+        "rotulo": "Papel de comprador",
+        "tipo": "papel",
+        "vinculos": {
+          "pessoa_a": "comprador"
+        }
+      },
+      {
+        "chave": "bem",
+        "rotulo": "Único imóvel do cenário provisório",
+        "tipo": "imovel",
+        "vinculos": {}
+      },
+      {
+        "chave": "negocio",
+        "rotulo": "Negociação do imóvel",
+        "tipo": "negociacao",
+        "vinculos": {
+          "imovel": "bem"
+        }
+      },
+      {
+        "chave": "ato",
+        "rotulo": "Abertura e encerramento",
+        "tipo": "ato",
+        "vinculos": {}
+      },
+      {
+        "chave": "transmissao",
+        "rotulo": "Transmissão e condições",
+        "tipo": "complemento",
+        "categoria": "transmissao",
+        "vinculos": {
+          "imovel": "bem"
+        }
+      },
+      {
+        "chave": "declaracao_vendedor",
+        "rotulo": "Declarações da parte vendedora",
+        "tipo": "complemento",
+        "categoria": "declaracao",
+        "vinculos": {
+          "pessoa_a": "vendedor"
+        }
+      },
+      {
+        "chave": "declaracao_comprador",
+        "rotulo": "Declarações da parte compradora",
+        "tipo": "complemento",
+        "categoria": "declaracao",
+        "vinculos": {
+          "pessoa_a": "comprador"
+        }
+      },
+      {
+        "chave": "doi",
+        "rotulo": "Redação sobre DOI",
+        "tipo": "complemento",
+        "categoria": "doi",
+        "vinculos": {
+          "imovel": "bem"
+        }
+      },
+      {
+        "chave": "tributo",
+        "rotulo": "Redação sobre tributo",
+        "tipo": "complemento",
+        "categoria": "tributo",
+        "vinculos": {
+          "imovel": "bem"
+        }
+      },
+      {
+        "chave": "certidoes",
+        "rotulo": "Documentos relativos ao imóvel",
+        "tipo": "complemento",
+        "categoria": "certidao",
+        "vinculos": {
+          "imovel": "bem"
+        }
+      },
+      {
+        "chave": "consulta_vendedor",
+        "rotulo": "Consulta relativa à parte vendedora",
+        "tipo": "complemento",
+        "categoria": "consulta",
+        "vinculos": {
+          "pessoa_a": "vendedor"
+        }
+      },
+      {
+        "chave": "consulta_comprador",
+        "rotulo": "Consulta relativa à parte compradora",
+        "tipo": "complemento",
+        "categoria": "consulta",
+        "vinculos": {
+          "pessoa_a": "comprador"
+        }
+      },
+      {
+        "chave": "declaracao_especifica_vendedor",
+        "rotulo": "Declaração específica da parte vendedora",
+        "tipo": "complemento",
+        "categoria": "declaracao",
+        "vinculos": {
+          "pessoa_a": "vendedor"
+        }
+      },
+      {
+        "chave": "declaracao_especifica_comprador",
+        "rotulo": "Declaração específica da parte compradora",
+        "tipo": "complemento",
+        "categoria": "declaracao",
+        "vinculos": {
+          "pessoa_a": "comprador"
+        }
+      },
+      {
+        "chave": "requerimento",
+        "rotulo": "Requerimento relativo ao imóvel",
+        "tipo": "complemento",
+        "categoria": "requerimento",
+        "vinculos": {
+          "imovel": "bem"
+        }
+      },
+      {
+        "chave": "despesas",
+        "rotulo": "Despesas do ato",
+        "tipo": "complemento",
+        "categoria": "despesas",
+        "vinculos": {}
+      },
+      {
+        "chave": "observacoes",
+        "rotulo": "Observações do atendimento",
+        "tipo": "complemento",
+        "categoria": "outro",
+        "vinculos": {}
+      }
+    ],
+    "campos_qualificacao": [],
+    "campos_obrigatorios_ficha": [
+      {
+        "tipo": "pessoa",
+        "chave": "nome"
+      },
+      {
+        "tipo": "papel",
+        "chave": "tipo_papel"
+      },
+      {
+        "tipo": "imovel",
+        "chave": "descricao"
+      },
+      {
+        "tipo": "imovel",
+        "chave": "matricula"
+      },
+      {
+        "tipo": "imovel",
+        "chave": "registro"
+      },
+      {
+        "tipo": "negociacao",
+        "chave": "preco"
+      },
+      {
+        "tipo": "negociacao",
+        "chave": "situacao_pagamento"
+      },
+      {
+        "tipo": "negociacao",
+        "chave": "condicoes"
+      },
+      {
+        "tipo": "papel",
+        "chave": "descricao"
+      },
+      {
+        "tipo": "complemento",
+        "chave": "categoria"
+      },
+      {
+        "tipo": "complemento",
+        "chave": "situacao"
+      }
+    ],
+    "dependencias_campos_ficha": [
+      {
+        "tipo": "negociacao",
+        "chave": "condicoes",
+        "depende_de": [
+          "preco",
+          "situacao_pagamento"
+        ]
+      },
+      {
+        "tipo": "negociacao",
+        "chave": "quitacao",
+        "depende_de": [
+          "preco",
+          "situacao_pagamento",
+          "condicoes"
+        ]
+      }
+    ]
+  }
+}

@@ -43,7 +43,7 @@ export default function AtendimentosPage() {
     <Stack spacing={3} sx={{ maxWidth: 1000, mx: 'auto' }}>
       <Box><Typography variant="h4" component="h1" fontWeight={700}>Atendimentos</Typography>
         <Typography color="text.secondary">Compra e venda · abra um atendimento e registre as informações da conversa.</Typography></Box>
-      <Alert severity="warning">Ambiente de teste: use somente dados fictícios. O modelo profissional e a interpretação livre dos documentos ainda precisam ser validados.</Alert>
+      <Alert severity="warning">Piloto local acompanhado: confira o cartório e o atendimento. O padrão e o cenário exigem aprovação explícita da escrevente. A IA documental está indisponível; os dados podem ser registrados manualmente com suas fontes. Exemplos e aprovações simuladas não homologam um caso real.</Alert>
       <Paper component="form" onSubmit={create} sx={{ p: 3 }}>
         <Stack spacing={2}>
           <Typography variant="h6" component="h2">Novo atendimento de compra e venda</Typography>

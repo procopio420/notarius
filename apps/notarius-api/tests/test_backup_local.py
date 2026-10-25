@@ -4,13 +4,29 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 from contextlib import closing
 import sqlite3
+import subprocess
 from django.test import SimpleTestCase, override_settings
 from django.core.management import call_command, CommandError
-from apps.processos.backup_local import make_backup, read_backup, write_new, BackupInvalido, TABLES
+from apps.processos.backup_local import make_backup, read_backup, write_new, BackupInvalido, TABLES, conferir_destino_privado
 
 PASSWORD='Senha inteiramente fictícia 2026!'
 
 class BackupLocalTests(SimpleTestCase):
+    def test_outputs_must_be_ignored_and_untracked_inside_git(self):
+        with TemporaryDirectory() as root:
+            subprocess.run(['git', 'init', '--quiet', root], check=True, capture_output=True)
+            folder = Path(root)
+            (folder / '.gitignore').write_text('*.notarius\n*.sqlite3\n', encoding='utf-8')
+            conferir_destino_privado(folder / 'copia.notarius')
+            conferir_destino_privado(folder / 'recuperado.sqlite3')
+            with self.assertRaises(BackupInvalido):
+                conferir_destino_privado(folder / 'documento.txt')
+            tracked = folder / 'rastreado.sqlite3'
+            tracked.write_bytes(b'FICTICIO')
+            subprocess.run(['git', '-C', root, 'add', '-f', 'rastreado.sqlite3'], check=True, capture_output=True)
+            with self.assertRaises(BackupInvalido):
+                conferir_destino_privado(tracked)
+
     def fixture(self,root):
         path=Path(root)/'ficticio.sqlite3'
         with closing(sqlite3.connect(path)) as db:

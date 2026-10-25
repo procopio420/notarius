@@ -45,7 +45,7 @@ const navigation = [
   { name: 'Minutas', href: '/minutas', icon: DocumentTextIcon },
   { name: 'Documentos', href: '/documentos', icon: DocumentDuplicateIcon },
   { name: 'Assistente', href: '/assistente', icon: SparklesIcon },
-]
+].filter(item => process.env.NEXT_PUBLIC_PILOTO_LOCAL !== '1' || item.href === '/atendimentos')
 
 interface SidebarProps {
   className?: string

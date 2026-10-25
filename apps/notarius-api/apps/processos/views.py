@@ -310,7 +310,9 @@ class AtendimentoViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
             from .modelo_referencia import BASE_REFERENCIA, REFERENCIA
             from .modelo_complementar import referencia_complementar
             from .modelo_ficticio_estruturado import MODELO_FICTICIO_ETAPA7
+            from .padrao_piloto import candidato
             return Response({'base': BASE, 'referencia': {**REFERENCIA, 'modelo': BASE_REFERENCIA},
+                'padrao_piloto': candidato(),
                 'modelo_ficticio_estruturado': MODELO_FICTICIO_ETAPA7,
                 'referencias_complementares': [referencia_complementar(v) for v in ['direta', 'procuracao']],
                 'marcadores': [{'chave': key, 'rotulo': label} for key, (label, _) in CAMPOS.items()],
