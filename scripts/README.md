@@ -323,3 +323,7 @@ Integrate scripts into CI/CD pipelines:
 ## License
 
 These scripts are part of the Notarius project and follow the same licensing terms.
+
+### Backup criptografado do piloto local
+
+Para o banco SQLite do piloto, use `Fazer backup local.cmd`. A senha é solicitada no terminal e o arquivo é criado em `.local/backups`. Consulte `docs/ETAPA_18_BACKUP_LOCAL.md` para verificação, recuperação de cópia e limites. Não é o mesmo mecanismo dos scripts de PostgreSQL/produção descritos acima.

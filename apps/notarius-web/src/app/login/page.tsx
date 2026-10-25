@@ -14,7 +14,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      router.push('/inbox')
+      router.push('/atendimentos')
     }
   }, [isAuthenticated, isLoading, router])
 

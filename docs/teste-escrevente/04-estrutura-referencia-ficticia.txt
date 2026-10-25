@@ -1,0 +1,23 @@
+DOCUMENTO INTEIRAMENTE FICTÍCIO — SIMULAÇÃO LOCAL. NÃO REPRESENTA UM ATO OU MODELO HOMOLOGADO.
+Abertura: TEXTO FICTÍCIO DE TESTE PARA abertura
+Vendedores: TEXTO FICTÍCIO DE TESTE PARA vendedores
+Representacao: TEXTO FICTÍCIO DE TESTE PARA representacao
+Compradores: TEXTO FICTÍCIO DE TESTE PARA compradores
+Titularidade: TEXTO FICTÍCIO DE TESTE PARA titularidade
+Imovel: TEXTO FICTÍCIO DE TESTE PARA imovel
+Aquisicao: TEXTO FICTÍCIO DE TESTE PARA aquisicao
+Onus: TEXTO FICTÍCIO DE TESTE PARA onus
+Preco: TEXTO FICTÍCIO DE TESTE PARA preco
+Pagamento: TEXTO FICTÍCIO DE TESTE PARA pagamento
+Quitacao: TEXTO FICTÍCIO DE TESTE PARA quitacao
+Transmissao: TEXTO FICTÍCIO DE TESTE PARA transmissao
+Declaracoes vendedores: TEXTO FICTÍCIO DE TESTE PARA declaracoes_vendedores
+Declaracoes compradores: TEXTO FICTÍCIO DE TESTE PARA declaracoes_compradores
+Doi: TEXTO FICTÍCIO DE TESTE PARA doi
+Tributo: TEXTO FICTÍCIO DE TESTE PARA tributo
+Certidoes: TEXTO FICTÍCIO DE TESTE PARA certidoes
+Consultas: TEXTO FICTÍCIO DE TESTE PARA consultas
+Declaracoes partes: TEXTO FICTÍCIO DE TESTE PARA declaracoes_partes
+Requerimentos: TEXTO FICTÍCIO DE TESTE PARA requerimentos
+Encerramento: TEXTO FICTÍCIO DE TESTE PARA encerramento
+Emolumentos: TEXTO FICTÍCIO DE TESTE PARA emolumentos

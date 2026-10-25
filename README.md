@@ -1,13 +1,26 @@
 # Notarius - Privacy-First AI Notary System
 
+## Estado atual do projeto local
+
+Este repositório preserva o desenvolvimento do fluxo de compra e venda: atendimento, documentos/OCR, ficha detalhada, fontes, pendências, modelo parametrizado, revisão e exportação. É um piloto em desenvolvimento, não um produto homologado para uso profissional autônomo.
+
+- Referência de execução: [Fluxo principal](docs/EXECUCAO_FLUXO_PRINCIPAL.md).
+- Evidência e roteiro: [Teste integrado](docs/teste-integrado-etapa8/RELATORIO_ETAPA8.md) e [roteiro da escrevente](docs/teste-integrado-etapa8/ROTEIRO_PARA_MAE.md).
+- A análise documental real e a homologação do padrão profissional dependem das validações descritas nesses documentos. Uma chave de API, isoladamente, não comprova que a integração esteja ativa ou validada.
+- Banco, anexos reais, `.env`, chaves e backups locais não são versionados. Os arquivos documentais versionados são exemplos fictícios de teste.
+- Os serviços locais de desenvolvimento não devem ser publicados com as configurações atuais. O build global, a configuração operacional e os requisitos do primeiro cenário precisam ser conferidos antes de uma entrega de produção.
+
+A descrição de arquitetura original abaixo inclui módulos legados e capacidades planejadas; não representa validação de todas essas capacidades no fluxo atual.
+
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Django 5.2](https://img.shields.io/badge/django-5.2-green.svg)](https://www.djangoproject.com/)
 [![Next.js](https://img.shields.io/badge/next.js-14-black.svg)](https://nextjs.org/)
 
-> **Transform natural language into legally grounded documents with zero PII leaving your system**
+> Assistência à preparação de minutas, com conferência humana e rastreabilidade das fontes.
 
-Notarius is a production-grade, privacy-preserving AI system designed for Brazilian notary offices (cartórios). It transforms natural language intents into legally grounded documents, reviewed by humans, with complete PII protection and audit trails.
+Notarius is an in-development system for Brazilian notary offices (cartórios). The original multi-service architecture below is preserved for context; refer to the local workflow documentation for implemented behavior, validation evidence, and remaining limitations.
 
 ## 🎯 Key Features
 

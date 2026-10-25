@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTenantStore } from '@/store/slices/tenantSlice'
 import { api } from '@/lib/api'
 import { queryKeys } from '@/lib/queryClient'
+import { useAuthStore } from '@/store/slices/authSlice'
 import {
   Button,
   Menu,
@@ -32,20 +33,24 @@ interface Tenant {
 export function TenantSelector() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const { selectedTenant, setSelectedTenant } = useTenantStore()
+  const { user, isAuthenticated } = useAuthStore()
 
   const { data: tenants = [], isLoading } = useQuery({
-    queryKey: queryKeys.tenants.list(),
+    queryKey: [...queryKeys.tenants.list(), user?.id],
     queryFn: async (): Promise<Tenant[]> => {
-      const response = await api.get('/api/v1/tenants/')
-      return response.data.results || response.data
+      const response = await api.get('/auth/tenants/')
+      return (response.data.tenants || []).map((tenant: Partial<Tenant>) => ({
+        cnpj: '', cidade: '', endereco: '', telefone: '', email: '', is_active: true, ...tenant,
+      }))
     },
-    // Always fetch tenants so we can select one
+    enabled: isAuthenticated && !!user,
   })
 
   // Auto-select first tenant if none is selected
   useEffect(() => {
-    if (tenants.length > 0 && !selectedTenant) {
-      setSelectedTenant(tenants[0])
+    if (tenants.length > 0 && (!selectedTenant || !tenants.some(t => t.id === selectedTenant.id))) {
+      const preferred = window.localStorage.getItem('tenant_id')
+      setSelectedTenant(tenants.find(t => t.id === preferred) || tenants[0])
     }
   }, [tenants, selectedTenant, setSelectedTenant])
 

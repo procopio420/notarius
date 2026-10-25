@@ -1,0 +1,28 @@
+RASCUNHO FICTÍCIO DE COMPRA E VENDA — PARA HOMOLOGAÇÃO
+SEM VALIDADE PROFISSIONAL
+
+QUALIFICAÇÃO INFORMADA DO VENDEDOR
+{{vendedor.nome}}, {{vendedor.cpf}}, {{vendedor.documento_numero}}, {{vendedor.orgao_emissor}}, {{vendedor.nacionalidade}}, {{vendedor.profissao}}, {{vendedor.estado_civil}}, {{vendedor.endereco}}
+Papel informado: {{papel_vendedor.tipo_papel}}
+
+QUALIFICAÇÃO INFORMADA DO COMPRADOR
+{{comprador.nome}}, {{comprador.cpf}}, {{comprador.documento_numero}}, {{comprador.orgao_emissor}}, {{comprador.nacionalidade}}, {{comprador.profissao}}, {{comprador.estado_civil}}, {{comprador.endereco}}
+Papel informado: {{papel_comprador.tipo_papel}}
+
+REPRESENTAÇÃO INFORMADA
+Pessoa indicada como representante: {{procurador.nome}}, {{procurador.cpf}}, {{procurador.documento_numero}}, {{procurador.orgao_emissor}}, {{procurador.nacionalidade}}, {{procurador.profissao}}, {{procurador.estado_civil}}, {{procurador.endereco}}
+Relação informada: {{representacao.tipo_relacao}}
+Instrumento indicado: {{representacao.instrumento}}
+Limites informados: {{representacao.descricao}}
+
+1.- DO IMÓVEL E SUA TITULAÇÃO
+{{bem.descricao}}
+Referência: {{bem.matricula}} · {{bem.registro}}
+Titularidade informada: {{bem.titularidade}}
+Aquisição informada: {{bem.aquisicao}}
+Ônus informados: {{bem.onus}}
+
+2.- CONDIÇÕES INFORMADAS DO NEGÓCIO
+Preço: {{negocio.preco}}
+Condições: {{negocio.condicoes}}
+Situação informada: {{negocio.situacao_pagamento}}

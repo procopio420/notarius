@@ -1,0 +1,242 @@
+{
+  "nome": "Estrutura complementar — com procuração",
+  "versao": "estrutura-complementar-v1",
+  "fontes_estrutura": [
+    {
+      "arquivo": "codex-clipboard-85004e7f-f269-4e5c-8ccc-3f77cc3fe8e9.png",
+      "pagina": null,
+      "leitura": "visual_manual_referencia_v1",
+      "trecho": "ESCRITURA DE COMPRA E VENDA",
+      "blocos": [
+        "abertura",
+        "vendedores",
+        "representacao",
+        "compradores"
+      ]
+    },
+    {
+      "arquivo": "codex-clipboard-89e5fc7d-1c30-4f24-a7ad-44e2cdd21bd1.png",
+      "pagina": null,
+      "leitura": "visual_manual_referencia_v1",
+      "trecho": "1.- DO IMÓVEL E SUA TITULAÇÃO",
+      "blocos": [
+        "imovel",
+        "titularidade",
+        "aquisicao",
+        "onus",
+        "preco",
+        "pagamento",
+        "quitacao",
+        "transmissao",
+        "declaracoes_vendedores",
+        "declaracoes_compradores",
+        "doi"
+      ]
+    },
+    {
+      "arquivo": "codex-clipboard-5bcfa055-d389-40ef-80ba-7f55169e9a38.png",
+      "pagina": null,
+      "leitura": "visual_manual_referencia_v1",
+      "trecho": "TRANSMISSÃO INTER VIVOS",
+      "blocos": [
+        "tributo",
+        "certidoes",
+        "consultas",
+        "declaracoes_partes",
+        "requerimentos",
+        "encerramento"
+      ]
+    },
+    {
+      "arquivo": "codex-clipboard-3144618b-e4ba-4b22-935f-0b31c4d3be36.png",
+      "pagina": null,
+      "leitura": "visual_manual_referencia_v1",
+      "trecho": "OUTORGANTES",
+      "blocos": [
+        "emolumentos",
+        "encerramento"
+      ]
+    }
+  ],
+  "variante": "procuracao",
+  "aprovado": false,
+  "modelo": {
+    "corpo": "RASCUNHO DE ESTRUTURA COMPLEMENTAR — PARA HOMOLOGAÇÃO\nNÃO HOMOLOGADO — NÃO É ATO CONCLUÍDO\n\n{{ato.abertura}}\nData informada: {{ato.data_informada}}\nLocal informado: {{ato.local}}\nServentia informada: {{ato.serventia}}\n\nQUALIFICAÇÃO INFORMADA DO VENDEDOR\n{{vendedor.nome}}, {{vendedor.cpf}}, {{vendedor.documento_numero}}, {{vendedor.orgao_emissor}}, {{vendedor.nacionalidade}}, {{vendedor.profissao}}, {{vendedor.estado_civil}}, {{vendedor.endereco}}\nPapel informado: {{papel_vendedor.tipo_papel}}\n\nQUALIFICAÇÃO INFORMADA DO COMPRADOR\n{{comprador.nome}}, {{comprador.cpf}}, {{comprador.documento_numero}}, {{comprador.orgao_emissor}}, {{comprador.nacionalidade}}, {{comprador.profissao}}, {{comprador.estado_civil}}, {{comprador.endereco}}\nPapel informado: {{papel_comprador.tipo_papel}}\n\nREPRESENTAÇÃO INFORMADA\nPessoa indicada como representante: {{procurador.nome}}, {{procurador.cpf}}, {{procurador.documento_numero}}, {{procurador.orgao_emissor}}, {{procurador.nacionalidade}}, {{procurador.profissao}}, {{procurador.estado_civil}}, {{procurador.endereco}}\nRelação informada: {{representacao.tipo_relacao}}\nInstrumento indicado: {{representacao.instrumento}}\nLimites informados: {{representacao.descricao}}\n\n1.- DO IMÓVEL E SUA TITULAÇÃO\n{{bem.descricao}}\nReferência: {{bem.matricula}} · {{bem.registro}}\nTitularidade informada: {{bem.titularidade}}\nAquisição informada: {{bem.aquisicao}}\nÔnus informados: {{bem.onus}}\n\n2.- CONDIÇÕES INFORMADAS DO NEGÓCIO\nPreço: {{negocio.preco}}\nCondições: {{negocio.condicoes}}\nSituação informada: {{negocio.situacao_pagamento}}\n\n2.1.- {{negocio.quitacao}}\n{{transmissao.conteudo}}\n\n3.- DECLARAÇÃO DO VENDEDOR\n{{declaracao_vendedor.conteudo}}\n\n4.- DECLARAÇÃO DO COMPRADOR\n{{declaracao_comprador.conteudo}}\n\n5.- INFORMAÇÃO DE DOI\n{{doi.conteudo}}\n\n6.- INFORMAÇÃO DE TRIBUTO\n{{tributo.conteudo}}\n\n7.- DOCUMENTO DO IMÓVEL\n{{certidao_imovel.conteudo}}\nCONSULTA RELATIVA AO VENDEDOR\n{{consulta_vendedor.conteudo}}\nCONSULTA RELATIVA AO COMPRADOR\n{{consulta_comprador.conteudo}}\n\n8.- DECLARAÇÕES ESPECÍFICAS\n{{declaracao_especifica_vendedor.conteudo}}\n{{declaracao_especifica_comprador.conteudo}}\n\n9.- REQUERIMENTO\n{{requerimento.conteudo}}\n\n10.- ENCERRAMENTO INFORMADO\n{{ato.encerramento}}\nDESPESAS INFORMADAS\n{{despesas.conteudo}}",
+    "representacao": "",
+    "observacoes": "",
+    "aprovado": false,
+    "justificativa": "Estrutura de campos para revisão; não transcreve, aprova ou confirma fatos da escritura de referência.",
+    "registros_minuta": [
+      {
+        "chave": "vendedor",
+        "rotulo": "Vendedor",
+        "tipo": "pessoa",
+        "vinculos": {}
+      },
+      {
+        "chave": "comprador",
+        "rotulo": "Comprador",
+        "tipo": "pessoa",
+        "vinculos": {}
+      },
+      {
+        "chave": "procurador",
+        "rotulo": "Procurador",
+        "tipo": "pessoa",
+        "vinculos": {}
+      },
+      {
+        "chave": "bem",
+        "rotulo": "Bem",
+        "tipo": "imovel",
+        "vinculos": {}
+      },
+      {
+        "chave": "papel_vendedor",
+        "rotulo": "Papel vendedor",
+        "tipo": "papel",
+        "vinculos": {
+          "pessoa_a": "vendedor"
+        }
+      },
+      {
+        "chave": "papel_comprador",
+        "rotulo": "Papel comprador",
+        "tipo": "papel",
+        "vinculos": {
+          "pessoa_a": "comprador"
+        }
+      },
+      {
+        "chave": "negocio",
+        "rotulo": "Negocio",
+        "tipo": "negociacao",
+        "vinculos": {
+          "imovel": "bem"
+        }
+      },
+      {
+        "chave": "representacao",
+        "rotulo": "Representacao",
+        "tipo": "relacao",
+        "vinculos": {
+          "pessoa_a": "procurador",
+          "pessoa_b": "vendedor"
+        }
+      },
+      {
+        "chave": "ato",
+        "rotulo": "Dados gerais do ato",
+        "tipo": "ato",
+        "vinculos": {}
+      },
+      {
+        "chave": "transmissao",
+        "rotulo": "Transmissão informada",
+        "tipo": "complemento",
+        "vinculos": {
+          "imovel": "bem"
+        },
+        "categoria": "transmissao"
+      },
+      {
+        "chave": "declaracao_vendedor",
+        "rotulo": "Declaração do vendedor",
+        "tipo": "complemento",
+        "vinculos": {
+          "pessoa_a": "vendedor"
+        },
+        "categoria": "declaracao"
+      },
+      {
+        "chave": "declaracao_comprador",
+        "rotulo": "Declaração do comprador",
+        "tipo": "complemento",
+        "vinculos": {
+          "pessoa_a": "comprador"
+        },
+        "categoria": "declaracao"
+      },
+      {
+        "chave": "doi",
+        "rotulo": "Informação de DOI",
+        "tipo": "complemento",
+        "vinculos": {
+          "imovel": "bem"
+        },
+        "categoria": "doi"
+      },
+      {
+        "chave": "tributo",
+        "rotulo": "Informação de tributo",
+        "tipo": "complemento",
+        "vinculos": {
+          "imovel": "bem"
+        },
+        "categoria": "tributo"
+      },
+      {
+        "chave": "certidao_imovel",
+        "rotulo": "Documento do imóvel",
+        "tipo": "complemento",
+        "vinculos": {
+          "imovel": "bem"
+        },
+        "categoria": "certidao"
+      },
+      {
+        "chave": "consulta_vendedor",
+        "rotulo": "Consulta relativa ao vendedor",
+        "tipo": "complemento",
+        "vinculos": {
+          "pessoa_a": "vendedor"
+        },
+        "categoria": "consulta"
+      },
+      {
+        "chave": "consulta_comprador",
+        "rotulo": "Consulta relativa ao comprador",
+        "tipo": "complemento",
+        "vinculos": {
+          "pessoa_a": "comprador"
+        },
+        "categoria": "consulta"
+      },
+      {
+        "chave": "declaracao_especifica_vendedor",
+        "rotulo": "Declaração específica do vendedor",
+        "tipo": "complemento",
+        "vinculos": {
+          "pessoa_a": "vendedor"
+        },
+        "categoria": "declaracao"
+      },
+      {
+        "chave": "declaracao_especifica_comprador",
+        "rotulo": "Declaração específica do comprador",
+        "tipo": "complemento",
+        "vinculos": {
+          "pessoa_a": "comprador"
+        },
+        "categoria": "declaracao"
+      },
+      {
+        "chave": "requerimento",
+        "rotulo": "Requerimento relativo ao imóvel",
+        "tipo": "complemento",
+        "vinculos": {
+          "imovel": "bem"
+        },
+        "categoria": "requerimento"
+      },
+      {
+        "chave": "despesas",
+        "rotulo": "Informação de despesas",
+        "tipo": "complemento",
+        "vinculos": {},
+        "categoria": "despesas"
+      }
+    ]
+  },
+  "aviso": "Rascunho de organização, não modelo profissional homologado. Cada complemento é separado por assunto e destinatário. Não cria registros nem afirma pagamento, consulta, apresentação de documento ou assinatura. Remova ou adapte posições que não se apliquem somente após revisão da escrevente."
+}

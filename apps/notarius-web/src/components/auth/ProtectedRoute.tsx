@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/slices/authSlice'
 import { useTenantStore } from '@/store/slices/tenantSlice'
@@ -13,9 +13,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter()
   const { isAuthenticated, isLoading } = useAuthStore()
   const { selectedTenant } = useTenantStore()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
-    if (!isLoading) {
+    if (mounted && !isLoading) {
       if (!isAuthenticated) {
         router.push('/login')
       } else if (!selectedTenant) {
@@ -24,9 +26,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         // In a real app, you might have a dedicated tenant selection page
       }
     }
-  }, [isAuthenticated, isLoading, selectedTenant, router])
+  }, [mounted, isAuthenticated, isLoading, selectedTenant, router])
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

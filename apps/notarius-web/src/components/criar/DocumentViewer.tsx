@@ -69,7 +69,7 @@ export function DocumentViewer({
       }
 
       // First, approve the minuta
-      const approveResponse = await fetch(`http://localhost:8000/api/v1/ai/approve-minuta/${document.id}/`, {
+      const approveResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api/v1'}/ai/approve-minuta/${document.id}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ export function DocumentViewer({
       }
 
       // Then, finalize the minuta
-      const response = await fetch(`http://localhost:8000/api/v1/ai/finalize-minuta/${document.id}/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api/v1'}/ai/finalize-minuta/${document.id}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

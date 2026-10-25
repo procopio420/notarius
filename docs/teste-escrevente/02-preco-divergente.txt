@@ -1,0 +1,8 @@
+DOCUMENTO INTEIRAMENTE FICTICIO PARA TESTE DE DIVERGENCIA
+SEM VALIDADE PARA QUALQUER ATO REAL
+
+Preco: R$ 200.000,00
+
+O outro arquivo informa R$ 100.000,00.
+O sistema deve mostrar as duas origens e manter a decisao pendente.
+Nao existe um valor verdadeiro neste caso de teste; a escolha e apenas um exercicio.

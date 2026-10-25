@@ -70,7 +70,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           // Generate username from email (first part before @)
           const username = data.email.split('@')[0]
           
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/auth/register/`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api/v1'}/auth/register/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

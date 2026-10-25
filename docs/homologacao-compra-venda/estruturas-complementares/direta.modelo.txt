@@ -1,0 +1,61 @@
+RASCUNHO DE ESTRUTURA COMPLEMENTAR — PARA HOMOLOGAÇÃO
+NÃO HOMOLOGADO — NÃO É ATO CONCLUÍDO
+
+{{ato.abertura}}
+Data informada: {{ato.data_informada}}
+Local informado: {{ato.local}}
+Serventia informada: {{ato.serventia}}
+
+QUALIFICAÇÃO INFORMADA DO VENDEDOR
+{{vendedor.nome}}, {{vendedor.cpf}}, {{vendedor.documento_numero}}, {{vendedor.orgao_emissor}}, {{vendedor.nacionalidade}}, {{vendedor.profissao}}, {{vendedor.estado_civil}}, {{vendedor.endereco}}
+Papel informado: {{papel_vendedor.tipo_papel}}
+
+QUALIFICAÇÃO INFORMADA DO COMPRADOR
+{{comprador.nome}}, {{comprador.cpf}}, {{comprador.documento_numero}}, {{comprador.orgao_emissor}}, {{comprador.nacionalidade}}, {{comprador.profissao}}, {{comprador.estado_civil}}, {{comprador.endereco}}
+Papel informado: {{papel_comprador.tipo_papel}}
+
+1.- DO IMÓVEL E SUA TITULAÇÃO
+{{bem.descricao}}
+Referência: {{bem.matricula}} · {{bem.registro}}
+Titularidade informada: {{bem.titularidade}}
+Aquisição informada: {{bem.aquisicao}}
+Ônus informados: {{bem.onus}}
+
+2.- CONDIÇÕES INFORMADAS DO NEGÓCIO
+Preço: {{negocio.preco}}
+Condições: {{negocio.condicoes}}
+Situação informada: {{negocio.situacao_pagamento}}
+
+2.1.- {{negocio.quitacao}}
+{{transmissao.conteudo}}
+
+3.- DECLARAÇÃO DO VENDEDOR
+{{declaracao_vendedor.conteudo}}
+
+4.- DECLARAÇÃO DO COMPRADOR
+{{declaracao_comprador.conteudo}}
+
+5.- INFORMAÇÃO DE DOI
+{{doi.conteudo}}
+
+6.- INFORMAÇÃO DE TRIBUTO
+{{tributo.conteudo}}
+
+7.- DOCUMENTO DO IMÓVEL
+{{certidao_imovel.conteudo}}
+CONSULTA RELATIVA AO VENDEDOR
+{{consulta_vendedor.conteudo}}
+CONSULTA RELATIVA AO COMPRADOR
+{{consulta_comprador.conteudo}}
+
+8.- DECLARAÇÕES ESPECÍFICAS
+{{declaracao_especifica_vendedor.conteudo}}
+{{declaracao_especifica_comprador.conteudo}}
+
+9.- REQUERIMENTO
+{{requerimento.conteudo}}
+
+10.- ENCERRAMENTO INFORMADO
+{{ato.encerramento}}
+DESPESAS INFORMADAS
+{{despesas.conteudo}}
