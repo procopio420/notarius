@@ -13,7 +13,7 @@ Prompt curto: `Leia docs/PLANO_PILOTO_PROFISSIONAL.md, siga a orientação inici
 | Etapa | Objetivo | Situação |
 |---|---|---|
 | 1 | Diagnóstico da adaptação profissional | Diagnóstico técnico entregue; material e decisões profissionais pendentes (ver registro abaixo) |
-| 2 | Parametrizar padrão autorizado | Rascunho parcial preparado a partir de cinco imagens; pendente de texto legível, autorização e revisão da escrevente |
+| 2 | Parametrizar padrão autorizado | Preparação técnica v1 entregue; integralidade/tarjas esclarecidas pelo usuário; aguardando revisão e aprovação profissional |
 | 3 | Configurar primeiro cenário | Depende das decisões profissionais |
 | 4 | Percorrer atendimento acompanhado | Depende de padrão aprovado e revisão dos controles de dados |
 | 5 | Conferir minuta e exportações | Depende da revisão da escrevente |
@@ -21,7 +21,16 @@ Prompt curto: `Leia docs/PLANO_PILOTO_PROFISSIONAL.md, siga a orientação inici
 
 O PR foi aberto com somente o plano; as execuções posteriores estão registradas abaixo. Os arquivos versionados não contêm documentos reais nem dados pessoais do exemplo. O provedor documental real continua bloqueado. A conferência manual do piloto não comprova a qualidade da IA.
 
-### Registro parcial da etapa 2 — 25/10/2026
+### Atualização da etapa 2 — preparação v1, 25/10/2026
+
+- O usuário confirmou documento completo/ordenado e tarjas somente em dados sensíveis; autorizou prosseguir com o contexto e consulta de referências. Não se solicita retirada das tarjas nem revelação dos dados pessoais. Pendências anteriores de integralidade e texto de cláusula oculto foram resolvidas por esse esclarecimento.
+- [Redação parametrizada v1](piloto-profissional/REDACAO_PARAMETRIZADA_V1.md): fórmulas candidatas detalhadas por seção, parâmetros, confirmações e condições; concordâncias de outorgante/outorgado, vendedor/comprador, gênero, quantidade e cargo, sem dedução pelo nome. Texto adaptado identificado, sem importar cláusulas de modelos externos.
+- [Pacote técnico v1](piloto-profissional/modelo-v1.json): versão, origem e objeto de modelo com os 23 campos existentes, `aprovado=false`, sem posições, obrigatoriedades ou dependências configuradas. Fórmulas factuais ficam no documento de revisão, não embutidas como fatos fixos. Sem importação em biblioteca/atendimento.
+- Verificação específica do arquivo v1 pelo `SalvarModeloSerializer`, `redacao.validar_modelo` e `validar_fatos_fixos`: passou; 23 campos cobertos, delimitadores aceitos, aprovação falsa e cenário vazio. Busca de CPF, valores monetários e datas do exemplo nos dois novos arquivos sem ocorrências; revisão manual sem transferência de dados pessoais. Sem gravação no banco. Os seis testes registrados abaixo são da rodada v0; não foram repetidos ou apresentados como nova bateria.
+- Consulta pública ao art. 215 em fonte oficial para terminologia, sem enviar documento/dado pessoal à pesquisa, sem extrair novos requisitos jurídicos. Fonte e limite registrados no relatório. `git diff --check` sem erros.
+- **Preparação técnica entregue para revisão. Etapa 2 ainda aguarda decisão da escrevente**, como exige a orientação inicial; não houve aprovação automática, liberação para caso real ou avanço à etapa 3. Abaixo fica o histórico v0, superado onde menciona falta de páginas/texto legível.
+
+### Histórico parcial da etapa 2 — v0, 25/10/2026
 
 - Material: cinco imagens enviadas pelo usuário; originais preservados em pasta privada fora do repositório. Leitura visual, sem reconstruir tarjas, consultar links ou enviar a provedor externo.
 - Entrega para revisão: [rascunho parametrizado](piloto-profissional/modelo-v0.txt) e [mapa de texto/dados, confirmações, condições e dúvidas](piloto-profissional/REVISAO_MODELO_ETAPA_2.md). Só títulos e estrutura segura como texto fixo candidato; fatos, declarações e resultados ficam variáveis. Não se declara transcrição integral.

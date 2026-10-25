@@ -1,6 +1,22 @@
-# Etapa 2 — versão parcial do padrão para revisão
+# Etapa 2 — padrão preparado para revisão
 
-25/10/2026 · `piloto-imagens-v0` · **Rascunho parcial, não aprovado.**
+25/10/2026 · `piloto-imagens-v1` · **Preparação técnica entregue; revisão profissional pendente, não aprovado.**
+
+## Atualização após esclarecimento do usuário
+
+O usuário confirmou que as cinco imagens estão completas e na ordem, e que rasureou somente dados sensíveis. Portanto, não se exige cópia sem tarjas nem recuperação dos valores ocultos. A falta de integralidade e a hipótese de cláusulas cobertas, apontadas na primeira leitura abaixo, estão resolvidas por esse esclarecimento. A revisão profissional continua pendente; a confirmação do usuário não foi registrada como aprovação da escrevente.
+
+Entregas atuais: `REDACAO_PARAMETRIZADA_V1.md` detalha a redação candidata, parâmetros internos, declarações, condições de aplicação e concordâncias; `modelo-v1.json` contém o envelope técnico e o modelo de blocos compatível com os marcadores existentes. `modelo-v0.txt` permanece como histórico. A redação detalhada é uma adaptação editorial identificada, não uma transcrição diplomática, nem um modelo novo obtido da internet.
+
+No JSON, somente o objeto `modelo` é o conteúdo candidato ao mecanismo existente. `versao_esperada: 0` é indicação para primeiro salvamento, não deve sobrescrever modelo existente; conferir a versão atual antes de qualquer importação futura. Nenhum importador, biblioteca ou atendimento foi alterado. Não foram configuradas posições/regras do primeiro cenário. As fórmulas com afirmações ficam no documento de revisão, fora do texto fixo executável; continuam exigindo confirmação do bloco específico no caso.
+
+Referência externa auxiliar consultada a pedido do usuário: [Código Civil, art. 215, no portal oficial de legislação do Senado](https://normas.leg.br/?urn=urn%3Alex%3Abr%3Afederal%3Alei%3A2002-01-10%3B10406%21art215), apenas para conferir terminologia de qualificação/comparecentes. Não foram incorporadas exigências jurídicas ou cláusulas de terceiros. A fonte principal continua sendo o documento enviado; o portal não homologa a adaptação.
+
+**Pendência atual única de fechamento profissional:** a escrevente deve revisar a redação v1, suas condições e concordâncias, registrar correções e aprovar a versão. Material sensível oculto não precisa ser revelado para concluir essa revisão. A etapa 2 permanece aguardando essa decisão, conforme a regra do plano de não concluir etapa com decisão profissional faltante. Não avançar à etapa 3 sem nova solicitação.
+
+As seções seguintes preservam o diagnóstico v0; suas solicitações de legibilidade/integralidade são históricas e foram superadas pelo esclarecimento acima.
+
+Verificação específica v1: o objeto `modelo` passou no `SalvarModeloSerializer`, em `redacao.validar_modelo` e na guarda `validar_fatos_fixos`; cobertura dos 23 campos existentes confirmada. Aprovação falsa e listas de posições/regras vazias verificadas. Busca de CPF, valores monetários e datas do exemplo nos dois novos arquivos sem ocorrências, acompanhada de revisão manual. Sem gravação no banco. A validação técnica não verifica concordância ou conteúdo profissional das fórmulas candidatas, que estão no documento de revisão. `git diff --check` sem erros.
 
 ## Material recebido e preservação
 
