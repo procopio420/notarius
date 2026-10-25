@@ -17,9 +17,17 @@ Prompt curto: `Leia docs/PLANO_PILOTO_PROFISSIONAL.md, siga a orientação inici
 | 3 | Configurar primeiro cenário | Configuração técnica provisória preparada; hipótese e regras profissionais aguardam confirmação da escrevente |
 | 4 | Percorrer atendimento acompanhado | Preparação técnica e roteiro entregues; atendimento real pendente de padrão/cenário aprovados, controles locais e sessão com a escrevente |
 | 5 | Conferir minuta e exportações | Conferência fictícia de conteúdo e PDF visual realizada; Word visual e conferência profissional do caso continuam pendentes |
-| 6 | Ativar e avaliar IA real | Adiada até autorização específica e créditos |
+| 6 | Ativar e avaliar IA real | Prontidão offline conferida; transporte ausente; ativação/avaliação pendentes de confirmação de créditos, autorização, teto de gasto e modelo |
 
 O PR foi aberto com somente o plano; as execuções posteriores estão registradas abaixo. Os arquivos versionados não contêm documentos reais nem dados pessoais do exemplo. O provedor documental real continua bloqueado. A conferência manual do piloto não comprova a qualidade da IA.
+
+### Registro da etapa 6 — somente prontidão offline, 25/10/2026
+
+- [Relatório](piloto-profissional/ETAPA_6_PRONTIDAO_OFFLINE.md). Não houve confirmação de créditos/autorização específica; pergunta enviada ao usuário, sem presumir resposta. Nenhuma ativação, envio externo ou gasto de API.
+- Executados diagnóstico e plano pelos comandos existentes, sob guardas que impedem socket, criação de cliente SDK e consulta ao banco. Arquivos novos fora do Git em `.local/piloto-etapa6/`; dez exercícios fictícios e hashes atuais conferidos, sem modelo escolhido ou respostas reais.
+- Provedor permanece bloqueado, sem transporte implementado. Créditos/chave por si só não o ativam. Nenhuma configuração foi alterada; não houve leitura de documentos/atendimentos pelos comandos nem exposição de chave.
+- Somente este plano e o relatório foram alterados. `git diff --check` sem erros. Sem nova bateria funcional, pois a implementação não mudou; verificações concretas dos comandos descritas no relatório.
+- **Etapa 6 não concluída:** usuário confirma créditos, autoriza casos fictícios e define teto de gasto; modelo deve ser escolhido e transporte implementado/testado após autorização. Dados reais exigem nova autorização específica. Pendências profissionais das etapas 2 a 5 preservadas.
 
 ### Registro da etapa 5 — conferência técnica fictícia, 25/10/2026
 
