@@ -31,5 +31,8 @@ IA documental externa não foi ativada nem avaliada com modelo real. Sua impleme
 - ESLint dos componentes/páginas de atendimentos e bibliotecas novas: aprovado.
 - TypeScript e ESLint globais: falharam em áreas fora do fluxo de atendimentos, incluindo Cypress, documentos e editor. ESLint global reportou 64 erros e 67 avisos. Esses resultados impedem declarar a interface integralmente validada.
 - `git diff --check`: aprovado antes desta documentação.
+- Bateria Django geral: encontrou erros de importação por ausência de `pytest` e falhas durante a execução; foi interrompida após ficar sem progresso visível. O diagnóstico com `--failfast` confirmou a dependência ausente em `tests.ai_documents.test_generate_minuta`. Não se declara aprovação da suíte completa.
+- CI remoto: os jobs `pii-detection` e `API Performance Testing` falharam ainda na preparação por uso de `actions/upload-artifact@v3` desativado pelo GitHub. Esses fluxos já existiam na base e não foram alterados neste PR; essas falhas não são resultados de testes de PII ou desempenho.
+- Regressão selecionada: **65 testes passaram em 76,145 segundos**, sem testes pulados, com `manage.py test tests.test_pacote_piloto_profissional tests.test_cenario_piloto_provisorio tests.test_exportacao_piloto tests.test_ficha_estruturada tests.test_redacao_estruturada tests.test_blocos_minuta tests.test_preparacao_documental --noinput`. Cobertura técnica de pacote/cenário fictício, ficha, redação/blocos, exportação e preparação offline; não substitui a suíte completa nem aceite profissional.
 
 Os relatórios por etapa preservam comandos, resultados e limites das verificações anteriores; suas contagens não devem ser somadas como testes distintos.
