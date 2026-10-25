@@ -23,6 +23,13 @@ O PR foi aberto com somente o plano; as execuções posteriores estão registrad
 
 ### Atualização da etapa 2 — preparação v1, 25/10/2026
 
+#### Verificação técnica adicional autorizada, sem aceite humano
+
+- A pedido do usuário, executado somente o trabalho independente de decisões profissionais. [Relatório](piloto-profissional/VERIFICACAO_TECNICA_SEM_ACEITE_HUMANO.md).
+- Quatro novos testes em `apps/notarius-api/tests/test_pacote_piloto_profissional.py` validam o pacote entregue: contrato/guardas reais, recusa de quitação fixa, persistência/reabertura como rascunho e bloqueio de geração mesmo com campos fictícios completos enquanto não aprovado.
+- **57 testes passaram em 38,003 s**: pacote, ficha, redação estruturada, blocos e preparação documental. Banco isolado, dados fictícios; sem chamadas externas. Django `check`, verificação de migrações e `git diff --check` sem problemas.
+- Alterações desta rodada: testes novos, relatório técnico e este registro. Sem mudanças de código de produção, modelo, configurações, banco operacional ou decisões profissionais. Preparação técnica verificada; aprovação da escrevente e configuração do cenário continuam pendentes. Não houve avanço automático à etapa 3.
+
 - O usuário confirmou documento completo/ordenado e tarjas somente em dados sensíveis; autorizou prosseguir com o contexto e consulta de referências. Não se solicita retirada das tarjas nem revelação dos dados pessoais. Pendências anteriores de integralidade e texto de cláusula oculto foram resolvidas por esse esclarecimento.
 - [Redação parametrizada v1](piloto-profissional/REDACAO_PARAMETRIZADA_V1.md): fórmulas candidatas detalhadas por seção, parâmetros, confirmações e condições; concordâncias de outorgante/outorgado, vendedor/comprador, gênero, quantidade e cargo, sem dedução pelo nome. Texto adaptado identificado, sem importar cláusulas de modelos externos.
 - [Pacote técnico v1](piloto-profissional/modelo-v1.json): versão, origem e objeto de modelo com os 23 campos existentes, `aprovado=false`, sem posições, obrigatoriedades ou dependências configuradas. Fórmulas factuais ficam no documento de revisão, não embutidas como fatos fixos. Sem importação em biblioteca/atendimento.
