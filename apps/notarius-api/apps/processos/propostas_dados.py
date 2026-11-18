@@ -83,7 +83,8 @@ def consultar_propostas(atendimento):
 
 def _rotulos(atendimento):
     result = {}
-    for tipo, fields in schema_atual(atendimento).items():
+    schema = schema_atual(atendimento)
+    for tipo, fields in schema.items():
         for field in fields:
             if field['chave'] == 'estado_registro':
                 continue
@@ -96,9 +97,24 @@ def _rotulos(atendimento):
                'forma de pagamento': ('negociacao', 'condicoes'), 'condicoes de pagamento': ('negociacao', 'condicoes'),
                'situacao do pagamento': ('negociacao', 'situacao_pagamento'), 'preco de venda': ('negociacao', 'preco')}
     for label, (tipo, key) in aliases.items():
-        field = next(f for f in schema_atual(atendimento)[tipo] if f['chave'] == key)
+        field = next(f for f in schema[tipo] if f['chave'] == key)
         result[label] = [{'tipo': tipo, 'chave': key, 'rotulo': field['rotulo']}]
     return result
+
+
+def canais_pagina(page):
+    yield 'ocr' if page.metodo == 'ocr_local' else 'texto', page.texto
+    if page.texto_ocr and page.texto_ocr != page.texto:
+        yield 'ocr', page.texto_ocr
+
+
+def ler_rotulos(text, labels):
+    for number, line in enumerate(text.splitlines(), 1):
+        if not line.strip():
+            continue
+        match = re.fullmatch(r'\s*([^:\n]{2,100}):([^\n]+)', line)
+        targets = labels.get(normalizar(match[1])) if match and match[2].strip() else None
+        yield number, line, (match[1].strip(), match[2], targets) if targets else None
 
 
 def _extrair(atendimento, user, data):
@@ -116,9 +132,7 @@ def _extrair(atendimento, user, data):
         if file.situacao == 'revisao':
             read_issues.append(file.aviso or 'Arquivo com leitura pendente de revisão manual.')
         for page in file.paginas.filter(leitura_versao=file.leitura_versao):
-            sources.append((page, None, 'ocr' if page.metodo == 'ocr_local' else 'texto', page.texto))
-            if page.texto_ocr and page.texto_ocr != page.texto:
-                sources.append((page, None, 'ocr', page.texto_ocr))
+            sources.extend((page, None, channel, text) for channel, text in canais_pagina(page))
     else:
         msg = get_object_or_404(atendimento.mensagens, id=data['mensagem_id'], tenant_id=atendimento.tenant_id)
         from .conversa_orientada import mensagem_atual
@@ -127,20 +141,17 @@ def _extrair(atendimento, user, data):
         sources.append((None, msg, 'texto', msg.texto))
     ids, unmatched = [], 0
     for page, msg, channel, text in sources:
-        for number, line in enumerate(text.splitlines(), 1):
-            if not line.strip():
-                continue
-            match = re.fullmatch(r'\s*([^:\n]{2,100}):([^\n]+)', line)
-            targets = labels.get(normalizar(match[1])) if match else None
-            if not targets or not match[2].strip():
+        for number, line, found in ler_rotulos(text, labels):
+            if not found:
                 unmatched += 1
                 continue
             if len(line) > 10000 or len(ids) >= 200:
                 raise ValidationError('Limite de propostas locais atingido. Divida o arquivo ou confira os trechos manualmente; esta solicitação não foi salva.')
             digest = assinatura(['rotulos_locais_v1', str(page.id) if page else str(msg.id), channel, number, line])
+            label, value, targets = found
             proposal, _ = PropostaDadoAtendimento.objects.get_or_create(atendimento=atendimento, origem_hash=digest,
                 defaults={'tenant': atendimento.tenant, 'pagina': page, 'mensagem': msg, 'autor': user, 'canal': channel,
-                          'linha': number, 'rotulo': match[1].strip(), 'valor_original': match[2], 'trecho': line, 'destinos': targets})
+                          'linha': number, 'rotulo': label, 'valor_original': value, 'trecho': line, 'destinos': targets})
             ids.append(str(proposal.id))
     return {'propostas_ids': ids, 'linhas_nao_interpretadas': unmatched, 'problemas_leitura': read_issues, 'modo': 'simulacao_local',
             'aviso': 'Leitura local por rótulos, sem IA real. Trecho literal não garante interpretação correta. Nenhum registro, pessoa, papel ou pagamento foi confirmado. Confira também os trechos não interpretados.'}

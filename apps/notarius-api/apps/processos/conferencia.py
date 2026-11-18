@@ -35,7 +35,7 @@ def extrair_rotulos(text):
     aliases = {**{normalizar(label): key for key, (label, _) in CAMPOS.items()},
                **{normalizar(key.replace('_', ' ')): key for key in CAMPOS}, **ALIASES}
     for line in text.splitlines():
-        match = re.fullmatch(r'\s*([^:\n]{2,45}):\s*(\S.{0,1999})\s*', line)
+        match = re.fullmatch(r'\s*([^:\n]{2,80}):\s*(\S.{0,1999})\s*', line)
         if match and normalizar(match[1]) in aliases:
             yield aliases[normalizar(match[1])], match[2].strip(), line
 
@@ -123,7 +123,8 @@ def conferir(atendimento):
         elif not msg.pergunta:
             for key, value, line in extrair_rotulos(msg.texto):
                 candidates[key].append({'valor': value, 'origem': 'mensagem', 'situacao': 'informado', 'id': str(msg.id), 'trecho': line})
-    attachments = list(atendimento.anexos.defer('conteudo').prefetch_related('paginas'))
+    attachments = list(atendimento.anexos.defer('conteudo').select_related('organizacao_atual').prefetch_related('paginas'))
+    organizations = {str(file.id): file.organizacao_atual.versao if file.organizacao_atual_id else 0 for file in attachments}
     for attachment in attachments:
         if attachment.organizacao_atual_id and attachment.organizacao_atual.finalidade in ['referencia_redacao', 'nao_utilizar']:
             continue
@@ -217,8 +218,10 @@ def conferir(atendimento):
         question = (f'Encontrei informações diferentes para {label.lower()}. Confira as origens e decida qual registrar.' if kind == 'divergencia' else
                     f'Preciso da sua revisão de {label.lower()}; não consigo continuar com essa pendência.' if kind == 'leitura' else
                     PERGUNTAS.get(key, f'Qual é a informação de {label.lower()}? Confira os dados antes de confirmar.'))
+        visible_evidence = [{**item, 'organizacao_versao': organizations[item['anexo_id']]}
+                            if item['origem'] == 'documento' else item for item in evidence]
         questions.append({'chave': key, 'tipo': kind, 'rotulo': label, 'assinatura': sign,
-                          'pergunta': question, 'candidatos': evidence, 'atual': current.valor if current else None,
+                          'pergunta': question, 'candidatos': visible_evidence, 'atual': current.valor if current else None,
                           'versao': current.versao if current else 0})
     questions.sort(key=lambda q: {'organizacao_documento': -2, 'pendencia_ficha': -1, 'estrutura': -1, 'anexar': 0, 'documento': 0, 'mensagem': 1, 'divergencia': 1, 'leitura': 2, 'confirmacao': 3}[q['tipo']])
     return {'pendencias': questions, 'bloqueado': bool(questions), 'pode_redigir': not questions,

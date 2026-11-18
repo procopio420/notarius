@@ -4,7 +4,10 @@ import { useTenantStore } from '@/store/slices/tenantSlice'
 import { queryClient } from './queryClient'
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api/v1',
+  baseURL: process.env.NEXT_PUBLIC_PILOTO_LOCAL === '1'
+    && typeof window !== 'undefined' && window.location.protocol === 'https:'
+    ? '/api/v1'
+    : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api/v1',
 })
 
 api.interceptors.request.use((config) => {
@@ -14,7 +17,7 @@ api.interceptors.request.use((config) => {
     const token = localStorage.getItem('auth_token')
     const tenant = localStorage.getItem('tenant_id')
     if (token) config.headers.Authorization = `Token ${token}`
-    if (tenant) config.headers['X-Tenant-ID'] = tenant
+    if (tenant && process.env.NEXT_PUBLIC_PILOTO_LOCAL !== '1') config.headers['X-Tenant-ID'] = tenant
   }
   return config
 })

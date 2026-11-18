@@ -36,5 +36,6 @@ def comparar_minutas(base, target):
     return {'base':{'id':str(base.id), 'versao':base.versao, 'modelo_versao':base.modelo.versao},
             'destino':{'id':str(target.id), 'versao':target.versao, 'modelo_versao':target.modelo.versao},
             'texto_alterado':base.corpo != target.corpo, 'trechos':parts,
+            'formatacao_alterada':base.formatacao != target.formatacao,
             'dados_alterados':fields, 'comparacao_simplificada':simplified,
             'aviso':'Comparação literal entre versões salvas. Alterações manuais no texto não atualizam a ficha. Isto não verifica correção jurídica ou veracidade.'}

@@ -1,4 +1,7 @@
-# Teste acompanhado do Notarius
+# Exercício técnico fictício da etapa 8
+
+Registro histórico do ensaio técnico. O teste de uso da Mary segue o
+[roteiro do piloto com casos reais](../ROTEIRO_PILOTO_COMPRA_VENDA.md#teste-de-uso-da-mary).
 
 Use somente **TESTE FICTÍCIO**. Não é uma escritura profissional. Faça a primeira tentativa acompanhada; não precisa configurar regras nem aprender códigos.
 
@@ -12,4 +15,4 @@ Use somente **TESTE FICTÍCIO**. Não é uma escritura profissional. Faça a pri
 
 **Conte como foi:** em qual tarefa precisou de ajuda? Qual palavra confundiu? Conseguiu voltar e encontrar a próxima ação? Um bloqueio por dúvida pode estar correto.
 
-Seu teste ainda não foi realizado: a revisão do agente não substitui sua experiência. A orientação é local, sem IA real. Aprovações automáticas de teste ocorreram só em banco separado; os exercícios deste navegador começam sem confirmação/aprovação. O padrão profissional continua a definir/homologar.
+Neste exercício histórico, a orientação era local e as aprovações automáticas ocorreram em banco separado. Os exercícios no navegador começavam sem confirmação ou aprovação.

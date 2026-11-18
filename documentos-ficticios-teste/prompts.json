@@ -1,0 +1,26 @@
+[
+  {
+    "file": "01-identidade-ana.png",
+    "prompt": "Generic green-beige fictional identity card, NOT an exact replica of an official Brazilian ID. Heading \"IDENTIDADE DE TESTE — RG / CPF\". Synthetic portrait of an adult woman, caption \"FOTO SINTÉTICA\". Nome: ANA EXEMPLO DE TESTE. CPF: 000.000.000-00. RG: 00.000.000-0. Nascimento: 12/05/1990. Estado civil: CASADA. Naturalidade: CIDADE TESTE / XX. Rodapé: \"NÚMEROS INTENCIONALMENTE INVÁLIDOS\". No signature."
+  },
+  {
+    "file": "02-identidade-bruno.png",
+    "prompt": "Generic green-beige fictional identity card, NOT an exact replica of an official Brazilian ID. Heading \"IDENTIDADE DE TESTE — RG / CPF\". Synthetic portrait of an adult man, caption \"FOTO SINTÉTICA\". Nome: BRUNO MODELO DE TESTE. CPF: 111.111.111-11. RG: 11.111.111-1. Nascimento: 14/03/1985. Estado civil: SOLTEIRO. Naturalidade: CIDADE TESTE / XX. Rodapé: \"NÚMEROS INTENCIONALMENTE INVÁLIDOS\". No signature."
+  },
+  {
+    "file": "03-certidao-casamento.png",
+    "prompt": "Portrait A4 fictional marriage record on ivory paper, simple thin border, no seal. Heading \"CERTIDÃO DE CASAMENTO — MODELO FICTÍCIO\". Names as two separate clear blocks: \"ANA EXEMPLO DE TESTE\", \"CPF: 000.000.000-00\"; \"RAFAEL MODELO DE TESTE\", \"CPF: 222.222.222-22\". \"Data do casamento: 15/06/2015\". \"Regime informado neste exercício: COMUNHÃO PARCIAL DE BENS\". \"Local: CIDADE TESTE / XX\". \"Registro: TESTE-CAS-001\". \"Documento inteiramente sintético. Não comprova casamento.\" No signature or real seal."
+  },
+  {
+    "file": "04-conta-luz.png",
+    "prompt": "Portrait A4 synthetic electricity bill. Company name \"ENERGIA EXEMPLO — EMPRESA FICTÍCIA\", generic sun line icon, no real company. Title \"CONTA DE LUZ — EXERCÍCIO\". \"Titular: ANA EXEMPLO DE TESTE\". \"CPF: 000.000.000-00\". \"Endereço: RUA EXEMPLO FICTÍCIO, 100, APTO 12\". \"Bairro: BAIRRO SIMULADO\". \"Cidade: CIDADE TESTE / XX\". \"Referência: OUTUBRO / 2026\". \"Vencimento: 20/11/2026\". \"Consumo: 150 kWh\". \"Total fictício: R$ 123,45\". Very bold bottom \"NÃO PAGAR — NÃO É COBRANÇA\". No barcode or payment code."
+  },
+  {
+    "file": "05-ficha-imovel.png",
+    "prompt": "Portrait A4 simulated property record, restrained navy headings and horizontal lines. Title \"FICHA DO IMÓVEL — EXERCÍCIO FICTÍCIO\". Subtitle \"Não é certidão nem matrícula oficial\". \"Referência: IMÓVEL-TESTE-001\". \"Titular informado: BRUNO MODELO DE TESTE\". \"CPF: 111.111.111-11\". \"Descrição: APARTAMENTO FICTÍCIO, UNIDADE 12\". \"Endereço: RUA EXEMPLO FICTÍCIO, 100, APTO 12\". \"Bairro: BAIRRO SIMULADO\". \"Cidade: CIDADE TESTE / XX\". \"Área informada: 60,00 m²\". \"Ônus: NÃO INFORMADO — CONFERIR\". \"Título de aquisição: NÃO INFORMADO — CONFERIR\". \"Certidões e consultas: NÃO APRESENTADAS NESTE EXERCÍCIO\". No legal certification, no signature."
+  },
+  {
+    "file": "06-dados-negociacao.png",
+    "prompt": "Portrait A4 clean simple form titled \"DADOS DA COMPRA E VENDA — TESTE\". \"Vendedor: BRUNO MODELO DE TESTE\". \"CPF do vendedor: 111.111.111-11\". \"Compradora: ANA EXEMPLO DE TESTE\". \"CPF da compradora: 000.000.000-00\". \"Imóvel: IMÓVEL-TESTE-001\". \"Endereço: RUA EXEMPLO FICTÍCIO, 100, APTO 12 — CIDADE TESTE / XX\". \"Preço informado: R$ 150.000,00\". \"Pagamento: PREVISTO PARA 30/11/2026\". Important bold note \"NÃO HÁ DECLARAÇÃO DE QUITAÇÃO\". \"Tributos: NÃO INFORMADOS\". \"Documentação: SUJEITA À CONFERÊNCIA DA ESCREVENTE\". Bottom note \"Exercício de preenchimento; não é proposta, contrato ou escritura.\" No signatures."
+  }
+]

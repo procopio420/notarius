@@ -300,7 +300,9 @@ class MinutaAtendimento(BaseTenantModel):
     modelo = models.ForeignKey(ModeloAtendimento, on_delete=models.PROTECT)
     versao = models.PositiveIntegerField()
     corpo = models.TextField()
+    formatacao = models.JSONField(default=dict, blank=True)
     dados = models.JSONField()
+    assistencia = models.JSONField(default=dict, blank=True)
     assinatura = models.CharField(max_length=64)
     autor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     base = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True)
@@ -414,6 +416,15 @@ class ProcessoParte(BaseTenantModel):
 
     def __str__(self):
         return f"{self.processo_id} - {self.parte_id} ({self.papel})"
+
+
+class RespostaChatIA(BaseTenantModel):
+    mensagem = models.OneToOneField(MensagemAtendimento, on_delete=models.CASCADE, related_name='resposta_ia')
+    estado = models.CharField(max_length=20, default='processando')
+    texto = models.TextField(blank=True)
+    codigo = models.CharField(max_length=80, blank=True)
+    contexto = models.CharField(max_length=64)
+    uso = models.JSONField(default=dict)
 
 
 class Protocolo(BaseTenantModel):

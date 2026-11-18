@@ -91,6 +91,12 @@ class TenantSerializer(serializers.ModelSerializer):
         fields = ('id', 'nome', 'uf')
 
 
+class PilotUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'is_superuser')
+
+
 class UserSerializer(serializers.ModelSerializer):
     tenants = serializers.SerializerMethodField()
     default_tenant = serializers.SerializerMethodField()

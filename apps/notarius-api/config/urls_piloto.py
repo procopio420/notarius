@@ -9,7 +9,5 @@ router = DefaultRouter()
 router.register('atendimentos', AtendimentoViewSet, basename='atendimento')
 urlpatterns = [path('health/', lambda request: HttpResponse('OK')),
                path('api/v1/', include(router.urls))]
-for route, view in [('login', views.login_view), ('logout', views.logout_view),
-                    ('me', views.me_view), ('tenants', views.user_tenants_view),
-                    ('set-default-tenant', views.set_default_tenant_view)]:
+for route, view in [('login', views.login_view), ('logout', views.logout_view), ('me', views.me_view)]:
     urlpatterns.append(path(f'api/v1/auth/{route}/', view))

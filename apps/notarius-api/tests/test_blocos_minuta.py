@@ -59,6 +59,7 @@ class BlocosMinutaTests(APITestCase):
         self.assertNotIn('{%',draft['corpo'])
         guard=draft['dados']['a.estado_civil']
         self.assertTrue(guard['decisoes_blocos'][0]['incluido'])
+        self.assertNotIn('a.estado_civil', draft['campos_inseridos'])
         self.assertEqual(guard['decisoes_blocos'][0]['revisao_id'],guard['revisao_id'])
         for data in draft['dados'].values():
             for occurrence in data['ocorrencias']:

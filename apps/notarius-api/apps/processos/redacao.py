@@ -3,6 +3,7 @@ import re
 from rest_framework.exceptions import ValidationError
 from .conferencia import assinatura, conferir, sem_dado, normalizar
 from .ficha import CAMPOS, TOKEN, campos_exigidos
+from .modelo_escritura_fiel import CONFERENCIAS, CORPO
 
 BASE = {
     'corpo': 'MINUTA DE COMPRA E VENDA — PARA REVISÃO\n\nVENDEDORES\n{{vendedores}}\n\nCOMPRADORES\n{{compradores}}\n\nIMÓVEL\n{{imovel}}\n\nPREÇO INFORMADO\n{{preco}}\n\nFORMA DE PAGAMENTO INFORMADA\n{{pagamento}}',
@@ -32,6 +33,8 @@ def validar_modelo(data):
     if data.get('registros_minuta'):
         from .redacao_estruturada import validar_modelo as validar_estruturado
         return validar_estruturado(data)
+    if data['corpo'] == CORPO and not data['representacao'] and not data['observacoes']:
+        return
     if any(t in data[b] for b in ['corpo', 'representacao', 'observacoes'] for t in ['{%', '%}']):
         raise ValidationError('Blocos explícitos exigem modelo com posições da ficha detalhada.')
     for block in ['corpo', 'representacao', 'observacoes']:
@@ -46,6 +49,22 @@ def validar_modelo(data):
 
 def modelo_atual(atendimento):
     return atendimento.modelos_minuta.first()
+
+
+def blocos_legados(model, values):
+    yield 'corpo', model.corpo
+    body_fields = set(TOKEN.findall(model.corpo))
+    for key in ('representacao', 'observacoes'):
+        value = values.get(key)
+        if key not in body_fields and value and value['valor'].strip() and value['situacao'] == 'confirmado':
+            yield key, getattr(model, key)
+
+
+def campos_inseridos(model, values):
+    if model.registros_minuta:
+        return [key for key, data in values.items() if data.get('ocorrencias')]
+    return list(dict.fromkeys(key for _, block in blocos_legados(model, values)
+                             for key in TOKEN.findall(block) if key in values))
 
 def snapshot(atendimento):
     from .serializers import RevisaoDadoSerializer
@@ -100,7 +119,9 @@ def preparar(atendimento):
         values, text = preencher(atendimento)
         return model, values, fingerprint, text
     validar_modelo({'corpo': model.corpo, 'representacao': model.representacao, 'observacoes': model.observacoes})
-    validar_fatos_fixos(model)
+    referencia_fiel = model.corpo == CORPO and not model.representacao and not model.observacoes
+    if not referencia_fiel:
+        validar_fatos_fixos(model)
     for key in campos_exigidos(atendimento):
         if key not in values or values[key]['situacao'] != 'confirmado' or sem_dado(values[key]['valor']):
             raise ValidationError(f'O campo {key} precisa estar confirmado e preenchido.')
@@ -111,15 +132,15 @@ def preparar(atendimento):
                 raise ValidationError(f'Informação não confirmada: {match[1]}.')
             if '{{' in value['valor'] or '}}' in value['valor']:
                 raise ValidationError(f'O campo {match[1]} ainda contém marcadores de preenchimento.')
+            if referencia_fiel and match[1] in CONFERENCIAS:
+                if normalizar(value['valor']) != 'confirmado':
+                    raise ValidationError(f'Confira a declaração e registre “Confirmado” em {CAMPOS[match[1]][0]}.')
+                return ''
             return value['valor']
         return TOKEN.sub(replace, text)
-    blocks = [fill(model.corpo)]
-    for key in ['representacao', 'observacoes']:
-        if key in TOKEN.findall(model.corpo):
-            continue
-        value = values.get(key)
-        if value and value['valor'].strip() and value['situacao'] == 'confirmado':
-            if not getattr(model, key).strip():
-                raise ValidationError(f'Existe informação confirmada de {key}, mas falta aprovar seu bloco no modelo.')
-            blocks.append(fill(getattr(model, key)))
+    blocks = []
+    for key, block in blocos_legados(model, values):
+        if key != 'corpo' and not block.strip():
+            raise ValidationError(f'Existe informação confirmada de {key}, mas falta aprovar seu bloco no modelo.')
+        blocks.append(fill(block))
     return model, values, fingerprint, '\n\n'.join(blocks)

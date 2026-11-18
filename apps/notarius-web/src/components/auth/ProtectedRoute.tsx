@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/slices/authSlice'
-import { useTenantStore } from '@/store/slices/tenantSlice'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -12,21 +11,12 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter()
   const { isAuthenticated, isLoading } = useAuthStore()
-  const { selectedTenant } = useTenantStore()
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
-    if (mounted && !isLoading) {
-      if (!isAuthenticated) {
-        router.push('/login')
-      } else if (!selectedTenant) {
-        // If authenticated but no tenant selected, redirect to tenant selection
-        // For now, we'll just show the app and let the user select a tenant
-        // In a real app, you might have a dedicated tenant selection page
-      }
-    }
-  }, [mounted, isAuthenticated, isLoading, selectedTenant, router])
+    if (mounted && !isLoading && !isAuthenticated) router.push('/login')
+  }, [mounted, isAuthenticated, isLoading, router])
 
   if (!mounted || isLoading) {
     return (

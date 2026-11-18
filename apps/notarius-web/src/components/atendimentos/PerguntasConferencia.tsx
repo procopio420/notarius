@@ -3,7 +3,7 @@
 import { PendenciasFicha } from './PendenciasFicha'
 import { useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Alert, Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Paper, Stack, TextField, Typography } from '@mui/material'
+import { Alert, Box, Button, Checkbox, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Paper, Stack, TextField, Typography } from '@mui/material'
 import { atendimentosApi, type PerguntaConferencia, type RespostaConferencia, type PedidoFicha, type PedidoDocumento } from '@/lib/atendimentos'
 
 export function PerguntasConferencia({ id, scope, onReviewMessage, onAttach, onDraft, onStructured }: { id: string; scope: (string | undefined)[]; onReviewMessage?: (id: string) => void; onAttach?: (pedido?: Omit<PedidoDocumento, 'token'>) => void; onDraft?: () => void; onStructured?: (pedido: Omit<PedidoFicha, 'token'>) => void }) {
@@ -13,6 +13,7 @@ export function PerguntasConferencia({ id, scope, onReviewMessage, onAttach, onD
   const [value, setValue] = useState('')
   const [reason, setReason] = useState('')
   const [confirm, setConfirm] = useState(false)
+  const [source, setSource] = useState<RespostaConferencia['fonte_documental']>()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [issues, setIssues] = useState(false)
@@ -35,11 +36,11 @@ export function PerguntasConferencia({ id, scope, onReviewMessage, onAttach, onD
     }
     if (q.tipo === 'estrutura') { setAll(false); document.getElementById('abrir-ficha-detalhada')?.click(); return }
     if (q.tipo === 'anexar') { setAll(false); if (onAttach) onAttach(); else document.getElementById('anexar-arquivo')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); return }
-    setQuestion(q); setValue(q.atual || ''); setReason(''); setConfirm(false); setError(''); setAll(false)
+    setQuestion(q); setValue(q.atual || ''); setReason(''); setConfirm(false); setSource(undefined); setError(''); setAll(false)
   }
   async function send() {
     if (!question || busy) return
-    const payload = { chave: question.chave, assinatura: question.assinatura, versao_esperada: question.versao, valor: value.trim(), confirmar: confirm, justificativa: reason.trim() }
+    const payload = { chave: question.chave, assinatura: question.assinatura, versao_esperada: question.versao, valor: value.trim(), confirmar: confirm, justificativa: reason.trim(), fonte_documental: source }
     const signature = JSON.stringify(payload)
     const clientId = retry.current?.signature === signature ? retry.current.id : crypto.randomUUID()
     retry.current = { signature, id: clientId }
@@ -62,40 +63,46 @@ export function PerguntasConferencia({ id, scope, onReviewMessage, onAttach, onD
     } finally { setBusy(false) }
   }
   const next = query.isError ? undefined : query.data?.proxima
+  const detailStyle = { borderTop: '1px solid #e3e8e1', pt: 1.5 }
+  const summaryStyle = { cursor: 'pointer', color: '#254c40', fontWeight: 600, fontSize: 14, py: .75, '&:focus-visible': { outline: '2px solid #254c40', outlineOffset: 4, borderRadius: 1 } }
   return <>
-    <Button onClick={() => { setIssueTarget(null); setIssues(true) }}>Pendências por registro e histórico</Button>
     <PendenciasFicha key={scope.join(':')} id={id} scope={scope} open={issues} inicial={issueTarget} onClose={() => setIssues(false)} />
-    <Paper elevation={0} sx={{ p: 2.5, border: '1px solid #dce4ee', borderRadius: 3, bgcolor: '#f5f9ff' }}>
-      <Stack spacing={2}>
-        <Typography component="h2" sx={{ fontSize: 20, fontWeight: 650 }}>Próximo passo</Typography>
-        <Typography variant="caption">Orientação local por regras, sem IA real. Somente a escrevente confirma os dados.</Typography>
-        {query.data?.recebido && <Box><Typography variant="body2">Recebido: {query.data.recebido.mensagens} mensagem(ns), {query.data.recebido.documentos} documento(s), {query.data.recebido.propostas} proposta(s).</Typography><Typography variant="body2">Ficha: {query.data.recebido.pessoas} pessoa(s) e {query.data.recebido.imoveis} imóvel(is). {query.data.total_pendencias} pendência(s) para revisão.</Typography><Typography variant="caption">Recebido não significa interpretado ou confirmado.</Typography></Box>}
-        {onStructured && <Button onClick={() => onStructured({ novo_participante: true })}>Acrescentar participante</Button>}
+    <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, border: '1px solid #e3e8e1', borderRadius: 3, bgcolor: '#f0f4e9' }}>
+      <Stack spacing={1.75}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} flexWrap="wrap">
+          <Typography component="h2" sx={{ color: '#254c40', fontSize: 12, letterSpacing: 1.3, fontWeight: 700, textTransform: 'uppercase' }}>Próximo passo</Typography>
+          {query.isSuccess && <Chip size="small" label={`${query.data.total_pendencias} ${query.data.total_pendencias === 1 ? 'pendência' : 'pendências'}`} sx={{ bgcolor: '#e8eee7', color: '#254c40', fontWeight: 600, height: 26 }} />}
+        </Stack>
         {query.isLoading && <Typography>Conferindo informações…</Typography>}
         {query.isError && <Alert severity="error" action={<Button onClick={() => query.refetch()}>Tentar novamente</Button>}>Não consegui conferir os dados. Atualize antes de continuar.</Alert>}
         {next && <>
-          <Typography>{next.tipo === 'anexar' ? 'Envie os documentos deste atendimento para começarmos a conferência.' : next.pergunta}</Typography>
+          <Typography sx={{ fontSize: 18, lineHeight: 1.5, fontWeight: 550, color: '#24342c' }}>{next.tipo === 'anexar' ? 'Adicione os documentos para começar a conferência.' : next.pergunta}</Typography>
           {next.destino?.trecho && <Alert severity="warning"><Typography variant="body2">Trecho exato que ficou incerto:</Typography><Typography sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{next.destino.trecho}</Typography></Alert>}
           {next.destino?.objeto_id && <Typography variant="caption">{next.destino.registro_rotulo || `Registro ${next.destino.objeto_id.slice(0, 8)}`}{next.destino.campo ? ` · ${next.destino.campo}` : ''}</Typography>}
-          <Stack spacing={1}>
-            <Button variant="contained" disableElevation onClick={() => next.tipo === 'documento' && onAttach ? onAttach() : open(next)}>{next.tipo === 'organizacao_documento' ? 'Organizar documento' : next.tipo === 'vinculacao_minuta' ? 'Abrir modelo e vinculação na Minuta' : next.tipo === 'estrutura' ? 'Abrir ficha detalhada' : next.tipo === 'anexar' ? 'Enviar documentos' : next.tipo === 'documento' ? 'Abrir documentos' : next.destino?.subtipo === 'pagina' ? 'Conferir página do documento' : next.destino?.subtipo === 'arquivo_sem_leitura' ? 'Conferir arquivo sem leitura' : 'Responder à pergunta'}</Button>
+          <Stack spacing={1} alignItems="flex-start">
+            <Button variant="contained" disableElevation sx={{ bgcolor: '#254c40', '&:hover': { bgcolor: '#193c30' } }} onClick={() => next.tipo === 'documento' && onAttach ? onAttach() : open(next)}>{next.tipo === 'organizacao_documento' ? 'Organizar documento' : next.tipo === 'vinculacao_minuta' ? 'Revisar modelo e vínculos' : next.tipo === 'estrutura' ? 'Preencher dados' : next.tipo === 'anexar' ? 'Adicionar documentos' : next.tipo === 'documento' ? 'Conferir documentos' : next.destino?.subtipo === 'pagina' ? 'Conferir página' : next.destino?.subtipo === 'arquivo_sem_leitura' ? 'Conferir arquivo' : 'Conferir informação'} <Box component="span" aria-hidden="true" sx={{ ml: 1.5 }}>→</Box></Button>
             {next.tipo === 'pendencia_ficha' && ['pagina', 'arquivo_sem_leitura'].includes(next.destino?.subtipo || '') && <Button onClick={() => { setIssueTarget(next.destino?.pendencia_id || next.chave); setIssues(true) }}>Registrar revisão manual desta fonte</Button>}
             {next.tipo === 'documento' && <Button onClick={() => open(next)}>Já conferi: registrar revisão</Button>}
-            {(query.data?.pendencias.length || 0) > 1 && <Button onClick={() => setAll(true)}>Ver todas as pendências ({query.data?.pendencias.length})</Button>}
           </Stack>
-          <Typography variant="body2" color="text.secondary">A minuta aguarda a conferência das pendências.</Typography>
         </>}
         {query.isSuccess && !next && <>
-          <Typography>As verificações iniciais foram respondidas. Vá à aba Minuta para revisar o modelo e preparar o texto.</Typography>
-          {onDraft && <Button variant="contained" disableElevation onClick={onDraft}>Ir para minuta</Button>}
+          <Typography sx={{ fontSize: 18, lineHeight: 1.5, color: '#24342c' }}>Conferência inicial respondida. Agora você pode revisar o modelo e preparar a minuta.</Typography>
+          {onDraft && <Button variant="contained" disableElevation onClick={onDraft} sx={{ alignSelf: 'flex-start', bgcolor: '#254c40', '&:hover': { bgcolor: '#193c30' } }}>Ir para minuta <Box component="span" aria-hidden="true" sx={{ ml: 1.5 }}>→</Box></Button>}
         </>}
-        {query.isSuccess && !query.isFetching && query.data.orientacao?.nao_interpretados.length > 0 && <Alert severity="warning">
-          <Typography variant="body2" fontWeight={600}>Este trecho precisa da sua interpretação:</Typography>
-          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', maxHeight: 180, overflow: 'auto', mt: 1 }}>{query.data.orientacao.nao_interpretados.join('\n')}</Typography>
-          {onReviewMessage && query.data.orientacao.mensagem_id && <Button onClick={() => onReviewMessage(query.data.orientacao.mensagem_id!)}>Conferir este trecho</Button>}
-        </Alert>}
-        {query.isSuccess && !query.isFetching && query.data.orientacao?.identificados.length > 0 && <Box component="details" sx={{ borderTop: '1px solid #dce4ee', pt: 1.5 }}>
-          <Box component="summary" sx={{ cursor: 'pointer', color: 'primary.main', fontWeight: 600, py: 1 }}>Informações da última mensagem</Box>
+        <Stack direction="row" gap={.5} flexWrap="wrap" sx={{ mx: -.75 }}>
+          {(query.data?.pendencias.length || 0) > 0 && <Button size="small" onClick={() => setAll(true)}>Ver pendências</Button>}
+
+        </Stack>
+        {query.isSuccess && !query.isFetching && query.data.orientacao?.nao_interpretados.length > 0 && <Box component="details" sx={detailStyle}>
+          <Box component="summary" sx={{ ...summaryStyle, color: '#8a5b23' }}>Trechos que precisam de revisão ({query.data.orientacao.nao_interpretados.length})</Box>
+          <Alert severity="warning" sx={{ mt: 1 }}>
+            <Typography variant="body2" fontWeight={600}>Confira estes trechos antes de confirmar os dados.</Typography>
+            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', maxHeight: 180, overflow: 'auto', mt: 1 }}>{query.data.orientacao.nao_interpretados.join('\n')}</Typography>
+            {onReviewMessage && query.data.orientacao.mensagem_id && <Button onClick={() => onReviewMessage(query.data.orientacao.mensagem_id!)}>Conferir este trecho</Button>}
+          </Alert>
+        </Box>}
+        {query.isSuccess && !query.isFetching && query.data.orientacao?.identificados.length > 0 && <Box component="details" sx={detailStyle}>
+          <Box component="summary" sx={summaryStyle}>Sugestões da última mensagem</Box>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Propostas para sua revisão, ainda sem confirmação automática.</Typography>
           {query.data.orientacao.identificados.map((field,i) => <Box key={i} sx={{ mb: 2 }}>
             <Typography variant="body2" fontWeight={600}>{field.rotulo}</Typography>
@@ -103,6 +110,21 @@ export function PerguntasConferencia({ id, scope, onReviewMessage, onAttach, onD
             {query.data.pendencias.find(q => q.chave === field.chave) && <Button size="small" onClick={() => open(query.data.pendencias.find(q => q.chave === field.chave)!)}>Conferir informação</Button>}
           </Box>)}
         </Box>}
+        <Box component="details" sx={detailStyle}>
+          <Box component="summary" sx={summaryStyle}>Resumo e funcionamento</Box>
+          <Stack spacing={1} sx={{ pt: 1 }}>
+            <Stack direction="row" flexWrap="wrap" gap={1}>
+              <Button size="small" onClick={() => { setIssueTarget(null); setIssues(true) }}>Histórico por registro</Button>
+              {onStructured && <Button size="small" onClick={() => onStructured({ novo_participante: true })}>Adicionar participante</Button>}
+            </Stack>
+            {query.data?.recebido && <Box>
+              <Typography variant="body2">{query.data.recebido.documentos} documento(s) · {query.data.recebido.mensagens} mensagem(ns) · {query.data.recebido.propostas} proposta(s)</Typography>
+              <Typography variant="body2">{query.data.recebido.pessoas} pessoa(s) · {query.data.recebido.imoveis} imóvel(is) · {query.data.total_pendencias} pendência(s)</Typography>
+            </Box>}
+            <Typography variant="body2" color="text.secondary">Orientação local por regras, sem IA real. Informações recebidas ainda precisam ser conferidas; somente a escrevente confirma os dados.</Typography>
+            {next && <Typography variant="body2" color="text.secondary">A minuta aguarda a conferência das pendências.</Typography>}
+          </Stack>
+        </Box>
         {query.isFetching && !query.isLoading && <Typography variant="body2" role="status">Atualizando a conferência…</Typography>}
       </Stack>
     </Paper>
@@ -118,9 +140,14 @@ export function PerguntasConferencia({ id, scope, onReviewMessage, onAttach, onD
           <Typography variant="caption">{c.origem === 'documento' ? `${c.arquivo} · página ${c.pagina}${c.canal === 'ocr' ? ' · OCR não confirmado' : ''}` : 'Mensagem da conversa'}</Typography>
           <Typography variant="caption" display="block">{c.origem === 'documento' ? `Extraído · leitura ${c.leitura_versao ?? 'não identificada'}` : 'Informado na conversa'} · proposta sem confirmação. Trecho literal não garante interpretação correta.</Typography>
           <Typography sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{c.trecho}</Typography>
-          <Button size="small" disabled={busy} onClick={() => { setValue(c.valor); setConfirm(false) }}>Usar este valor para revisar</Button>
+          <Button size="small" disabled={busy} onClick={() => {
+            setValue(c.valor); setConfirm(false)
+            setSource(c.origem === 'documento' && c.canal && c.organizacao_versao !== undefined
+              ? { pagina_id: c.id, canal: c.canal, trecho: c.trecho, organizacao_versao: c.organizacao_versao } : undefined)
+          }}>Usar este valor para revisar</Button>
         </Box>)}
-        {!['documento', 'mensagem'].includes(question?.tipo || '') && <TextField label="Sua resposta" multiline minRows={2} value={value} onChange={e => { setValue(e.target.value); setConfirm(false) }} disabled={busy} slotProps={{ htmlInput: { maxLength: 10000 } }} />}
+        {source && <Alert severity="info">Fonte selecionada: {question?.candidatos.find(c => c.id === source.pagina_id && c.trecho === source.trecho)?.arquivo}.</Alert>}
+        {!['documento', 'mensagem'].includes(question?.tipo || '') && <TextField label="Sua resposta" multiline minRows={2} value={value} onChange={e => { setValue(e.target.value); setSource(undefined); setConfirm(false) }} disabled={busy} slotProps={{ htmlInput: { maxLength: 10000 } }} />}
         <TextField label={['documento', 'mensagem'].includes(question?.tipo || '') ? 'O que você conferiu manualmente?' : 'Motivo ou fonte da sua decisão'} multiline minRows={2} required value={reason} onChange={e => { setReason(e.target.value); setConfirm(false) }} disabled={busy} slotProps={{ htmlInput: { maxLength: 2000 } }} />
         <FormControlLabel control={<Checkbox checked={confirm} onChange={e => setConfirm(e.target.checked)} disabled={busy} />} label={['documento', 'mensagem'].includes(question?.tipo || '') ? 'Resolvi as dúvidas desta fonte e registrei os dados relevantes nos campos.' : 'Revisei as informações e confirmo esta resposta para o atendimento.'} />
         {!['documento', 'mensagem'].includes(question?.tipo || '') && <Typography variant="caption">Sem confirmação, a resposta é salva como informada e continua pendente.</Typography>}
