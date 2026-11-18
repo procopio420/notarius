@@ -8,6 +8,15 @@ na `main`. A branch da entrega é `codex/compra-venda-editor-luna`, criada sobre
 anteriores em `procopio420/notarius`.
 [Entrega atual e verificações](ENTREGA_COMPRA_VENDA_EDITOR_LUNA_2026_11_18.md).
 
+Foi aberta a [PR #4](https://github.com/procopio420/notarius/pull/4), com 96
+arquivos de código, testes, scripts, documentação e exemplos sintéticos.
+Passaram 153 testes locais de 154 descobertos em 145,467 segundos. Um teste pago
+foi pulado. TypeScript do fluxo de atendimentos, lint dos arquivos alterados,
+Django check e conferência das migrações passaram. A execução foi offline.
+O CI remoto do commit funcional `6d97509` falhou nas configurações legadas,
+com evidências e limitações registradas na entrega. O histórico da PR registra
+o resultado do merge solicitado pelo usuário.
+
 ## Decisão vigente sobre o teste de uso
 
 O teste que a Mary fará no Notarius será sempre com casos e documentos reais.

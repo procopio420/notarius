@@ -1,6 +1,7 @@
 # Compra e venda, editor e integração do Luna
 
 Entrega de 18/11/2026 para integração na `main` de `procopio420/notarius`.
+[PR #4](https://github.com/procopio420/notarius/pull/4).
 
 ## Fluxo entregue
 
@@ -140,9 +141,37 @@ aos arquivos da pasta do kit.
   completa ainda precisa de validação independente com ferramenta especializada.
 - O TypeScript global tem erros nos módulos legados e no Cypress. A checagem
   restrita ao fluxo de atendimentos e seus componentes importados passou.
-- O CI remoto legado já apresentou falhas de infraestrutura nas PRs anteriores,
-  incluindo ações descontinuadas e configuração ausente de detecção de segredos.
-  Os resultados desta PR serão verificados antes do merge.
+- O CI remoto permanece com falhas. Os resultados do commit funcional desta PR
+  estão detalhados abaixo.
+
+## CI remoto da PR
+
+Os quatro workflows do commit `6d97509` terminaram com falha. Foram inspecionados
+os logs antes do merge. Os resultados locais acima continuam sendo a evidência
+de execução do fluxo do piloto.
+
+- `pii-detection`, performance e outros jobs foram recusados ao iniciar porque
+  usam `actions/upload-artifact@v3`, descontinuado no GitHub Actions.
+  [Log de inicialização](https://github.com/procopio420/notarius/actions/runs/44232261182/job/134559902417).
+- Os testes remotos da API falharam com `ModuleNotFoundError` para Django. O
+  arquivo `requirements-test.txt` instala as ferramentas de teste sem as
+  dependências da aplicação.
+  [Log do job unitário](https://github.com/procopio420/notarius/actions/runs/44232261182/job/134559902353).
+- O pipeline interrompeu `npm ci` pela divergência entre a versão de
+  `eslint-plugin-react-hooks` declarada e a registrada no lockfile.
+  [Log do pipeline](https://github.com/procopio420/notarius/actions/runs/44232261189/job/134559902798).
+- O scanner de segredos recusou a configuração porque `.secrets.baseline` está
+  ausente. Os jobs gerais de Black e Bandit também retornaram falha.
+  [Log do scanner](https://github.com/procopio420/notarius/actions/runs/44232261211/job/134559902211).
+- O build Docker da API falhou na compatibilidade de `CheckConstraint(condition=...)`
+  com a versão de Django da imagem. O upload do resultado de Trivy também falhou
+  por usar CodeQL v2 descontinuado e não ter arquivo SARIF gerado.
+  [Log da imagem](https://github.com/procopio420/notarius/actions/runs/44232261211/job/134559902647).
+
+Os workflows, arquivos de dependências e Dockerfile da API são idênticos aos da
+`main` de origem. A base já contém a chamada de `CheckConstraint` citada e não
+contém `.secrets.baseline`. Build e deploy do pipeline de publicação ficaram
+pulados. A PR registra as falhas de CI e mantém os resultados locais explícitos.
 
 ## Material para ensaios técnicos
 
