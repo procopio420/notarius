@@ -29,7 +29,7 @@ from .models import DecisaoConferencia
 from .serializers import RespostaConferenciaSerializer
 from .models import ModeloAtendimento, MinutaAtendimento
 from .serializers import SalvarModeloSerializer, ModeloMinutaSerializer
-from .redacao import BASE, validar_modelo, snapshot, preparar
+from .redacao import BASE, campos_inseridos, validar_modelo, snapshot, preparar
 from .serializers import EditarMinutaSerializer
 
 
@@ -38,6 +38,29 @@ class AtendimentoViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = AtendimentoSerializer
     pagination_class = None
+
+    @action(detail=True, methods=['get', 'post'], url_path='chat-ia')
+    def chat_ia(self, request, pk=None):
+        from . import chat_ia
+        from .models import RespostaChatIA
+        from django.shortcuts import get_object_or_404
+        case = self.get_object()
+        if request.method == 'POST':
+            if set(request.data) != {'mensagem_id'}:
+                raise ValidationError('Informe somente a mensagem a responder.')
+            try:
+                message_id = uuid.UUID(str(request.data['mensagem_id']))
+            except (ValueError, TypeError):
+                raise ValidationError('Mensagem inválida.') from None
+            message = get_object_or_404(case.mensagens, pk=message_id, autor=request.user)
+            chat_ia.executar(case, message)
+        rows = RespostaChatIA.objects.filter(mensagem__atendimento=case).order_by('created_at')
+        response = Response({'habilitado': chat_ia.habilitado(), 'respostas': [
+            {'id': str(row.id), 'mensagem_id': str(row.mensagem_id), 'estado': row.estado,
+             'texto': row.texto, 'codigo': row.codigo, 'created_at': row.created_at}
+            for row in rows]})
+        response['Cache-Control'] = 'no-store'
+        return response
 
     @action(detail=True, methods=['get'], url_path='roteiro-conversa')
     def roteiro_conversa(self, request, pk=None):
@@ -56,6 +79,13 @@ class AtendimentoViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
     def comparacao_fontes(self, request, pk=None):
         from .comparacao_fontes import comparar
         response = Response(comparar(self.get_object()))
+        response['Cache-Control'] = 'no-store'
+        return response
+
+    @action(detail=True, methods=['get'], url_path='comparacao-anexos')
+    def comparacao_anexos(self, request, pk=None):
+        from .comparacao_anexos import comparar_anexos
+        response = Response(comparar_anexos(self.get_object()))
         response['Cache-Control'] = 'no-store'
         return response
 
@@ -166,7 +196,7 @@ class AtendimentoViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
         tenant = get_tenant_for_request(self.request)
         profile = getattr(self.request.user, 'profile', None)
         if not tenant or not profile or not profile.can_access_tenant(tenant):
-            raise PermissionDenied('Você não tem acesso a este cartório.')
+            raise PermissionDenied('Você não tem acesso a este espaço de trabalho.')
         return tenant
 
     def get_queryset(self):
@@ -359,8 +389,64 @@ class AtendimentoViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
                     MinutaAtendimento.objects.create(atendimento=atendimento, tenant=atendimento.tenant,
                         autor=request.user, modelo=model, versao=(previous.versao if previous else 0) + 1,
                         corpo=text, dados=values, assinatura=fingerprint)
-        model, values, fingerprint = snapshot(atendimento)
+        return self.estado_redacao(atendimento)
+
+    @action(detail=True, methods=['post'], url_path='minuta-assistida')
+    def minuta_assistida(self, request, pk=None):
+        from . import minuta_assistida
+        from .ficha_estruturada import reservar_atendimento
+        from .modelo_referencia import BASE_REFERENCIA, REFERENCIA
+        from rest_framework import serializers
+
+        atendimento = self.get_object()
+        provider = minuta_assistida.provedor(atendimento)
+        expected = serializers.RegexField(r'\A[0-9a-f]{64}\Z').run_validation(request.data.get('assinatura_esperada'))
+        latest_id = serializers.UUIDField(allow_null=True).run_validation(request.data.get('minuta_atual_id'))
+        if latest_id is not None:
+            latest_id = str(latest_id)
+
+        def conferir_contexto():
+            model, _, fingerprint = snapshot(atendimento)
+            latest = atendimento.minutas_preparadas.first()
+            current_id = str(latest.id) if latest else None
+            if (latest and latest.assistencia and minuta_assistida.versao_atual(latest, fingerprint)
+                    and latest.assistencia.get('provedor', 'local') == provider):
+                return model, latest, True
+            if fingerprint != expected or current_id != latest_id:
+                return model, latest, False
+            if not minuta_assistida.modelo_compativel(model):
+                raise ValidationError('Este atendimento tem um modelo próprio. Use a preparação pelo modelo salvo em Revisão e ajustes.')
+            return model, latest, None
+
+        def conflito():
+            return Response({'detail': 'Os documentos, o modelo ou a minuta mudaram. Atualize o atendimento antes de preparar outra versão.'}, status=409)
+
+        _, _, result = conferir_contexto()
+        if result is not None:
+            return self.estado_redacao(atendimento) if result else conflito()
+        text, values, metadata = minuta_assistida.preparar(atendimento)
+        with transaction.atomic():
+            reservar_atendimento(atendimento)
+            model, latest, result = conferir_contexto()
+            if result is False:
+                return conflito()
+            if result is None:
+                if model is None or model.corpo != BASE_REFERENCIA['corpo']:
+                    model = ModeloAtendimento.objects.create(atendimento=atendimento, tenant=atendimento.tenant,
+                        autor=request.user, versao=(model.versao if model else 0) + 1, aprovado=False, **BASE_REFERENCIA,
+                        justificativa=f'Modelo de compra e venda · {REFERENCIA["versao"]}')
+                _, _, fingerprint = snapshot(atendimento)
+                MinutaAtendimento.objects.create(atendimento=atendimento, tenant=atendimento.tenant,
+                    autor=request.user, modelo=model, versao=(latest.versao if latest else 0) + 1,
+                    corpo=text, dados=values, assistencia=metadata, assinatura=fingerprint, tipo='assistida')
+                Atendimento.objects.filter(pk=atendimento.pk).update(updated_at=timezone.now())
+        return self.estado_redacao(atendimento)
+
+    def estado_redacao(self, atendimento):
+        from . import minuta_assistida
+        provider = minuta_assistida.provedor(atendimento)
         report = conferir(atendimento)
+        model, _, fingerprint = snapshot(atendimento)
         ready = False
         blocked_reason = 'Resolva as pendências do atendimento.' if report['bloqueado'] else 'Revise e aprove a versão atual do modelo.'
         if not report['bloqueado'] and model and model.aprovado:
@@ -371,40 +457,79 @@ class AtendimentoViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
             except ValidationError as error:
                 blocked_reason = ' '.join(str(item) for item in error.detail) if isinstance(error.detail, list) else str(error.detail)
         from .revisao_final import registro_final
-        versions = [{'id': str(m.id), 'versao': m.versao, 'corpo': m.corpo, 'tipo': m.tipo,
+        versions = [{'id': str(m.id), 'versao': m.versao, 'corpo': m.corpo, 'formatacao': m.formatacao, 'tipo': m.tipo,
                      'revisao_final': registro_final(m),
                      'motivo': m.motivo, 'autor_nome': m.autor.get_full_name(), 'base_id': str(m.base_id) if m.base_id else None,
-                     'modelo_versao': m.modelo.versao, 'dados': m.dados, 'ocorrencias_correspondem_texto': m.tipo != 'editada',
-                     'created_at': m.created_at, 'desatualizada': m.assinatura != fingerprint}
+                     'modelo_versao': m.modelo.versao, 'dados': m.dados, 'assistencia': m.assistencia or None,
+                     'campos_inseridos': campos_inseridos(m.modelo, m.dados),
+                     'ocorrencias_correspondem_texto': m.tipo != 'editada',
+                     'created_at': m.created_at, 'desatualizada': not minuta_assistida.versao_atual(m, fingerprint)
+                     or bool(provider and m.assistencia and m.assistencia.get('provedor', 'local') != provider)}
                     for m in atendimento.minutas_preparadas.select_related('modelo', 'autor', 'revisao_final__autor').all()]
         return Response({'assinatura': fingerprint, 'pronto': ready, 'motivo_bloqueio': blocked_reason,
-                         'pendencias': len(report['pendencias']), 'modelo_aprovado': bool(model and model.aprovado), 'versoes': versions})
+                         'pendencias': len(report['pendencias']), 'modelo_aprovado': bool(model and model.aprovado),
+                         'minuta_assistida': bool(provider) and minuta_assistida.modelo_compativel(model),
+                         'provedor_minuta_assistida': provider if minuta_assistida.modelo_compativel(model) else None,
+                         'versoes': versions})
 
     @action(detail=True, methods=['post'], url_path='editar-minuta')
     def editar_minuta(self, request, pk=None):
         from django.shortcuts import get_object_or_404
+        from .minuta_assistida import assinatura_fontes, marcador_declaracao, versao_atual
+        from .modelo_escritura_fiel import CONFERENCIAS
         atendimento = self.get_object()
         serializer = EditarMinutaSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
+        confirmacoes = sorted(set(data.get('confirmacoes', [])))
         with transaction.atomic():
             from .ficha_estruturada import reservar_atendimento
             reservar_atendimento(atendimento)
-            previous = atendimento.minutas_preparadas.filter(client_id=data['client_id']).first()
+            previous = atendimento.minutas_preparadas.select_related('base').filter(client_id=data['client_id']).first()
             if previous:
-                if previous.autor_id != request.user.id or str(previous.base_id) != str(data['minuta_id']) or previous.corpo != data['corpo'] or previous.motivo != data['motivo']:
+                original_format = previous.base.formatacao if previous.base and previous.base.corpo == data['corpo'] else {}
+                if (previous.autor_id != request.user.id or str(previous.base_id) != str(data['minuta_id'])
+                        or previous.corpo != data['corpo'] or previous.motivo != data['motivo']
+                        or previous.assistencia.get('declaracoes_confirmadas', []) != confirmacoes
+                        or previous.formatacao != data.get('formatacao', original_format)):
                     raise ValidationError('Identificador de edição já utilizado.')
                 return Response({'id': str(previous.id), 'versao': previous.versao})
             base = get_object_or_404(atendimento.minutas_preparadas, pk=data['minuta_id'])
             latest = atendimento.minutas_preparadas.first()
             _, _, fingerprint = snapshot(atendimento)
-            if base.id != latest.id or base.versao != data['versao_esperada'] or base.assinatura != fingerprint:
+            if base.id != latest.id or base.versao != data['versao_esperada'] or not versao_atual(base, fingerprint):
                 return Response({'detail': 'A minuta ou os dados mudaram. Reabra a versão atual antes de editar.'}, status=409)
-            preparar(atendimento)
+            if not base.assistencia:
+                preparar(atendimento)
+            values = dict(base.dados)
+            assistance = dict(base.assistencia)
+            assistance.pop('declaracoes_confirmadas', None)
+            if confirmacoes:
+                pendentes = {p['campo'] for p in assistance.get('pendencias', [])}
+                if not set(confirmacoes) <= CONFERENCIAS & pendentes:
+                    raise ValidationError('Selecione apenas declarações pendentes nesta minuta.')
+                expected = base.corpo
+                for key in confirmacoes:
+                    expected = expected.replace(marcador_declaracao(key), '')
+                if data['corpo'] != expected:
+                    raise ValidationError('Mantenha o texto da minuta ao confirmar declarações. Use o editor para outros ajustes.')
+                fontes_atuais = assinatura_fontes(atendimento)
+                for key in confirmacoes:
+                    last = atendimento.revisoes.filter(chave=key, objeto__isnull=True).first()
+                    registro = RevisaoDadoAtendimento.objects.create(atendimento=atendimento, tenant=atendimento.tenant,
+                        chave=key, autor=request.user, valor='Confirmado', situacao='confirmado',
+                        justificativa=data['motivo'], versao=(last.versao if last else 0) + 1,
+                        dependencias_ficha={'fontes_minuta': fontes_atuais})
+                    values[key] = {'valor': registro.valor, 'situacao': registro.situacao, 'versao': registro.versao,
+                                   'origem': RevisaoDadoSerializer(registro).data['origem']}
+                assistance['pendencias'] = [p for p in assistance['pendencias'] if p['campo'] not in confirmacoes]
+                assistance['declaracoes_confirmadas'] = confirmacoes
+                _, _, fingerprint = snapshot(atendimento)
             revision = MinutaAtendimento.objects.create(atendimento=atendimento, tenant=atendimento.tenant,
                 autor=request.user, modelo=base.modelo, base=base, tipo='editada', motivo=data['motivo'],
-                client_id=data['client_id'], versao=latest.versao+1, corpo=data['corpo'], dados=base.dados,
-                assinatura=base.assinatura)
+                client_id=data['client_id'], versao=latest.versao+1, corpo=data['corpo'], dados=values,
+                formatacao=data.get('formatacao', base.formatacao if data['corpo'] == base.corpo else {}),
+                assinatura=fingerprint, assistencia=assistance)
         return Response({'id': str(revision.id), 'versao': revision.versao}, status=201)
 
     @action(detail=True, methods=['get'], url_path='comparar-minutas')
@@ -424,6 +549,7 @@ class AtendimentoViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
 
     @action(detail=True, methods=['post'], url_path=r'minutas/(?P<minuta_id>[0-9a-f-]+)/revisar')
     def revisar_minuta(self, request, pk=None, minuta_id=None):
+        from .minuta_assistida import versao_atual
         from django.shortcuts import get_object_or_404
         from rest_framework import serializers
         from .models import RevisaoFinalMinuta
@@ -439,9 +565,9 @@ class AtendimentoViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
             minuta = get_object_or_404(atendimento.minutas_preparadas, pk=minuta_id)
             latest = atendimento.minutas_preparadas.first()
             _, _, fingerprint = snapshot(atendimento)
-            if minuta.id != latest.id or minuta.versao != version or minuta.assinatura != fingerprint:
+            if minuta.id != latest.id or minuta.versao != version or not versao_atual(minuta, fingerprint):
                 return Response({'detail':'Esta minuta não é a versão atual. Revise os dados e abra a versão mais recente.'}, status=409)
-            preparar(atendimento)
+            self.validar_minuta_para_revisao(atendimento, minuta)
             if '{{' in minuta.corpo or '}}' in minuta.corpo or any(ord(c) < 32 and c not in '\n\r\t' for c in minuta.corpo):
                 raise ValidationError('Corrija os marcadores ou caracteres inválidos antes da revisão final.')
             record, created = RevisaoFinalMinuta.objects.get_or_create(minuta=minuta,
@@ -450,23 +576,37 @@ class AtendimentoViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
                 return Response({'detail':'Esta versão já possui revisão final registrada. O registro anterior foi preservado.'}, status=409)
             return Response(registro_final(minuta), status=201 if created else 200)
 
+    @staticmethod
+    def validar_minuta_para_revisao(atendimento, minuta):
+        if not minuta.assistencia:
+            preparar(atendimento)
+            return
+        from .minuta_assistida import MARCADOR
+        if MARCADOR in minuta.corpo:
+            raise ValidationError('Resolva os trechos marcados como pendência no texto antes de registrar a revisão final.')
+        if minuta.assistencia.get('provedor') == 'openai':
+            from .modelo_escritura_fiel import CONFERENCIAS
+            if any(minuta.dados.get(key, {}).get('situacao') != 'confirmado' for key in CONFERENCIAS):
+                raise ValidationError('Registre as conferências obrigatórias do caso e prepare a nova versão antes da revisão final.')
+
     @action(detail=True, methods=['get'], url_path=r'minutas/(?P<minuta_id>[0-9a-f-]+)/exportar')
     def exportar_minuta(self, request, pk=None, minuta_id=None):
         from django.shortcuts import get_object_or_404
         from . import exportacao
+        from .minuta_assistida import versao_atual
         atendimento = self.get_object()
         format = request.query_params.get('formato')
-        if format not in ['docx', 'pdf']:
-            raise ValidationError('Escolha docx ou pdf.')
+        if format not in ['docx', 'pdf', 'pdfa']:
+            raise ValidationError('Escolha docx, pdf ou pdfa.')
         with transaction.atomic():
             from .ficha_estruturada import reservar_atendimento
             reservar_atendimento(atendimento)
             minuta = get_object_or_404(atendimento.minutas_preparadas.select_related('modelo'), pk=minuta_id)
             latest = atendimento.minutas_preparadas.first()
             _, _, fingerprint = snapshot(atendimento)
-            if minuta.id != latest.id or minuta.assinatura != fingerprint:
+            if minuta.id != latest.id or not versao_atual(minuta, fingerprint):
                 return Response({'detail': 'Esta versão está desatualizada. Reabra a versão atual; dados novos exigem revisão e nova preparação.'}, status=409)
-            preparar(atendimento)
+            self.validar_minuta_para_revisao(atendimento, minuta)
             from .revisao_final import registro_final
             review = registro_final(minuta)
             if not review or not review['texto_corresponde']:
@@ -474,14 +614,15 @@ class AtendimentoViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
             if '{{' in minuta.corpo or '}}' in minuta.corpo or any(ord(c) < 32 and c not in '\n\r\t' for c in minuta.corpo):
                 raise ValidationError('O texto contém marcadores ou caracteres inválidos. Revise antes de exportar.')
             try:
-                content = exportacao.word(minuta) if format == 'docx' else exportacao.pdf(minuta)
+                content = exportacao.word(minuta) if format == 'docx' else exportacao.pdf(minuta, arquivavel=format == 'pdfa')
             except ValidationError:
                 raise
             except Exception:
                 return Response({'detail': 'Não foi possível produzir o arquivo. O texto salvo foi preservado.'}, status=503)
         mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' if format == 'docx' else 'application/pdf'
         response = HttpResponse(content, content_type=mime)
-        response['Content-Disposition'] = content_disposition_header(True, f'minuta-v{minuta.versao}.{format}')
+        name = f'minuta-v{minuta.versao}-pdfa.pdf' if format == 'pdfa' else f'minuta-v{minuta.versao}.{format}'
+        response['Content-Disposition'] = content_disposition_header(True, name)
         response['X-Content-Type-Options'] = 'nosniff'
         response['Cache-Control'] = 'no-store'
         return response
@@ -515,16 +656,35 @@ class AtendimentoViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
                 raise ValidationError('Informe uma resposta ou mantenha a pendência aberta.')
             if not document and data['confirmar'] and sem_dado(data['valor']):
                 raise ValidationError('Uma informação ausente ou desconhecida não pode ser confirmada. Mantenha a pendência aberta.')
+            source = data.get('fonte_documental')
+            source_fields = {}
+            if source:
+                candidate = next((c for c in question['candidatos'] if c['origem'] == 'documento'
+                    and c['id'] == str(source['pagina_id']) and c['canal'] == source['canal']
+                    and c['trecho'] == source['trecho'] and c['valor'] == data['valor']), None)
+                if not candidate:
+                    raise ValidationError('Selecione uma fonte literal atual para este campo e valor.')
+                page = PaginaAnexoAtendimento.objects.select_related('anexo__organizacao_atual').get(
+                    pk=source['pagina_id'], anexo__atendimento=atendimento)
+                if page.leitura_versao != page.anexo.leitura_versao:
+                    return Response({'detail': 'A leitura do documento mudou. Confira a fonte atual.'}, status=409)
+                from .organizacao_anexos import validar_fonte
+                organization = validar_fonte(page.anexo, None, page.numero, source['organizacao_versao'], data['confirmar'])
+                source_fields = {'pagina_origem': page, 'organizacao_origem': organization,
+                                 'trecho_origem': source['trecho'], 'canal_origem': source['canal']}
             message = MensagemAtendimento.objects.create(atendimento=atendimento, tenant=atendimento.tenant,
                 autor=request.user, client_id=data['client_id'], campo='' if document else data['chave'],
                 pergunta=question['pergunta'], requisicao_hash=digest,
                 texto=f"Revisão manual de {data['chave']}: {data['justificativa']}" if document else data['valor'])
             revision = None
             if not document:
+                from .minuta_assistida import assinatura_fontes
+                from .modelo_escritura_fiel import CONFERENCIAS
+                contexto = {'fontes_minuta': assinatura_fontes(atendimento)} if data['chave'] in CONFERENCIAS else {}
                 revision = RevisaoDadoAtendimento.objects.create(atendimento=atendimento, tenant=atendimento.tenant,
-                    autor=request.user, chave=data['chave'], valor=data['valor'], mensagem=message,
+                    autor=request.user, chave=data['chave'], valor=data['valor'], mensagem=None if source else message,
                     situacao='confirmado' if data['confirmar'] else 'informado',
-                    justificativa=data['justificativa'], versao=question['versao'] + 1)
+                    justificativa=data['justificativa'], versao=question['versao'] + 1, dependencias_ficha=contexto, **source_fields)
             if data['confirmar']:
                 # Include this answer in the evidence snapshot. A later source reopens the question.
                 new_question = next(q for q in conferir(atendimento)['pendencias'] if q['chave'] == data['chave'])

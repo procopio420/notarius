@@ -10,7 +10,7 @@ Abra um PowerShell na pasta deste projeto e execute:
 .\scripts\iniciar-piloto-local.ps1
 ```
 
-Acesse **http://localhost:3002/atendimentos**. Use a conta existente, com sua senha, e confira o cartório selecionado antes de abrir ou criar um atendimento. Nenhuma senha de usuário foi alterada. Não use contas compartilhadas entre pessoas. Se a senha tiver sido esquecida, o responsável local pode executar o comando administrativo abaixo no próprio equipamento, substituindo o nome da conta; a senha é pedida no terminal, sem aparecer na tela:
+Acesse **http://localhost:3002/atendimentos** e entre com seu usuário e senha. Use uma conta individual. Se a senha tiver sido esquecida, o responsável local pode executar o comando administrativo abaixo no próprio equipamento, substituindo o nome da conta. A senha é pedida no terminal, sem aparecer na tela:
 
 ```powershell
 .\.venv\Scripts\python.exe apps/notarius-api/manage.py changepassword NOME_DA_CONTA --settings=config.settings_piloto
@@ -22,10 +22,99 @@ O endereço da API é `http://localhost:8002`, reservado ao uso local. Ambos os 
 
 O atalho anterior `iniciar-teste-local.ps1` passou a chamar esse mesmo iniciador. Use sempre o perfil `config.settings_piloto` para os comandos administrativos desta operação.
 
+## Configurar o primeiro acesso ao banco separado
+
+Selecione o banco preparado para o piloto real. O caminho fica gravado para
+as próximas execuções e para os comandos de backup.
+
+```powershell
+.\scripts\iniciar-piloto-local.ps1 -Banco .local\piloto-real-isolado\piloto.sqlite3
+```
+
+No mesmo computador, crie uma conta por pessoa autorizada. Informe o nome de
+usuário e defina a senha no terminal. A conta entra direto nos atendimentos do
+piloto e não recebe privilégios administrativos.
+
+```powershell
+.\.venv\Scripts\python.exe apps/notarius-api/manage.py criar_conta_piloto --settings=config.settings_piloto --banco .local\piloto-real-isolado\piloto.sqlite3 --usuario NOME_DO_USUÁRIO
+```
+
+Na configuração padrão, o piloto real bloqueia o envio de mensagens e anexos
+à IA externa. Para preparar a minuta, abra o atendimento, anexe os documentos
+do caso e clique em **Preparar minuta**. O OCR e o modelo Qwen3 rodam neste PC.
+O editor abre o documento inteiro e sinaliza os trechos sem fonte ou com
+alternativas divergentes. A revisão final fica disponível após resolver as
+pendências no texto. O histórico guarda as versões anteriores e suas fontes.
+
+Depois da conferência, **Baixar PDF/A** exporta o texto revisado em PDF/A-2b.
+No e-Notariado, o responsável cria o ato protocolar com o PDF/A do livro,
+os participantes, a data da lavratura e o protocolo. A videoconferência e as
+assinaturas são conduzidas no e-Notariado. Veja o
+[manual do fluxo de assinaturas](https://suporte.notariado.org.br/support/solutions/articles/43000590410-atos-protocolares-no-fluxo-de-assinaturas-escrituras-procurac%C3%B5es-atas-notariais-e-testamentos).
+
+O iniciador do piloto carrega o motor em `.local/ia-minuta/runtime/` e os pesos
+em `.local/ia-minuta/qwen3-4b-instruct.gguf`. Em caso de falha, execute
+`.\scripts\iniciar-ia-minuta-local.ps1` para consultar o estado do serviço.
+
+Para o primeiro atendimento acompanhado, confirme a criptografia da
+unidade no Windows, faça e restaure uma cópia criptografada conforme abaixo, e
+peça à escrevente para [revisar o modelo candidato](piloto-profissional/REVISAO_PADRAO_ACOMPANHADO_V2.md).
+O fluxo manual permite registrar e conferir documentos, dados e fontes antes
+da preparação e revisão da minuta.
+
+## Preparar minutas pela API da OpenAI
+
+Configure o provedor no servidor depois de o responsável pela serventia
+documentar a finalidade, os dados permitidos, o projeto, a retenção e a
+região de processamento aplicável. O envio segue bloqueado até preencher
+toda a configuração abaixo. As variáveis são de execução do servidor.
+
+| Variável | Valor |
+| --- | --- |
+| `NOTARIUS_MINUTA_PROVEDOR` | `openai` |
+| `NOTARIUS_MINUTA_OPENAI_TENANT` | UUID do ambiente autorizado |
+| `NOTARIUS_MINUTA_OPENAI_ORGANIZACAO` | Identificador da organização na OpenAI |
+| `NOTARIUS_MINUTA_OPENAI_PROJETO` | Identificador do projeto autorizado |
+| `NOTARIUS_MINUTA_OPENAI_REGIAO` | `global`, `us` ou `eu`, conforme o projeto |
+| `NOTARIUS_MINUTA_OPENAI_AUTORIZACAO` | Referência do registro de autorização da serventia |
+| `NOTARIUS_MINUTA_OPENAI_CHAVE` | Chave do projeto, armazenada como segredo no servidor |
+
+Em **Revisão e ajustes**, classifique os anexos como fontes do caso e marque
+as páginas pertinentes. O GPT‑6 Luna recebe apenas trechos das páginas
+classificadas que exigem extração. O histórico do chat, os arquivos originais,
+os nomes dos arquivos e os anexos de referência ficam fora da requisição.
+O servidor confere o trecho retornado contra a leitura original e preenche o
+modelo versionado. A revisão e a exportação continuam no editor da minuta.
+
+A integração envia `store: false`. Retenção zero e processamento regional
+dependem da configuração efetiva da conta. Consulte os
+[controles de dados da API](https://developers.openai.com/api/docs/guides/your-data).
+Mantenha `NOTARIUS_MINUTA_PROVEDOR=local` para o fluxo com Qwen ou configure
+`openai` somente no ambiente autorizado. A opção de IA do chat é independente.
+
+## Acessar pelo iPhone no mesmo Wi-Fi
+
+Com o piloto local iniciado, execute `./scripts/iniciar-piloto-rede.ps1` no
+PowerShell. O script informa o endereço HTTPS do Notarius e o link para o
+perfil de certificado. A porta HTTPS aceita conexões da sub-rede do Wi-Fi.
+A API e a interface continuam nos endereços de loopback e o acesso de rede
+passa pelo servidor HTTPS local.
+
+No Safari do iPhone, baixe o perfil no link informado pelo PC. Instale em
+**Ajustes → Perfil Baixado** e ative o certificado em **Ajustes → Geral →
+Sobre → Certificados Confiáveis**. Depois, abra o endereço HTTPS e entre com
+usuário e senha. O endereço HTTP serve somente o perfil. [Instalar um perfil](https://support.apple.com/pt-br/102400)
+e [confiar no certificado](https://support.apple.com/pt-br/102390).
+
+`./scripts/encerrar-piloto-rede.ps1` fecha o acesso do iPhone e deixa o acesso
+do PC disponível. Encerrar o piloto local também fecha o acesso pela rede.
+Se o IPv4 mudar ou o certificado vencer, inicie o acesso de rede novamente e
+instale o novo perfil. A chave privada fica em `.local/piloto-rede/`.
+
 ## Salvar, sair e voltar
 
 1. Aguarde a confirmação de salvamento de cada mensagem, dado ou anexo. Texto ainda no formulário não equivale a dado salvo.
-2. Confira o atendimento e o cartório. Documentos recebidos, texto OCR e propostas não são confirmações profissionais.
+2. Confira o atendimento. Documentos recebidos, texto OCR e propostas não são confirmações profissionais.
 3. Ao terminar, saia da conta pelo menu do usuário. Para encerrar os serviços, execute:
 
 ```powershell

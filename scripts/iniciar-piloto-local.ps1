@@ -41,8 +41,12 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Falha na configuração. Nenhum serviço iniciado.' }
     & $pythonPath (Join-Path $apiFolder 'manage.py') migrate --check
     if ($LASTEXITCODE -ne 0) { throw 'Há migrações pendentes. Faça backup e aplique-as antes de iniciar; nenhuma migração automática foi feita.' }
+    if ($env:NOTARIUS_MINUTA_PROVEDOR -ne 'openai' -and (Test-Path -LiteralPath (Join-Path $privateFolder 'ia-minuta/runtime/llama-server.exe'))) {
+        try { & (Join-Path $PSScriptRoot 'iniciar-ia-minuta-local.ps1') }
+        catch { Write-Warning "IA local indisponível. $($_.Exception.Message)" }
+    }
     $manageArgument = '"' + (Join-Path $apiFolder 'manage.py') + '"'
-    $apiProcess = Start-Process -FilePath $pythonPath -ArgumentList @($manageArgument, 'runserver', '127.0.0.1:8002', '--noreload', '--nothreading') -WorkingDirectory $apiFolder -WindowStyle Hidden -RedirectStandardOutput (Join-Path $logFolder 'api-out.log') -RedirectStandardError (Join-Path $logFolder 'api-error.log') -PassThru
+    $apiProcess = Start-Process -FilePath $pythonPath -ArgumentList @($manageArgument, 'runserver', '127.0.0.1:8002', '--noreload') -WorkingDirectory $apiFolder -WindowStyle Hidden -RedirectStandardOutput (Join-Path $logFolder 'api-out.log') -RedirectStandardError (Join-Path $logFolder 'api-error.log') -PassThru
     try {
         $ready = $false
         for ($attempt = 0; $attempt -lt 30; $attempt++) {
@@ -73,4 +77,4 @@ try {
     $env:NEXT_PUBLIC_PILOTO_LOCAL = $previousPilot
 }
 Write-Host 'Piloto local pronto: http://localhost:3002/atendimentos'
-Write-Host 'Use sua conta existente e confira o cartório. Acesso somente neste computador.'
+Write-Host 'Entre com seu usuario e senha. Acesso somente neste computador.'

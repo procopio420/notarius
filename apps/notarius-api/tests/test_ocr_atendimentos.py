@@ -24,12 +24,12 @@ def native_available():
     except Exception:
         return False
 
-def image_fixture(format='PNG'):
+def image_fixture(format='PNG', text='DOCUMENTO FICTÍCIO DE TESTE\nVendedores: PESSOA DE TESTE\nPreço: R$ 100.000,00\nNenhum dado real.'):
     from PIL import Image, ImageDraw, ImageFont
     image = Image.new('RGB', (1600, 800), 'white')
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype('C:/Windows/Fonts/arial.ttf', 44)
-    draw.multiline_text((70, 70), 'DOCUMENTO FICTÍCIO DE TESTE\nVendedores: PESSOA DE TESTE\nPreço: R$ 100.000,00\nNenhum dado real.', font=font, fill='black', spacing=25)
+    draw.multiline_text((70, 70), text, font=font, fill='black', spacing=25)
     result = BytesIO(); image.save(result, format=format); image.close()
     return result.getvalue()
 
@@ -73,6 +73,66 @@ class OcrAtendimentoTests(APITestCase):
             self.client.credentials(HTTP_X_TENANT_ID=str(self.tenant.id))
         self.assertFalse(RevisaoDadoAtendimento.objects.exists())
         self.assertTrue(self.client.get(self.prefix+'/conferencia/').data['bloqueado'])
+
+    @skipUnless(native_available(), 'OCR pt-BR local não disponível neste ambiente')
+    def test_cropped_blurred_and_blank_prints_keep_review_required(self):
+        from PIL import Image, ImageFilter
+
+        with Image.open(BytesIO(image_fixture())) as original:
+            cropped = original.crop((0, 0, original.width, 130))
+            blurred = original.filter(ImageFilter.GaussianBlur(28))
+            blank = Image.new('RGB', original.size, 'white')
+
+        for name, image in (('cortado', cropped), ('borrado', blurred), ('sem-texto', blank)):
+            with self.subTest(name=name), image, BytesIO() as data:
+                image.save(data, format='PNG')
+                uploaded = self.client.post(self.prefix+'/anexos/', {
+                    'arquivo': SimpleUploadedFile(f'{name}.png', data.getvalue()),
+                }, format='multipart')
+                self.assertEqual(uploaded.status_code, 201, uploaded.data)
+                self.assertEqual(uploaded.data['situacao'], 'revisao')
+                page, = uploaded.data['paginas']
+                self.assertEqual(page['situacao'], 'revisao')
+                if name in ('cortado', 'sem-texto'):
+                    self.assertNotIn('100.000,00', page['texto_ocr'])
+                if name == 'sem-texto':
+                    self.assertFalse(page['texto_ocr'].strip())
+                questions = self.client.get(self.prefix+'/conferencia/').data['pendencias']
+                self.assertIn(f"anexo:{uploaded.data['id']}", {question['chave'] for question in questions})
+
+        compared = self.client.get(self.prefix+'/comparacao-anexos/')
+        self.assertEqual(compared.status_code, 200, compared.data)
+        for group in compared.data['grupos']:
+            self.assertEqual(group['estado'], 'conferir_leitura')
+            self.assertTrue(all('leitura_incerta' in source['problemas'] for source in group['fontes']))
+        self.assertFalse(RevisaoDadoAtendimento.objects.exists())
+        self.assertFalse(self.client.get(self.prefix+'/minuta-preparada/').data['pronto'])
+
+    @skipUnless(native_available(), 'OCR pt-BR local não disponível neste ambiente')
+    def test_prints_show_both_prices_without_equating_expected_payment_and_discharge(self):
+        for name, text in (
+            ('contrato.png', 'DOCUMENTO FICTÍCIO\nPreço: R$ 100.000,00\nSituação do pagamento: previsto'),
+            ('recibo.png', 'DOCUMENTO FICTÍCIO\nPreço: R$ 200.000,00\nQuitação: não declarada'),
+        ):
+            uploaded = self.client.post(self.prefix+'/anexos/', {
+                'arquivo': SimpleUploadedFile(name, image_fixture(text=text)),
+            }, format='multipart')
+            self.assertEqual(uploaded.status_code, 201, uploaded.data)
+
+        compared = self.client.get(self.prefix+'/comparacao-anexos/')
+        self.assertEqual(compared.status_code, 200, compared.data)
+        groups = {group['campo']: group for group in compared.data['grupos']}
+        price = groups['preco']
+        self.assertEqual(price['estado'], 'possivel_divergencia')
+        self.assertEqual([(s['arquivo'], s['pagina'], s['canal'], s['valor_original'].strip())
+                          for s in price['fontes']], [
+            ('contrato.png', 1, 'ocr', 'R$ 100.000,00'), ('recibo.png', 1, 'ocr', 'R$ 200.000,00'),
+        ])
+        self.assertTrue(all('leitura_incerta' in s['problemas'] for s in price['fontes']))
+        self.assertEqual(groups['situacao_pagamento']['fontes'][0]['valor_original'].strip(), 'previsto')
+        self.assertEqual(groups['quitacao']['fontes'][0]['valor_original'].strip(), 'não declarada')
+        self.assertFalse(RevisaoDadoAtendimento.objects.exists())
+        self.assertFalse(self.client.get(self.prefix+'/minuta-preparada/').data['pronto'])
 
     @skipUnless(native_available(), 'OCR pt-BR local não disponível neste ambiente')
     def test_mixed_pdf_preserves_native_page_and_ocr_page_number(self):

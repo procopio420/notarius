@@ -318,6 +318,7 @@ class AtendimentoTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         first = response.data['versoes'][0]
         self.assertIn('VENDEDOR FICTICIO', first['corpo'])
+        self.assertEqual(first['campos_inseridos'], ['vendedores', 'compradores', 'imovel', 'preco', 'pagamento'])
         self.assertIn('100000', first['corpo'])
         self.assertNotIn('{{', first['corpo'])
         self.assertNotIn('REPRESENTAÇÃO', first['corpo'])
@@ -412,6 +413,31 @@ class AtendimentoTests(APITestCase):
         self.assertIn(response.status_code, [200,201])
         return response
 
+    def test_formatting_only_is_versioned_and_rejects_invalid_offsets(self):
+        case, first = self.draft_for_editing()
+        endpoint = f'/api/v1/atendimentos/{case}/editar-minuta/'
+        payload = {'minuta_id': first['id'], 'versao_esperada': first['versao'], 'client_id': str(uuid4()),
+                   'corpo': '🚩 ' + first['corpo'], 'motivo': 'Edição fictícia para testar estilos'}
+        invalid = self.client.post(endpoint, {**payload, 'formatacao': {'negrito': [[1, 2]]}}, format='json')
+        self.assertEqual(invalid.status_code, 400)
+        initial = self.client.post(endpoint, payload, format='json')
+        self.assertEqual(initial.status_code, 201)
+        marks = {'negrito': [[0, 2]], 'italico': [[3, 9]], 'sublinhado': [[3, 9]]}
+        payload.update(minuta_id=initial.data['id'], versao_esperada=2, client_id=str(uuid4()), formatacao=marks)
+        formatted = self.client.post(endpoint, payload, format='json')
+        self.assertEqual(formatted.status_code, 201, formatted.data)
+        self.assertEqual(self.client.post(endpoint, payload, format='json').status_code, 200)
+        self.assertEqual(self.client.post(endpoint, {**payload, 'formatacao': {}}, format='json').status_code, 400)
+        versions = self.client.get(f'/api/v1/atendimentos/{case}/minuta-preparada/').data['versoes']
+        self.assertEqual(versions[0]['formatacao'], marks)
+        self.assertEqual(versions[1]['formatacao'], {})
+        self.assertEqual(versions[0]['corpo'], versions[1]['corpo'])
+        compared = self.client.get(f'/api/v1/atendimentos/{case}/comparar-minutas/', {
+            'base': initial.data['id'], 'destino': formatted.data['id'],
+        })
+        self.assertFalse(compared.data['texto_alterado'])
+        self.assertTrue(compared.data['formatacao_alterada'])
+
     def test_word_and_pdf_export_saved_edited_text(self):
         from docx import Document
         from pypdf import PdfReader
@@ -438,6 +464,76 @@ class AtendimentoTests(APITestCase):
         self.client.post(f'/api/v1/atendimentos/{case}/mensagens/', {'texto': 'Nova informação fictícia', 'client_id': str(uuid4())}, format='json')
         self.assertEqual(self.edit_draft(case, first, first['corpo'] + '\nAlteração')[0].status_code, 409)
         self.assertEqual(self.client.get(f"/api/v1/atendimentos/{case}/minutas/{first['id']}/exportar/", {'formato': 'docx'}).status_code, 409)
+
+    def test_attachment_conflict_requires_new_review_before_export(self):
+        from docx import Document
+        from pypdf import PdfReader
+        from tests.fontes_ficticias import organizar
+
+        case, first = self.draft_for_editing()
+        self.review_draft(case, first)
+        base = f'/api/v1/atendimentos/{case}'
+
+        def export(draft, file_format):
+            return self.client.get(f"{base}/minutas/{draft['id']}/exportar/", {'formato': file_format})
+
+        self.assertEqual(export(first, 'docx').status_code, 200)
+        for amount in ('200.000,00', '300.000,00'):
+            upload = self.client.post(f'{base}/anexos/', {
+                'arquivo': SimpleUploadedFile(f'preco-{amount}.txt', f'Preço: R$ {amount}'.encode()),
+            }, format='multipart')
+            self.assertEqual(upload.status_code, 201, upload.data)
+            organizar(self, case, upload.data['paginas'][0]['id'])
+
+        comparison = self.client.get(f'{base}/comparacao-anexos/')
+        self.assertEqual(comparison.status_code, 200)
+        price = next(group for group in comparison.data['grupos'] if group['campo'] == 'preco')
+        self.assertEqual({source['trecho'] for source in price['fontes']}, {
+            'Preço: R$ 200.000,00', 'Preço: R$ 300.000,00',
+        })
+        self.assertEqual(self.generate_draft(case).status_code, 400)
+        self.assertEqual(export(first, 'docx').status_code, 409)
+
+        for question in self.report(case)['pendencias']:
+            key = question['chave']
+            if key.startswith('anexo:'):
+                answer, _ = self.answer(case, key)
+                self.assertEqual(answer.status_code, 201, answer.data)
+        question = next(question for question in self.report(case)['pendencias'] if question['chave'] == 'preco')
+        source = next(candidate for candidate in question['candidatos'] if candidate['origem'] == 'documento'
+                      and candidate['valor'] == 'R$ 300.000,00')
+        payload = {'chave': 'preco', 'assinatura': question['assinatura'], 'versao_esperada': question['versao'],
+                   'client_id': str(uuid4()), 'valor': source['valor'], 'confirmar': True,
+                   'justificativa': 'Conferência fictícia da fonte', 'fonte_documental': {
+                       'pagina_id': source['id'], 'canal': source['canal'], 'trecho': source['trecho'],
+                       'organizacao_versao': source['organizacao_versao'],
+                   }}
+        self.assertEqual(self.client.post(f'{base}/responder/', {**payload, 'valor': 'R$ 200.000,00'}, format='json').status_code, 400)
+        answer = self.client.post(f'{base}/responder/', payload, format='json')
+        self.assertEqual(answer.status_code, 201, answer.data)
+
+        prepared = self.generate_draft(case)
+        self.assertEqual(prepared.status_code, 200, prepared.data)
+        current, previous = prepared.data['versoes']
+        self.assertEqual(previous['corpo'], first['corpo'])
+        self.assertIn('300.000,00', current['corpo'])
+        self.assertNotIn('200.000,00', current['corpo'])
+        origin = current['dados']['preco']['origem']
+        self.assertEqual((origin['pagina_id'], origin['trecho'], origin['arquivo']),
+                         (source['id'], source['trecho'], source['arquivo']))
+        self.assertEqual(export(current, 'docx').status_code, 409)
+
+        self.review_draft(case, current)
+        word = export(current, 'docx')
+        pdf = export(current, 'pdf')
+        self.assertEqual(word.status_code, 200)
+        self.assertEqual(pdf.status_code, 200)
+        document = Document(BytesIO(word.content))
+        self.assertEqual('\n'.join(p.text for p in document.paragraphs[3:]), current['corpo'])
+        pdf_text = '\n'.join(page.extract_text() for page in PdfReader(BytesIO(pdf.content)).pages)
+        self.assertIn('300.000,00', pdf_text)
+        self.assertNotIn('200.000,00', pdf_text)
+        self.assertEqual(export(first, 'pdf').status_code, 409)
 
     def test_invalid_edit_and_unauthorized_export_are_rejected(self):
         case, first = self.draft_for_editing()

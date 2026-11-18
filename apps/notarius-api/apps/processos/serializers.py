@@ -47,7 +47,9 @@ class EditarMinutaSerializer(serializers.Serializer):
     versao_esperada = serializers.IntegerField(min_value=1)
     client_id = serializers.UUIDField()
     corpo = serializers.CharField(max_length=150000, trim_whitespace=False)
+    formatacao = serializers.JSONField(required=False)
     motivo = serializers.CharField(max_length=2000)
+    confirmacoes = serializers.ListField(child=serializers.CharField(max_length=40), max_length=30, required=False)
 
     def validate_corpo(self, value):
         if not value.strip():
@@ -57,6 +59,30 @@ class EditarMinutaSerializer(serializers.Serializer):
         if any(ord(c) < 32 and c not in '\n\r\t' for c in value):
             raise serializers.ValidationError('O texto contém caracteres de controle inválidos.')
         return value
+
+    def validate(self, attrs):
+        marks = attrs.get('formatacao')
+        if 'formatacao' not in attrs:
+            return attrs
+        if not isinstance(marks, dict) or set(marks) - {'negrito', 'italico', 'sublinhado'}:
+            raise serializers.ValidationError({'formatacao': 'Estilos inválidos.'})
+        boundaries = {0}
+        offset = 0
+        for char in attrs['corpo']:
+            offset += 2 if ord(char) > 0xffff else 1
+            boundaries.add(offset)
+        for ranges in marks.values():
+            if not isinstance(ranges, list) or len(ranges) > 500:
+                raise serializers.ValidationError({'formatacao': 'Use até 500 trechos por estilo.'})
+            previous_end = 0
+            for span in ranges:
+                if (not isinstance(span, list) or len(span) != 2 or any(type(n) is not int for n in span)
+                        or not previous_end <= span[0] < span[1]
+                        or any(n not in boundaries for n in span)):
+                    raise serializers.ValidationError({'formatacao': 'Seleção inválida ou sobreposta.'})
+                previous_end = span[1]
+        attrs['formatacao'] = {style: ranges for style, ranges in marks.items() if ranges}
+        return attrs
 
 
 class PaginaAnexoSerializer(serializers.ModelSerializer):
@@ -159,6 +185,13 @@ class MensagemAtendimentoSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'autor_nome', 'created_at', 'campo', 'pergunta', 'correcao_de', 'motivo_correcao']
 
 
+class FonteRespostaConferenciaSerializer(serializers.Serializer):
+    pagina_id = serializers.UUIDField()
+    canal = serializers.ChoiceField(choices=['texto', 'ocr'])
+    trecho = serializers.CharField(max_length=4000, trim_whitespace=False)
+    organizacao_versao = serializers.IntegerField(min_value=0)
+
+
 class RespostaConferenciaSerializer(serializers.Serializer):
     chave = serializers.CharField(max_length=80)
     assinatura = serializers.RegexField(r'^[0-9a-f]{64}$')
@@ -167,6 +200,7 @@ class RespostaConferenciaSerializer(serializers.Serializer):
     valor = serializers.CharField(max_length=10000, allow_blank=True)
     confirmar = serializers.BooleanField()
     justificativa = serializers.CharField(max_length=2000)
+    fonte_documental = FonteRespostaConferenciaSerializer(required=False)
 
 
 class ProcessoSerializer(serializers.ModelSerializer):

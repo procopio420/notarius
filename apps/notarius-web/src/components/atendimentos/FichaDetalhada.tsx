@@ -7,7 +7,8 @@ import { useRascunhoSessao } from '@/lib/rascunhoSessao'
 import { fichaDetalhadaApi, type RegistroFicha, type CampoDetalhado, type RevisaoDetalhada, type TipoRegistro, type SituacaoDetalhada } from '@/lib/fichaDetalhada'
 import { propostasDadosApi, situacoesProposta, type PropostaEvidencia } from '@/lib/propostasDados'
 
-const tipos: Record<TipoRegistro, string> = { pessoa: 'Pessoas', papel: 'Papéis no negócio', relacao: 'Relações entre pessoas', imovel: 'Imóveis', negociacao: 'Preço e pagamento', ato: 'Dados do ato', complemento: 'Declarações, documentos e complementos' }
+const tipos: Record<TipoRegistro, string> = { pessoa: 'Pessoas', papel: 'Participação no negócio', relacao: 'Vínculos entre pessoas', imovel: 'Imóveis', negociacao: 'Preço e pagamento', ato: 'Dados do ato', complemento: 'Declarações, documentos e complementos' }
+const novosRegistros: Record<TipoRegistro, string> = { pessoa: 'Adicionar pessoa', papel: 'Adicionar papel no negócio', relacao: 'Adicionar relação', imovel: 'Adicionar imóvel', negociacao: 'Adicionar negociação', ato: 'Adicionar dados do ato', complemento: 'Adicionar complemento' }
 const situacoes: Record<SituacaoDetalhada, string> = { ausente: 'Ausente', extraido: 'Extraído, sem confirmação', informado: 'Informado pela escrevente', confirmado: 'Confirmado pela escrevente', divergente: 'Divergente', ilegivel: 'Leitura incerta' }
 const opcoes: Record<string, string> = { conjuge_de: 'Cônjuge da segunda pessoa', representante_de: 'Representante da segunda pessoa', declarado_realizado: 'Declarado como realizado', comprovante_apresentado: 'Comprovante apresentado', a_esclarecer: 'A esclarecer', nao_realizado: 'Não realizado' }
 
@@ -81,6 +82,12 @@ export function FichaDetalhada({ id, scope, messages, selectedMessage, selectedD
     const key = obj.tipo === 'pessoa' ? 'nome' : obj.tipo === 'papel' ? 'tipo_papel' : obj.tipo === 'relacao' ? 'tipo_relacao' : obj.tipo === 'negociacao' ? 'preco' : obj.tipo === 'complemento' ? 'assunto' : obj.tipo === 'ato' ? 'referencia' : 'descricao'
     const label = obj.campos.find(f => f.chave === key)?.atual?.valor || tipos[obj.tipo]
     return `${opcoes[label] || label.slice(0, 90)} · ${obj.id.slice(0, 8)}`
+  }
+
+  function destinoSugerido(proposta: PropostaEvidencia) {
+    const id = proposta.evidencia_estruturada?.registro_sugerido_id
+    const registro = objetos.find(obj => obj.id === id)
+    return registro ? titulo(registro) : id ? 'Registro indisponível' : 'A definir na ficha'
   }
   function resetConfirmation() { setConfirm(false); setCheckedSource(false); setCheckedAssociation(false) }
   function edit(obj: RegistroFicha, field: CampoDetalhado, requestedProposal?: string | null) {
@@ -240,15 +247,21 @@ export function FichaDetalhada({ id, scope, messages, selectedMessage, selectedD
     </Box>
   }
   return <>
-    <Button id="abrir-ficha-detalhada" variant="contained" onClick={() => { setOpen(true); setError('') }}>Ficha detalhada: pessoas e negócio</Button>
+    <Button id="abrir-ficha-detalhada" variant="contained" onClick={() => { setOpen(true); setError('') }}>Abrir ficha do caso</Button>
     {formDraft.value.map(d => <Button key={draftKey(d)} onClick={() => resumeDraft(d)}>Retomar rascunho {d.modo === 'criacao' ? 'de novo registro' : `${d.campo} · ${d.objeto_id?.slice(0, 8)}`}, sem confirmar</Button>)}
     {formDraft.aviso && <Alert severity="warning">{formDraft.aviso}</Alert>}
     {attemptDraft.aviso && <Alert severity="warning">{attemptDraft.aviso}</Alert>}
     <Dialog open={open} onClose={() => { if (!busy) { setOpen(false); onUsed() } }} fullWidth maxWidth="md">
-      <DialogTitle>Ficha de compra e venda</DialogTitle><DialogContent><Stack spacing={2}>
+      <DialogTitle>Ficha do caso</DialogTitle><DialogContent><Stack spacing={2.5}>
         {error && !editing && !creating && <Alert severity="error">{error}</Alert>}
-        <Alert severity="info">Pessoas, papéis e relações são registros separados. Nenhuma relação é deduzida por nome ou estado civil. Dados de formato consistente não comprovam identidade.</Alert>
-        <Typography variant="body2">Preenchimento manual disponível: abra o campo do registro correto e escolha a página, mensagem ou informação expressa da escrevente como fonte. Confira o trecho literal e registre o valor como informado; a confirmação exige conferência explícita do dado e da fonte. A IA documental está indisponível neste piloto.</Typography>
+        <Typography variant="body2" color="text.secondary">Escolha uma pessoa ou item do negócio para preencher os dados e conferir suas fontes.</Typography>
+        <Box component="details" sx={{ border: '1px solid #e3e8e1', borderRadius: 2, px: 2, py: 1, bgcolor: '#f7f7f2' }}>
+          <Typography component="summary" sx={{ cursor: 'pointer', py: .5, fontSize: 14, fontWeight: 600, color: '#254c40' }}>Como preencher e confirmar</Typography>
+          <Stack spacing={1.5} sx={{ py: 1 }}>
+            <Typography variant="body2">Pessoas, papéis e relações são registros separados. Nenhuma relação é deduzida por nome ou estado civil. Dados de formato consistente não comprovam identidade.</Typography>
+            <Typography variant="body2">Preenchimento manual disponível: abra o campo do registro correto e escolha a página, mensagem ou informação expressa da escrevente como fonte. Confira o trecho literal e registre o valor como informado; a confirmação exige conferência explícita do dado e da fonte. A IA documental está indisponível neste piloto.</Typography>
+          </Stack>
+        </Box>
         {(selectedMessage || selectedDocument) && <Alert severity="info">Fonte selecionada. Escolha explicitamente o registro e o campo para revisar o trecho. <Button onClick={() => { setOpen(false); onLegacy() }}>Usar nos blocos antigos</Button></Alert>}
         {data.isLoading && <Typography>Carregando ficha…</Typography>}
         {data.isError && <Alert severity="error" action={<Button onClick={() => data.refetch()}>Tentar novamente</Button>}>Não foi possível consultar os dados.</Alert>}
@@ -258,7 +271,7 @@ export function FichaDetalhada({ id, scope, messages, selectedMessage, selectedD
           {proposals.map(p => <Box key={p.id} sx={{ borderBottom: '1px solid #ddd', py: 2 }}>
             <Typography fontWeight={600}>{p.rotulo} · {situacoesProposta[p.situacao] || p.situacao}</Typography>
             <Typography sx={{ whiteSpace: 'pre-wrap' }}>Original: {p.valor_original}</Typography>
-            {p.analise_documental_id && <Alert severity="info">Análise estruturada simulada em teste. Destino {p.evidencia_estruturada?.registro_sugerido_id ? `apenas sugerido: ${p.evidencia_estruturada.registro_sugerido_id}` : 'incerto, sem vínculo'}. Escolha e confira o registro explicitamente.</Alert>}
+            {p.analise_documental_id && <Alert severity="info">Análise estruturada reproduzida no ensaio. Destino sugerido · {destinoSugerido(p)}. Confira o registro antes de confirmar.</Alert>}
             {p.evidencia_estruturada?.contexto && <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>Contexto completo da unidade: {p.evidencia_estruturada.contexto}</Typography>}
             <Typography variant="body2">Fonte: {p.origem.arquivo || 'mensagem da conversa'}{p.origem.pagina ? ` · página ${p.origem.pagina} · leitura ${p.origem.leitura_versao}` : ''} · {p.origem.canal} · linha {p.origem.linha}</Typography>
             <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>Trecho: {p.trecho}</Typography>
@@ -270,17 +283,23 @@ export function FichaDetalhada({ id, scope, messages, selectedMessage, selectedD
             <Box component="details"><Typography component="summary" sx={{ cursor: 'pointer' }}>Decisões e histórico ({p.decisoes.length})</Typography>{p.decisoes.map(d => <Box key={d.id} sx={{ p: 1 }}><Typography>v{d.versao} · {d.acao} · {d.autor_nome} · {new Date(d.data).toLocaleString('pt-BR')}</Typography><Typography>{d.justificativa}</Typography><Typography variant="caption">Registro: {d.objeto_id || 'nenhum'} · revisão: {d.revisao_id || 'nenhuma'}</Typography></Box>)}</Box>
           </Box>)}
         </Box>}
-        <TextField disabled={busy} select label="Grupo de registros" value={tipo} onChange={e => setTipo(e.target.value as TipoRegistro)}>{Object.entries(tipos).map(([key, label]) => <MenuItem key={key} value={key}>{label}</MenuItem>)}</TextField>
-        <Button disabled={!data.data || busy} onClick={() => { const saved = formDraft.value.find(d => d.modo === 'criacao'); if (saved) { void resumeDraft(saved); return } setCreating(true); setEscopo(''); setExpectedModel(data.data?.modelo_id ?? null); setA(''); setB(''); setImovel(''); setReason(''); setError('') }}>{formDraft.value.some(d => d.modo === 'criacao') ? 'Retomar novo registro pendente' : `Adicionar registro em ${tipos[tipo]}`}</Button>
-        {objetos.filter(o => o.tipo === tipo).map(obj => <Box key={obj.id} sx={{ border: '1px solid #dce4ee', borderRadius: 2, p: 2 }}>
-          <Typography fontWeight={600}>{titulo(obj)}</Typography>
-          <Typography variant="caption" sx={{ overflowWrap: 'anywhere' }}>Identificador: {obj.id}</Typography>
-          {obj.criacao && <Typography variant="caption" display="block">Registro criado por {obj.criacao.autor_nome} · {new Date(obj.criacao.data).toLocaleString('pt-BR')}. {obj.criacao.motivo || 'Motivo de criação não registrado nesta versão antiga.'}</Typography>}
+        <Stack direction={{ xs: 'column', sm: 'row' }} gap={1.5} alignItems={{ sm: 'center' }}>
+          <TextField disabled={busy} select label="O que você quer conferir?" value={tipo} onChange={e => setTipo(e.target.value as TipoRegistro)} sx={{ flex: 1, minWidth: 0 }}>{Object.entries(tipos).map(([key, label]) => <MenuItem key={key} value={key}>{label}</MenuItem>)}</TextField>
+          <Button variant="outlined" disabled={!data.data || busy} sx={{ flexShrink: 0 }} onClick={() => { const saved = formDraft.value.find(d => d.modo === 'criacao'); if (saved) { void resumeDraft(saved); return } setCreating(true); setEscopo(''); setExpectedModel(data.data?.modelo_id ?? null); setA(''); setB(''); setImovel(''); setReason(''); setError('') }}>{formDraft.value.some(d => d.modo === 'criacao') ? 'Retomar cadastro' : novosRegistros[tipo]}</Button>
+        </Stack>
+        {data.isSuccess && !objetos.some(o => o.tipo === tipo) && <Box sx={{ p: 3, textAlign: 'center', bgcolor: '#f7f8f3', borderRadius: 2 }}><Typography fontWeight={600}>{tipo === 'pessoa' ? 'Comece pelos participantes' : 'Nenhum item cadastrado neste grupo'}</Typography><Typography variant="body2" color="text.secondary" sx={{ mt: .5 }}>Use o botão acima para adicionar as informações disponíveis.</Typography></Box>}
+        {objetos.filter(o => o.tipo === tipo).map(obj => <Box key={obj.id} sx={{ border: '1px solid #e3e8e1', borderRadius: 3, p: { xs: 2, sm: 2.5 } }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 650, color: '#24342c', overflowWrap: 'anywhere' }}>{titulo(obj)}</Typography>
+          <Box component="details" sx={{ my: 1 }}>
+            <Typography component="summary" sx={{ cursor: 'pointer', fontSize: 13, color: 'text.secondary', py: .5 }}>Identificação e registro</Typography>
+            <Typography variant="caption" sx={{ overflowWrap: 'anywhere' }}>Identificador: {obj.id}</Typography>
+            {obj.criacao && <Typography variant="caption" display="block">Registro criado por {obj.criacao.autor_nome} · {new Date(obj.criacao.data).toLocaleString('pt-BR')}. {obj.criacao.motivo || 'Motivo de criação não registrado nesta versão antiga.'}</Typography>}
+          </Box>
           {obj.pessoa_a_id && <Typography>Primeira pessoa: {pessoas.find(p => p.id === obj.pessoa_a_id) ? titulo(pessoas.find(p => p.id === obj.pessoa_a_id)!) : obj.pessoa_a_id}</Typography>}
           {obj.pessoa_b_id && <Typography>Segunda pessoa: {pessoas.find(p => p.id === obj.pessoa_b_id) ? titulo(pessoas.find(p => p.id === obj.pessoa_b_id)!) : obj.pessoa_b_id}</Typography>}
           {obj.imovel_id && <Typography>Imóvel: {objetos.find(o => o.id === obj.imovel_id) ? titulo(objetos.find(o => o.id === obj.imovel_id)!) : obj.imovel_id}</Typography>}
-          {[...new Set(obj.campos.map(f => f.grupo))].map(group => <Box component="details" key={group} sx={{ mt: 1 }}><Typography component="summary" sx={{ cursor: 'pointer', py: 1 }}>{group}</Typography>
-            <Stack spacing={1}>{obj.campos.filter(f => f.grupo === group).map(field => <Box key={field.chave}>
+          {[...new Set(obj.campos.map(f => f.grupo))].map(group => <Box component="details" key={group} sx={{ mt: 1.5, borderTop: '1px solid #e3e8e1' }}><Typography component="summary" sx={{ cursor: 'pointer', py: 1.5, fontWeight: 600, color: '#254c40' }}>{group}</Typography>
+            <Stack spacing={2}>{obj.campos.filter(f => f.grupo === group).map(field => <Box key={field.chave} sx={{ p: 1.5, bgcolor: '#f7f7f2', borderRadius: 2 }}>
               <Typography component="div">{field.rotulo} <Chip size="small" label={field.atual?.situacao_efetiva === 'reaberta' ? 'Precisa de nova revisão' : situacoes[field.atual?.situacao || 'ausente']} /></Typography>
               <Typography sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{field.atual?.valor || 'Sem informação registrada'}</Typography>
               {field.atual && !field.atual.fonte_atual && <Alert severity="warning">Fonte desatualizada; precisa de revisão.</Alert>}

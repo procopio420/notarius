@@ -72,7 +72,11 @@ export function FichaAtendimento({ id, scope, messages, selectedMessage, selecte
 
   return <Stack spacing={2}>
     <FichaDetalhada id={id} scope={scope} messages={messages} selectedMessage={selectedMessage} selectedDocument={selectedDocument} onUsed={onUsed} onLegacy={() => setShowFicha(true)} pedido={pedido} onPedidoConsumido={onPedidoConsumido} />
-    <Button variant="outlined" onClick={() => setShowFicha(true)} sx={{ alignSelf: 'stretch' }}>Conteúdo antigo e blocos de redação</Button>
+    <Box component="details" sx={{ borderTop: '1px solid #e3e8e1', pt: 1.5 }}>
+      <Typography component="summary" sx={{ cursor: 'pointer', fontSize: 14, fontWeight: 600, color: '#254c40', py: .75 }}>Opções avançadas</Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Consulte os registros da ficha anterior e os blocos de texto do modelo.</Typography>
+      <Button size="small" onClick={() => setShowFicha(true)} sx={{ mt: 1 }}>Abrir conteúdo anterior e blocos de redação</Button>
+    </Box>
     <Dialog open={showFicha} onClose={() => { setShowFicha(false); onUsed() }} fullWidth maxWidth="md">
     <DialogTitle>Dados do atendimento</DialogTitle><DialogContent><Stack spacing={2}>
     {(selectedMessage || selectedDocument) ? <Stack spacing={2}>

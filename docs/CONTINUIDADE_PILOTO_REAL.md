@@ -1,5 +1,98 @@
 # Continuidade do piloto real
 
+## Integração de 18/11/2026
+
+O usuário solicitou documentar todas as alterações, abrir uma PR e fazer merge
+na `main`. A branch da entrega é `codex/compra-venda-editor-luna`, criada sobre
+`origin/main` em `48c0a80`. O destino segue o histórico das duas integrações
+anteriores em `procopio420/notarius`.
+[Entrega atual e verificações](ENTREGA_COMPRA_VENDA_EDITOR_LUNA_2026_11_18.md).
+
+## Decisão vigente sobre o teste de uso
+
+O teste que a Mary fará no Notarius será sempre com casos e documentos reais.
+Dados fictícios ficam reservados aos ensaios técnicos em ambiente separado.
+Esta decisão define os dados do teste de uso. A liberação do envio a um
+provedor externo é tratada na configuração do piloto.
+[Roteiro de compra e venda](ROTEIRO_PILOTO_COMPRA_VENDA.md#teste-de-uso-da-mary).
+
+## Configuração do Luna para o piloto da Mary — 15/11/2026
+
+O projeto Notarius na API da OpenAI está na região Global. O painel mostrou o
+compartilhamento para treinamento desativado e o registro das chamadas
+configurável por requisição. A integração envia `store: false`. A conta não
+apresentou confirmação de retenção zero. Consulte os
+[controles de dados da API](https://developers.openai.com/api/docs/guides/your-data).
+
+A organização, o projeto, a região, a chave existente e o ambiente da Mary
+foram vinculados no arquivo privado do servidor. A chave respondeu pelo
+projeto explícito ao teste técnico do GPT-6 Luna com um trecho fictício. O
+provedor operacional continua local até registrar a autorização da serventia
+para enviar os trechos permitidos dos documentos reais ao projeto.
+
+## Preparação sem chamadas de API — 07/11/2026
+
+O usuário informou crédito de US$ 5 e chave salva, escolheu GPT-6 Luna e determinou
+**não usar nem testar a API agora**. Reduziu o teto de testes futuros para
+**US$ 0,50**, sem renovação automática. Saldo/acesso/chave não foram autenticados;
+nenhuma chamada externa foi executada. O teto não é autorização para consumi-lo.
+
+Entregas desta rodada:
+
+- `orcamento_documental.py`: teto acumulado de 50 centavos USD, reserva conservadora
+  de 5 centavos por tentativa, até dez tentativas pequenas, sem reembolso por
+  falha/timeout; valida modelo, formato, saída de até 4.000 tokens e envelope de
+  até 32.000 bytes. Reserva atômica em SQLite persiste entre processos; falta ou
+  corrupção do registro bloqueia e criação explícita recusa sobrescrita. Reduzir
+  o teto preserva valores já reservados. Registro privado inicial com zero reservas
+  em `.local/orcamento-ia.sqlite3`; não foi reinicializado nesta rodada.
+- `ProvedorReal.preparar_requisicao_teste`: preparação pura e validação dos pedidos
+  pequenos, sem reserva/envio. Os dez casos fictícios cabem. `analisar` e a guarda
+  de provedor real do pipeline continuam bloqueados; transporte ainda inexistente.
+  Portanto, o orçamento está preparado, ainda sem integração a chamadas reais.
+- `scripts/conferir-prontidao-offline.py`: execução reproduzível dos testes locais
+  com conexões socket e construção de clientes OpenAI bloqueadas. Segredo/chave
+  não são impressos; variável de chave é vazia no processo. Usa banco de testes.
+- [Ensaio com a escrevente e escopo dos serviços](ENSAIO_COM_ESCREVENTE.md) e
+  [limite dos testes](LIMITE_TESTES_IA.md). Procurações, doações e inventários foram
+  incluídos no mapa por pedido do usuário. Atendimento atual continua fixo em
+  compra e venda; esquemas legados de procuração não equivalem a serviço ativo.
+  Doações/inventários não têm fluxo específico identificado. Padrões autorizados,
+  cenários e decisões da escrevente são necessários antes de implementá-los.
+
+Verificações realizadas:
+
+- **66 testes passaram em 93,006 segundos**, sem testes pulados, usando o roteiro
+  offline: orçamento, preparação/análise documental, perfil local, organização de
+  anexos, OCR nativo, função principal integrada e exportação. Log privado em
+  `.local/prontidao-offline-regressao.log`. Não somar os cinco testes unitários e
+  seis de OCR executados separadamente: estão incluídos nessa seleção final.
+- Primeira execução restrita apresentou falhas/lentidão de processos locais de
+  leitura e foi interrompida após verificar o processo próprio. Um trecho novo
+  de teste fora do método correto foi corrigido durante a preparação. Verificação
+  final usa execução adequada no Windows, sem remover as guardas de rede/SDK.
+  Não se apresenta a tentativa inicial como aprovada.
+- `conferir-exercicio-etapa4.py` sem `--http`: aprovou integridade do exercício
+  fictício existente, vinte originais, 46 campos rastreados, três minutas, revisão
+  simulada e texto dos arquivos Word/PDF de duas páginas. Sem nova inspeção visual
+  ou downloads HTTP nesta rodada e sem troca de banco selecionado.
+- TypeScript do fluxo de atendimentos e componentes importados passou com
+  `.local/tsconfig-conferencia-piloto.json`, mantendo opções estritas. TypeScript
+  global continua falhando em módulos legados/dependências de teste; não foi
+  contornado o build nem declarada validação global. `git diff --check` aprovado.
+
+Nenhum registro do caso operacional, aprovação profissional, credencial ou
+configuração de cobrança foi alterado. O `.env` foi apenas conferido por metadados
+nesta preparação, sem inspeção de seu texto pelo agente; o carregador padrão do
+Django lê a configuração durante a inicialização, sem exibi-la ou autenticar-se.
+Não houve gasto de API, treinamento de pesos, commit ou publicação.
+
+Retomada: ensaio manual acompanhado pelo roteiro; obtenção dos padrões de outros
+serviços. A ligação real de IA, sua reserva antes do envio, compatibilidade de
+API e qualidade efetiva permanecem pendentes. Só iniciar testes pagos quando o
+usuário voltar a pedi-los, primeiro um caso fictício e conferência de consumo,
+com teto total de US$ 0,50. Documentos reais exigem autorização específica de envio.
+
 ## Retomada em 25/10/2026
 
 Base conferida: `518ca4e`. Árvore inicialmente sem alterações. Lidos README, plano profissional, execução do fluxo e entrega de 25/10; conferidos roteiro da etapa 4, pacotes de modelo/cenário e código atual. Nenhum AGENTS.md encontrado nos ancestrais do diretório ou nas áreas apps/docs/scripts.
@@ -166,3 +259,29 @@ Resumo para revisão: [Entrega do piloto acompanhado](ENTREGA_PILOTO_ACOMPANHADO
 Foi identificado deploy automático no workflow legado de CI/CD ao receber main. Para cumprir a restrição de não publicar o sistema, publicação de imagens/build e deploy em `ci.yml` passam a exigir evento `workflow_dispatch` e opção `publicar_ambiente=true`, com padrão falso. Testes de push/PR permanecem configurados; a notificação de sucesso exige deploy realmente bem-sucedido. Release por tag não foi acionado. YAML e condições conferidos localmente; não foram alteradas permissões, segredos ou proteções de branch.
 
 Índice de publicação limitado por lista explícita a código, testes, configuração e documentação. Arquivos binários, `.local`, bancos, anexos, credenciais/segredos, logs, backups, instalador e exportações não integram o commit. Busca dirigida nos conteúdos por padrões de tokens/chaves privadas sem achados; essa checagem não é garantia universal nem substitui a revisão dos arquivos. IA externa continua bloqueada e o padrão continua não aprovado pela escrevente. O merge de código não é homologação profissional ou implantação.
+## Preparação do primeiro acesso real — 12/11/2026
+
+O iniciador selecionou `.local/piloto-real-isolado/piloto.sqlite3`, banco
+separado íntegro, sem migrações pendentes e sem contas, cartórios ou
+atendimentos antes da inicialização. API e interface escutam em `127.0.0.1`.
+A tela de login respondeu 200, a API de atendimentos recusou acesso anônimo
+com 403 e a rota de cadastro público respondeu 404.
+
+O perfil operacional agora declara ambiente real. A disponibilidade e o
+transporte do chat bloqueiam envio externo, inclusive com a opção global de
+ativação presente. O comando `criar_conta_piloto` cria conta sem privilégio
+administrativo. O login pede usuário e senha e abre os atendimentos do piloto.
+Não há cadastro ou seleção de cartório neste perfil. O banco separado foi
+conferido e estava sem cadastros, solicitações ou vínculos de cartório. O
+[roteiro de operação](OPERACAO_PILOTO_LOCAL.md) explica a conta e o backup.
+
+Passaram 58 testes do chat, perfil local, atendimentos, OCR, comparação e
+exportação. Um ensaio HTTP com banco fictício verificou login com a conta criada
+pelo comando, isolamento, recusa do chat externo, persistência e restauração
+de backup criptografado em outro banco. A senha interativa foi simulada nesse
+ensaio. Nenhuma chamada à IA ou inclusão de dados reais foi feita.
+
+Antes do primeiro caso acompanhado, faltam as contas individuais, a conferência
+administrativa do BitLocker (a consulta ao Windows retornou acesso negado), o
+backup/restauração do banco escolhido com senha do responsável e a revisão do
+modelo pela escrevente.

@@ -1,5 +1,6 @@
 """Initial working fields, not a legal completeness checklist."""
 import re
+from .modelo_escritura_fiel import CORPO, ROTULOS
 
 CAMPOS = {
     'vendedores': ('Vendedores', True),
@@ -13,7 +14,10 @@ CAMPOS = {
 
 CAMPOS_INICIAIS = tuple(CAMPOS)
 CAMPOS.update({
+    'cabecalho_serventia': ('Cabeçalho da serventia', False),
+    'identificacao_ato': ('Ato, livro e folhas', False),
     'abertura': ('Abertura do ato: data, local e serventia', False),
+    'reconhecimento_partes': ('Reconhecimento de identidade e capacidade', False),
     'titularidade': ('Titularidade e descrição do imóvel', False),
     'aquisicao': ('Título de aquisição do imóvel', False),
     'onus': ('Ônus e disponibilidade do imóvel', False),
@@ -27,9 +31,13 @@ CAMPOS.update({
     'consultas': ('Consultas: referências e resultados', False),
     'declaracoes_partes': ('Declarações específicas das partes', False),
     'requerimentos': ('Requerimentos ao registro', False),
+    'exigencias_registrais': ('Redação sobre eventuais exigências registrais', False),
     'encerramento': ('Encerramento e exigências do ato', False),
     'emolumentos': ('Emolumentos e despesas do ato', False),
+    'assinaturas_vendedores': ('Identificação para assinatura da parte vendedora', False),
+    'assinaturas_compradores': ('Identificação para assinatura da parte compradora', False),
 })
+CAMPOS.update({key: (label, False) for key, label in ROTULOS.items()})
 
 TOKEN = re.compile(r'\{\{\s*([a-z_]+)\s*\}\}')
 
@@ -38,6 +46,8 @@ def campos_exigidos(atendimento):
     required = {key for key, (_, mandatory) in CAMPOS.items() if mandatory}
     model = atendimento.modelos_minuta.first()
     if model:
+        if model.corpo == CORPO and not model.registros_minuta:
+            return set(TOKEN.findall(model.corpo))
         required.update(TOKEN.findall(model.corpo))
         for block in ['representacao', 'observacoes']:
             current = atendimento.revisoes.filter(objeto__isnull=True, chave=block).first()

@@ -11,6 +11,7 @@ foreach ($port in @(3002, 8002)) {
     }
 }
 # Validate every owner before stopping any service. Never delete data or lock files.
+& (Join-Path $PSScriptRoot 'encerrar-piloto-rede.ps1')
 foreach ($processId in @($targets | Select-Object -Unique)) {
     Stop-Process -Id $processId -ErrorAction SilentlyContinue
 }

@@ -1,0 +1,8 @@
+KIT FICTÍCIO PARA TESTE DO NOTARIUS
+6 imagens sintéticas, sem validade. Geradas com ferramenta integrada de imagens; não foi usada a chave API nem o saldo do Notarius.
+Ana é a compradora, casada com Rafael. Bruno é o vendedor.
+Os CPFs repetidos são intencionalmente inválidos.
+A identidade de Rafael não está no kit: a falta deve ser tratada como pendência, nunca preenchida por suposição.
+Há dados não informados na ficha do imóvel e na negociação. Não há declaração de quitação.
+Use para testar envio, leitura e identificação de pendências; este kit não representa documentação completa para lavrar escritura.
+As imagens são rasterizadas: upload não comprova que OCR ou IA tenham sido executados.

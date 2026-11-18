@@ -107,7 +107,9 @@ export function LoginForm() {
       </Box>
 
       <Box sx={{ textAlign: 'center', mt: 4 }}>
-        <Typography variant="body2" color="text.secondary">
+        {process.env.NEXT_PUBLIC_PILOTO_LOCAL === '1' ? <Typography variant="body2" color="text.secondary">
+          Use a conta individual criada para você pelo responsável do piloto.
+        </Typography> : <Typography variant="body2" color="text.secondary">
           Não tem uma conta?{' '}
           <Link
             href="/register"
@@ -121,7 +123,7 @@ export function LoginForm() {
           >
             Criar conta
           </Link>
-        </Typography>
+        </Typography>}
       </Box>
     </Box>
   )

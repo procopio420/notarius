@@ -62,6 +62,7 @@ class RedacaoEstruturadaTests(APITestCase):
         self.assertNotIn('pagamento realizado', draft['corpo'].lower())
         self.assertEqual(draft['dados']['parte1.nome']['objeto_id'], a)
         self.assertEqual(len(draft['dados']['parte1.nome']['ocorrencias']), 2)
+        self.assertEqual(set(draft['campos_inseridos']), {'parte1.nome', 'parte2.nome', 'bem.descricao', 'negocio.preco', 'negocio.situacao_pagamento'})
         for data in draft['dados'].values():
             self.assertTrue(data['origem']['mensagem_id']); self.assertTrue(data['confirmacao'])
             for occurrence in data['ocorrencias']:
@@ -199,7 +200,10 @@ class RedacaoEstruturadaTests(APITestCase):
         self.assertEqual(reviewed.status_code, 201, reviewed.data)
         self.template(case); self.assertEqual(self.binding(case, {'parte1': person})[0].status_code, 201)
         old = self.draft(case)
-        self.assertEqual(old['dados']['parte1.nome']['origem']['leitura_versao'], 1)
+        self.assertEqual(old['campos_inseridos'], ['parte1.nome'])
+        source = old['dados']['parte1.nome']['origem']
+        self.assertEqual((source['arquivo'], source['pagina'], source['trecho'], source['leitura_versao']),
+                         ('fonte-ficticia.txt', 1, text, 1))
         AnexoAtendimento.objects.filter(id=uploaded.data['id']).update(leitura_versao=2)
         self.assertEqual(self.generate_draft(case).status_code, 400)
         self.assertEqual(self.client.get(f"/api/v1/atendimentos/{case}/minutas/{old['id']}/exportar/", {'formato': 'docx'}).status_code, 409)

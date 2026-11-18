@@ -1,19 +1,22 @@
 'use client'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Alert, Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, MenuItem, Stack, TextField, Typography } from '@mui/material'
 import { atendimentosApi, type MinutaPreparada } from '@/lib/atendimentos'
 
-export function ComparacaoMinuta({ id, scope, atual, versoes, disabled }: { id: string; scope: (string | undefined)[]; atual: MinutaPreparada; versoes: MinutaPreparada[]; disabled: boolean }) {
+export function ComparacaoMinuta({ id, scope, atual, referenciaInicial, versoes, disabled }: { id: string; scope: (string | undefined)[]; atual: MinutaPreparada; referenciaInicial?: string; versoes: MinutaPreparada[]; disabled: boolean }) {
+  const titleId = useId()
   const alternatives = versoes.filter(v => v.id !== atual.id)
   const [open, setOpen] = useState(false)
-  const [base, setBase] = useState(alternatives.find(v => v.versao < atual.versao)?.id || alternatives[0]?.id || '')
+  const [baseSelecionada, setBase] = useState('')
+  const base = [baseSelecionada, referenciaInicial].find(candidate => alternatives.some(v => v.id === candidate))
+    || alternatives.find(v => v.versao < atual.versao)?.id || alternatives[0]?.id || ''
   const [unchanged, setUnchanged] = useState(false)
   const query = useQuery({ queryKey: ['comparacao-minutas', ...scope, base, atual.id], queryFn: () => atendimentosApi.compararMinutas(id, base, atual.id), enabled: open && !!base, retry: false })
   return <>
     <Button disabled={disabled || !alternatives.length} onClick={() => setOpen(true)}>Comparar versões</Button>
-    <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="md">
-      <DialogTitle>Comparar com a minuta v{atual.versao}</DialogTitle>
+    <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="md" aria-labelledby={titleId}>
+      <DialogTitle id={titleId}>Comparar com a minuta v{atual.versao}</DialogTitle>
       <DialogContent><Stack spacing={2} sx={{ pt: 1 }}>
         <TextField select label="Versão de referência (antes)" value={base} onChange={e => setBase(e.target.value)}>
           {alternatives.map(v => <MenuItem key={v.id} value={v.id}>v{v.versao}{v.tipo === 'editada' ? ' · editada' : ''}{v.desatualizada ? ' · desatualizada' : ''}</MenuItem>)}
@@ -26,6 +29,7 @@ export function ComparacaoMinuta({ id, scope, atual, versoes, disabled }: { id: 
           <Typography>Modelo da referência: v{query.data.base.modelo_versao} · Modelo do destino: v{query.data.destino.modelo_versao}</Typography>
           {query.data.comparacao_simplificada && <Alert severity="warning">Texto com muitas linhas. Exibo os blocos completos para manter a comparação disponível.</Alert>}
           {!query.data.texto_alterado && <Alert severity="info">O texto é idêntico nas duas versões.</Alert>}
+          {query.data.formatacao_alterada && <Alert severity="info">A formatação mudou. Abra cada versão para conferir os estilos aplicados.</Alert>}
           <FormControlLabel control={<Checkbox checked={unchanged} onChange={e => setUnchanged(e.target.checked)} />} label="Mostrar também trechos sem alteração" />
           {query.data.trechos.filter(p => unchanged || p.tipo !== 'igual').map((part, i) => <Box key={i} sx={{ p: 2, borderLeft: 4, borderColor: part.tipo === 'removido' ? 'error.main' : part.tipo === 'adicionado' ? 'success.main' : 'divider', bgcolor: 'action.hover' }}>
             <Typography fontWeight={600}>{part.tipo === 'removido' ? `Removido da referência v${query.data.base.versao}` : part.tipo === 'adicionado' ? `Acrescentado no destino v${query.data.destino.versao}` : 'Sem alteração'}</Typography>

@@ -13,7 +13,9 @@ export default function RegisterPage() {
   const { isAuthenticated, isLoading } = useAuthStore()
 
   useEffect(() => {
-    if (isAuthenticated && !isLoading) {
+    if (process.env.NEXT_PUBLIC_PILOTO_LOCAL === '1') {
+      router.replace('/login')
+    } else if (isAuthenticated && !isLoading) {
       router.push('/inbox')
     }
   }, [isAuthenticated, isLoading, router])
@@ -22,7 +24,7 @@ export default function RegisterPage() {
     return <PageLoader message="Verificando autenticação..." />
   }
 
-  if (isAuthenticated) {
+  if (isAuthenticated || process.env.NEXT_PUBLIC_PILOTO_LOCAL === '1') {
     return <PageLoader message="Redirecionando..." />
   }
 

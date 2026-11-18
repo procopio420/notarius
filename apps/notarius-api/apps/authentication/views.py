@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.conf import settings
 
-from .serializers import LoginSerializer, RegisterSerializer, UserSerializer, UserTenantAssociationSerializer
+from .serializers import LoginSerializer, PilotUserSerializer, RegisterSerializer, UserSerializer, UserTenantAssociationSerializer
 from apps.tenancy.models import Tenant
 from apps.auditoria.models import AuditLog
 
@@ -44,6 +44,8 @@ def login_view(request):
     
     # Get or create token
     token, created = Token.objects.get_or_create(user=user)
+    if getattr(settings, 'PILOTO_LOCAL', False):
+        return Response({'token': token.key, 'user': PilotUserSerializer(user).data})
     
     # Get user data with tenant information
     user_data = UserSerializer(user).data
@@ -172,8 +174,9 @@ def logout_view(request):
 @permission_classes([IsAuthenticated])
 def me_view(request):
     """Get current user info"""
+    serializer = PilotUserSerializer if getattr(settings, 'PILOTO_LOCAL', False) else UserSerializer
     return Response({
-        'user': UserSerializer(request.user).data
+        'user': serializer(request.user).data
     })
 
 

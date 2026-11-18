@@ -4,6 +4,8 @@ import secrets
 from django.core.exceptions import ImproperlyConfigured
 
 PILOTO_LOCAL = True
+NOTARIUS_AMBIENTE = 'real'
+NOTARIUS_MODELO_MINUTA_LOCAL = 'qwen3-4b-instruct'
 TIME_ZONE = 'America/Cuiaba'
 private = BASE_DIR.parent.parent / '.local'
 private.mkdir(exist_ok=True)

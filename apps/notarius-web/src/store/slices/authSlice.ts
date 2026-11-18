@@ -15,8 +15,8 @@ export interface User {
   last_name: string
   is_staff: boolean
   is_superuser: boolean
-  tenants: Tenant[]
-  default_tenant: Tenant | null
+  tenants?: Tenant[]
+  default_tenant?: Tenant | null
 }
 
 interface AuthState {

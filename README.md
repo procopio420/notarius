@@ -2,17 +2,25 @@
 
 ## Estado atual do projeto local
 
+Entrega atual de 18/11/2026 com o fluxo de compra e venda no chat, editor com
+histórico, conferência de fontes, modelo de quatro páginas e integração do
+GPT-6 Luna. O piloto usa Qwen local e a ativação do envio real ao Luna continua
+pendente. A Mary testa com casos reais. Os ensaios técnicos usam bancos fictícios
+separados. Consulte a [entrega e verificações atuais](docs/ENTREGA_COMPRA_VENDA_EDITOR_LUNA_2026_11_18.md).
+
 Este repositório preserva o desenvolvimento do fluxo de compra e venda: atendimento, documentos/OCR, ficha detalhada, fontes, pendências, modelo parametrizado, revisão e exportação. É um piloto em desenvolvimento, não um produto homologado para uso profissional autônomo.
 
 - Referência de execução: [Fluxo principal](docs/EXECUCAO_FLUXO_PRINCIPAL.md).
+- O teste de uso da Mary será sempre com casos e documentos reais. Os dados fictícios são usados em ensaios técnicos separados. [Roteiro de compra e venda](docs/ROTEIRO_PILOTO_COMPRA_VENDA.md#teste-de-uso-da-mary).
 - Consolidação para integração: [Entrega de 25/10/2026](docs/ENTREGA_COMPRA_VENDA_2026_10_25.md), com escopo implementado, validações e pendências.
-- Evidência e roteiro: [Teste integrado](docs/teste-integrado-etapa8/RELATORIO_ETAPA8.md) e [roteiro da escrevente](docs/teste-integrado-etapa8/ROTEIRO_PARA_MAE.md).
+- Evidência histórica dos ensaios técnicos: [Teste integrado](docs/teste-integrado-etapa8/RELATORIO_ETAPA8.md) e [exercício fictício da etapa 8](docs/teste-integrado-etapa8/ROTEIRO_PARA_MAE.md).
 - A análise documental real e a homologação do padrão profissional dependem das validações descritas nesses documentos. Uma chave de API, isoladamente, não comprova que a integração esteja ativa ou validada.
 - Banco, anexos reais, `.env`, chaves e backups locais não são versionados. Os arquivos documentais versionados são exemplos fictícios de teste.
 - Piloto acompanhado neste computador: [operação local, início/encerramento e recuperação](docs/OPERACAO_PILOTO_LOCAL.md). O perfil local preserva o banco existente e não ativa IA externa; [estado da continuidade](docs/CONTINUIDADE_PILOTO_REAL.md).
 - Padrão candidato para o piloto: [revisão simples da escrevente](docs/piloto-profissional/REVISAO_PADRAO_ACOMPANHADO_V2.md), oferecido em Minuta → Revisar modelo para salvar e retomar como rascunho, sem aprovação automática.
 - Exercício completo com fontes manuais, correção, revisão e exportação: [roteiro da etapa 4 fictícia](docs/piloto-profissional/ROTEIRO_ETAPA_4_FICTICIO.md). Aprovações e revisão do exercício são simuladas em banco separado e não homologam o caso real.
 - Integração das etapas operacionais 2 a 4: [entrega do piloto acompanhado](docs/ENTREGA_PILOTO_ACOMPANHADO_2026_10_25.md), com 86 regressões conjuntas aprovadas e publicação/deploy condicionados a acionamento manual explícito.
+- Preparação de 07/11: [ensaio com a escrevente e escopo dos serviços](docs/ENSAIO_COM_ESCREVENTE.md), com IA ainda bloqueada e [teto local de US$ 0,50 para testes futuros](docs/LIMITE_TESTES_IA.md). Nenhum teste externo está autorizado nesta rodada.
 - Os serviços locais de desenvolvimento não devem ser publicados com as configurações atuais. O build global, a configuração operacional e os requisitos do primeiro cenário precisam ser conferidos antes de uma entrega de produção.
 
 A descrição de arquitetura original abaixo inclui módulos legados e capacidades planejadas; não representa validação de todas essas capacidades no fluxo atual.

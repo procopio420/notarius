@@ -6,8 +6,8 @@ import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { ApiErrorToast } from "@/components/common/ApiErrorToast";
 
 export const metadata: Metadata = {
-  title: "Notarius - Cartório Digital",
-  description: "AI-powered notary system for Brazil",
+  title: "Notarius",
+  description: "Atendimentos e minutas",
 };
 
 export default function RootLayout({
